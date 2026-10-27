@@ -96,11 +96,12 @@ The first release. Because nothing was published before it, this entry describes
 - Observations (`gozlem.json`), entity mappings (`santral-varliklar.json`) and their observed matches keep shapes, counts and rates only, never record values. Change plans (`santral-planlar/`) are owner-only, with step bodies and arguments encrypted; the switchboard's other files (`santral.json`, `santral-baglar.json`, `santral-varliklar.json`) are owner-only too.
 
 ### Packages
+- Documentation: the READMEs are a short guide (what Sezgi does, three-step start, safety, commands); everything else is in the detailed reference, `docs/REFERENCE.md` (English) and `docs/BASVURU.md` (Turkish).
 - `npm install -g sezgi` / `npx sezgi` (Node.js 20+): a launcher that installs the prebuilt binary for Windows x64, macOS arm64 / x64 (macOS 11+) or Linux x64 / arm64 (glibc 2.34+).
 - GitHub release workflow: Windows, Linux and macOS binaries with SHA-256 sums and build provenance, as a draft; publishing is a human decision. macOS binaries are built on native arm64 and x86_64 runners with a minimum of macOS 11.0, checked from the Mach-O header before packaging; the human session and the log key live in the Keychain.
 
 ### Evidence
-- Public benchmark (`kanit/acik`, pinned Immich and Cal.com, one command), held-out measurements on Ghostfolio (NestJS), RealWorld and Directus (Express), Prefect and Airflow (FastAPI), each pre-registered, and development measurements of the Django and Flask adapters against the RealWorld spec and hand counts (`kanit/SONUC-17`), with the fixes they led to re-measured separately and labelled "not held out". Every number in the READMEs is checked against its source in CI (`kanit/belge-tutarlilik.js`).
+- Public benchmark (`kanit/acik`, pinned Immich and Cal.com, one command), held-out measurements on Ghostfolio (NestJS), RealWorld and Directus (Express), Prefect and Airflow (FastAPI), each pre-registered, and development measurements of the Django and Flask adapters against the RealWorld spec and hand counts (`kanit/SONUC-17`), with the fixes they led to re-measured separately and labelled "not held out". Every number in the READMEs and the detailed reference (`docs/REFERENCE.md`, `docs/BASVURU.md`) is checked against its source in CI (`kanit/belge-tutarlilik.js`).
 - The integration test suite is maintained outside this repository; CI here checks formatting, lints, builds, licences, advisories and the documentation numbers.
 
 ### Known limitations

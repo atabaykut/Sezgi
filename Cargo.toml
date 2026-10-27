@@ -5,7 +5,7 @@ edition = "2021"
 rust-version = "1.99"
 description = "Sezgi: reads a NestJS application once and serves its endpoints, inputs, rules, auth and table links to AI agents over MCP; writes a signed Benlik Card."
 license = "Apache-2.0"
-authors = ["Aykut Atabay"]
+authors = ["Sezgi contributors"]
 
 [dependencies]
 tree-sitter = "0.27.1"

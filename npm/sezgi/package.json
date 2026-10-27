@@ -12,7 +12,7 @@
     "@sezgi/cli-linux-arm64": "0.1.0"
   },
   "keywords": ["sezgi", "benlik", "ai-agents", "mcp", "nestjs", "fastapi", "express", "api-discovery"],
-  "author": "Aykut Atabay",
+  "author": "Sezgi contributors",
   "license": "Apache-2.0",
   "engines": { "node": ">=20" }
 }

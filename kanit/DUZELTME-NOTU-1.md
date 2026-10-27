@@ -55,7 +55,7 @@ Bu turda Sezgi'nin çıkarım kodu değişti (zorunluluk, türetilmiş DTO'lar, 
 
 ## 5. Yeniden ölçüm (14.10.2026, düzeltme turundan sonra)
 
-Aykut'un onayıyla `olc.sh` düzeltilmiş kodla yeniden çalıştırıldı. `acik/sonuc/OZET.md` yeni sonuçları içeriyor; önceki özet değiştirilmeden `acik/sonuc/OZET-duzeltme-oncesi.md` olarak saklandı.
+Proje sahibinin onayıyla `olc.sh` düzeltilmiş kodla yeniden çalıştırıldı. `acik/sonuc/OZET.md` yeni sonuçları içeriyor; önceki özet değiştirilmeden `acik/sonuc/OZET-duzeltme-oncesi.md` olarak saklandı.
 
 - Bütün kalite sayıları aynı: Immich 279/279, giriş %100, gövde alanı 436/485, zorunluluk %100; Cal.com 121/121, %99,2, 250/250, %100; veri bağları 341/341 (fazla 0, eksik 0). Kartlar şemaya uygun; imza bağımsız JS kütüphaneleriyle doğrulandı (267.512 bayt).
 - `olc.sh` artık her uygulamayı iki kez haritalar ve iki süreyi ayrı yazar. Bu koşuda depolar işletim sisteminin önbelleğindeydi (aynı gün önceden okunmuştu), bu yüzden "ilk çalıştırma" soğuk değildir: Immich 91 / 91 ms, Cal.com 204 / 212 ms (son koşu, Y17 düzeltmesinden sonra). Depolar yeni indirildikten hemen sonra ölçülen soğuk ilk çalıştırma önceki özette: 1215 ms ve 1899 ms. README ikisini de koşuluyla birlikte yazar.

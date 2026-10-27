@@ -43,4 +43,4 @@ Endpoint bulma ve giriş, ön kayıttaki eşiğin (%70) üstünde: bu iki ölç�
 
 Kalan alanların çoğu 5. maddedeki veritabanı tanımlı gövdelerdir.
 
-Gerileme denetimi: RealWorld 19/19, giriş %100, alan 6/6, zorunluluk %100 (değişmedi). Aykut'un dört Express / Fastify / Next.js uygulamasında uç ve giriş sayıları değişmedi (ayrıntıları yayınlanmaz); iki uygulama bu makinede artık bulunmadığı için ölçülemedi.
+Gerileme denetimi: RealWorld 19/19, giriş %100, alan 6/6, zorunluluk %100 (değişmedi). dört özel Express / Fastify / Next.js uygulamasında uç ve giriş sayıları değişmedi (ayrıntıları yayınlanmaz); iki uygulama bu makinede artık bulunmadığı için ölçülemedi.

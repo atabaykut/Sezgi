@@ -50,7 +50,7 @@ Bu değişikliklerden sonra Immich (279/279, giriş %100, alan %89,9, zorunluluk
 
 ## Özel uygulamalar (gerileme denetimi)
 
-Aynı düzeltmelerden sonra Aykut'un altı Express / Fastify / Next.js uygulamasındaki uç ve giriş sayıları değişmedi. Ayrıntı yalnızca özel arşivde.
+Aynı düzeltmelerden sonra altı özel Express / Fastify / Next.js uygulamasındaki uç ve giriş sayıları değişmedi. Ayrıntı yalnızca özel arşivde.
 
 ## Tekrar üretme
 

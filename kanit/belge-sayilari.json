@@ -38,43 +38,43 @@
       "desen": "61\\.567 satır"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "Sezgi maps 306 endpoints in Immich and 177 in Cal.com",
       "kaynak": "kanit/acik/sonuc/OZET.md",
       "desen": "İşlemler\\s+306[\\s\\S]*177 endpoint"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "Immich 84.9% endpoints, 0% body fields; Cal.com 96.7% endpoints, 52.1% body fields",
       "kaynak": "kanit/SONUC-1-immich.md",
       "desen": "237/279 \\(%84,9\\)[\\s\\S]*0/419 \\(%0\\)"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "Cal.com 96.7% endpoints, 52.1% body fields",
       "kaynak": "kanit/SONUC-2-calcom.md",
       "desen": "117/121 \\(%96,7\\)[\\s\\S]*124/238 \\(%52,1\\)"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "endpoints 120/120 with no extras; auth 88/120 (73.3%) after manual adjudication (the independent referee scored 22/120)",
       "kaynak": "kanit/SONUC-5-holdout-ghostfolio.md",
       "desen": "\\*\\*120/120\\*\\*, fazla 0[\\s\\S]*\\*\\*88/120 \\(%73,3\\)\\*\\*[\\s\\S]*22/120"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "Inferred auth decisions were right in only 18 of 46 cases",
       "kaynak": "kanit/SONUC-5-holdout-ghostfolio.md",
       "desen": "46 kararın 18'i doğru"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "Table links: precision 100%, recall 80.3%",
       "kaynak": "kanit/SONUC-5-holdout-ghostfolio.md",
       "desen": "Kesinlik \\*\\*%100\\*\\*[\\s\\S]*duyarlılık \\*\\*%80,3\\*\\*"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "the referee resolved 3 of 27 schemas",
       "kaynak": "kanit/SONUC-5-holdout-ghostfolio.md",
       "desen": "yalnızca 3/27 şemayı"
@@ -86,25 +86,25 @@
       "desen": "\\| 14/16 \\| %96,3 \\| 39\\.521[\\s\\S]*\\| 15/16 \\| %93,8 \\| 43\\.561[\\s\\S]*\\*\\*16/16\\*\\* \\| \\*\\*%100\\*\\* \\| \\*\\*20\\.467\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "Endpoint: 120/120, fazla yok.",
       "kaynak": "kanit/SONUC-5-holdout-ghostfolio.md",
       "desen": "\\*\\*120/120\\*\\*, fazla 0"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "88/120 (%73,3); bağımsız hakem 22/120",
       "kaynak": "kanit/SONUC-5-holdout-ghostfolio.md",
       "desen": "\\*\\*88/120 \\(%73,3\\)\\*\\*[\\s\\S]*22/120"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "Tablo bağları: kesinlik %100, duyarlılık %80,3.",
       "kaynak": "kanit/SONUC-5-holdout-ghostfolio.md",
       "desen": "Kesinlik \\*\\*%100\\*\\*[\\s\\S]*duyarlılık \\*\\*%80,3\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "18/46",
       "kaynak": "kanit/SONUC-5-holdout-ghostfolio.md",
       "desen": "46 kararın 18'i doğru"
@@ -140,241 +140,241 @@
       "desen": "## calcom[\\s\\S]*?121/121[\\s\\S]*?dokümanda yok 41[\\s\\S]*?99\\.2%[\\s\\S]*?250/250[\\s\\S]*?Zorunluluk doğru\\s+100\\.0%[\\s\\S]*?doğru 341 · fazla 0"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "Immich 172 ms first run and 186 ms second run, Cal.com 204 ms and 212 ms",
       "kaynak": "kanit/acik/sonuc/OZET.md",
       "desen": "## immich[\\s\\S]*?ilk çalıştırma\\s+172 ms[\\s\\S]*?ikinci çalıştırma\\s+186 ms[\\s\\S]*?## calcom[\\s\\S]*?ilk çalıştırma\\s+204 ms[\\s\\S]*?ikinci çalıştırma\\s+212 ms"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "the first run took 1215 ms (Immich) and 1899 ms (Cal.com)",
       "kaynak": "kanit/acik/sonuc/OZET-duzeltme-oncesi.md",
       "desen": "## immich[\\s\\S]*?Süre\\s+1215 ms[\\s\\S]*?## calcom[\\s\\S]*?Süre\\s+1899 ms"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "Immich ilk çalıştırmada 172 ms, ikincide 186 ms; Cal.com 204 ms ve 212 ms",
       "kaynak": "kanit/acik/sonuc/OZET.md",
       "desen": "## immich[\\s\\S]*?ilk çalıştırma\\s+172 ms[\\s\\S]*?ikinci çalıştırma\\s+186 ms[\\s\\S]*?## calcom[\\s\\S]*?ilk çalıştırma\\s+204 ms[\\s\\S]*?ikinci çalıştırma\\s+212 ms"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "ilk çalıştırma Immich'te 1215 ms, Cal.com'da 1899 ms",
       "kaynak": "kanit/acik/sonuc/OZET-duzeltme-oncesi.md",
       "desen": "## immich[\\s\\S]*?Süre\\s+1215 ms[\\s\\S]*?## calcom[\\s\\S]*?Süre\\s+1899 ms"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "auth 92/120 with the same adjudication rule; certain-stamped auth decisions right in 70 of 70 (before: 70 of 74",
       "kaynak": "kanit/SONUC-6-ghostfolio-gerileme.md",
       "desen": "\\*\\*92/120 \\(%76,7\\)\\*\\*[\\s\\S]*74 kararın 70'i doğru[\\s\\S]*70 kararın 70'i doğru, \\*\\*0 yanlış\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "aynı hakemleme kuralıyla giriş 92/120; kesin damgalı giriş kararlarının 70/70'i doğru (önce 70/74",
       "kaynak": "kanit/SONUC-6-ghostfolio-gerileme.md",
       "desen": "\\*\\*92/120 \\(%76,7\\)\\*\\*[\\s\\S]*74 kararın 70'i doğru[\\s\\S]*70 kararın 70'i doğru, \\*\\*0 yanlış\\*\\*"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "After composed-decorator support: auth 120/120, certain-stamped decisions right in 98 of 98",
       "kaynak": "kanit/SONUC-6-ghostfolio-gerileme.md",
       "desen": "Bileşik dekoratörlerden sonra[\\s\\S]*\\*\\*120/120 \\(%100\\)\\*\\*[\\s\\S]*98 kararın 98'i doğru"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "Bileşik dekoratör desteğinden sonra: giriş 120/120, kesin damgalı kararların 98/98",
       "kaynak": "kanit/SONUC-6-ghostfolio-gerileme.md",
       "desen": "Bileşik dekoratörlerden sonra[\\s\\S]*\\*\\*120/120 \\(%100\\)\\*\\*[\\s\\S]*98 kararın 98'i doğru"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "the update took 66–83 ms on Immich and 314–319 ms on Cal.com",
       "kaynak": "kanit/SONUC-7-artimli-guncelleme.md",
       "desen": "\\| Immich \\| 457 \\| 1 \\| 78 · 66 · 83 ms \\|\\s*\\n\\| Cal.com \\| 741 \\| 1 \\| 319 · 314 · 315 ms \\|"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "tek dosya: Immich 66–83 ms, Cal.com 314–319 ms",
       "kaynak": "kanit/SONUC-7-artimli-guncelleme.md",
       "desen": "\\| Immich \\| 457 \\| 1 \\| 78 · 66 · 83 ms \\|\\s*\\n\\| Cal.com \\| 741 \\| 1 \\| 319 · 314 · 315 ms \\|"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "(Immich p95 0.92 ms, Cal.com p95 0.68 ms; target < 5 ms), validation rules extracted as `certain` 265/265 on Cal.com",
       "kaynak": "kanit/SONUC-8-01-hedefleri.md",
       "desen": "immich[\\s\\S]*Hepsi \\(1000\\): p95 0\\.92 ms[\\s\\S]*calcom[\\s\\S]*Hepsi \\(1000\\): p95 0\\.68 ms[\\s\\S]*Doğrulama kuralları 265/265"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "(Immich p95 0,92 ms, Cal.com p95 0,68 ms; hedef < 5 ms)",
       "kaynak": "kanit/SONUC-8-01-hedefleri.md",
       "desen": "immich[\\s\\S]*Hepsi \\(1000\\): p95 0\\.92 ms[\\s\\S]*calcom[\\s\\S]*Hepsi \\(1000\\): p95 0\\.68 ms[\\s\\S]*Doğrulama kuralları 265/265"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "endpoints 177/179, auth 100%, **body fields 124/470 (26.4%)**, required 94.4%; after two rounds of fixes it led to (not held out): endpoints 179/179, fields 470/470 (100%), required 99.6%",
       "kaynak": "kanit/SONUC-10-fastapi-holdout.md",
       "desen": "\\*\\*177/179 \\(%98,9\\)\\*\\*[\\s\\S]*\\*\\*124/470 \\(%26,4\\)\\*\\*[\\s\\S]*%94,4[\\s\\S]*\\*\\*437/470 \\(%93,0\\)\\*\\*[\\s\\S]*%99,5[\\s\\S]*\\*\\*179/179\\*\\*[\\s\\S]*\\*\\*470/470 \\(%100,0\\)\\*\\*[\\s\\S]*\\*\\*468/470 \\(%99,6\\)\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "endpoint 177/179, giriş %100, **gövde alanı 124/470 (%26,4)**, zorunluluk %94,4",
       "kaynak": "kanit/SONUC-10-fastapi-holdout.md",
       "desen": "\\*\\*177/179 \\(%98,9\\)\\*\\*[\\s\\S]*\\*\\*124/470 \\(%26,4\\)\\*\\*[\\s\\S]*%94,4[\\s\\S]*\\*\\*437/470 \\(%93,0\\)\\*\\*[\\s\\S]*%99,5[\\s\\S]*\\*\\*179/179\\*\\*[\\s\\S]*\\*\\*470/470 \\(%100,0\\)\\*\\*[\\s\\S]*\\*\\*468/470 \\(%99,6\\)\\*\\*"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "**endpoints 0/19** (multi-dot imports and a chained `Router().use('/api', api)` were missed). After the fixes it led to (not held out): 19/19, auth 100%, top-level body fields 6/6",
       "kaynak": "kanit/SONUC-12-express-holdout.md",
       "desen": "Endpoint bulma \\| \\*\\*0/19\\*\\*[\\s\\S]*Endpoint bulma \\| 0/19 \\| \\*\\*19/19\\*\\*[\\s\\S]*Giriş \\| ölçülemedi \\| \\*\\*%100\\*\\*[\\s\\S]*Gövde alanı \\(üst düzey\\) \\| ölçülemedi \\| \\*\\*6/6\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "**endpoint 0/19** (noktalı dosya adları ve zincirle kurulan `Router().use('/api', api)` kaçtı). Bu ölçümün yol açtığı düzeltmelerden sonra (holdout değil): 19/19, giriş %100, üst düzey gövde alanı 6/6",
       "kaynak": "kanit/SONUC-12-express-holdout.md",
       "desen": "Endpoint bulma \\| \\*\\*0/19\\*\\*[\\s\\S]*Endpoint bulma \\| 0/19 \\| \\*\\*19/19\\*\\*[\\s\\S]*Giriş \\| ölçülemedi \\| \\*\\*%100\\*\\*[\\s\\S]*Gövde alanı \\(üst düzey\\) \\| ölçülemedi \\| \\*\\*6/6\\*\\*"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "**981,837 lines in 3,647 ms, peak memory 273 MB**",
       "kaynak": "kanit/SONUC-13-olcek.md",
       "desen": "Okunan satır \\(test dosyaları hariç\\) \\| \\*\\*981\\.837\\*\\*[\\s\\S]*1\\. çalıştırma \\| \\*\\*3\\.647 ms\\*\\*[\\s\\S]*Tepe bellek[^|]*\\| \\*\\*273 MB\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "**981.837 satır, 3.647 ms, tepe bellek 273 MB**",
       "kaynak": "kanit/SONUC-13-olcek.md",
       "desen": "Okunan satır \\(test dosyaları hariç\\) \\| \\*\\*981\\.837\\*\\*[\\s\\S]*1\\. çalıştırma \\| \\*\\*3\\.647 ms\\*\\*[\\s\\S]*Tepe bellek[^|]*\\| \\*\\*273 MB\\*\\*"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "they found 0/7 cost fields before name parts were used and 7/7 after",
       "kaynak": "kanit/SONUC-14-hesap-ipuclari.md",
       "desen": "Hesabı belirleyen alanlardan ipucu alan \\| \\*\\*0/7\\*\\*[\\s\\S]*Hesap alanı \\| 0/7 \\| \\*\\*7/7\\*\\*[\\s\\S]*Hafif seçenek \\| 0/3 \\| \\*\\*3/3\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "ad parçalarından önce 0/7 hesap alanı, sonra 7/7",
       "kaynak": "kanit/SONUC-14-hesap-ipuclari.md",
       "desen": "Hesabı belirleyen alanlardan ipucu alan \\| \\*\\*0/7\\*\\*[\\s\\S]*Hesap alanı \\| 0/7 \\| \\*\\*7/7\\*\\*[\\s\\S]*Hafif seçenek \\| 0/3 \\| \\*\\*3/3\\*\\*"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "**endpoints 0/134** (routers attached through a helper function lost the `/api/v2` prefix); with the prefix added by hand (diagnostic) 118/134, body fields 213/213, but auth 2.5% and **89 wrong decisions stamped certain**",
       "kaynak": "kanit/SONUC-15-airflow-holdout.md",
       "desen": "Endpoint bulma \\| \\*\\*0/134\\*\\*[\\s\\S]*Endpoint bulma \\| 118/134[\\s\\S]*Gövde alanı bulma \\| \\*\\*213/213 \\(%100\\)\\*\\*[\\s\\S]*Giriş durumu \\| \\*\\*%2,5\\*\\*[\\s\\S]*Kesin\" damgalı giriş kararı \\| 89, \\*\\*hepsi yanlış\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "**endpoint 0/134** (yardımcı fonksiyonla bağlanan router'lar `/api/v2` önekini kaybetti); önek elle eklenince (tanı) 118/134, gövde alanı 213/213, ama giriş %2,5 ve **kesin damgalı 89 yanlış karar**",
       "kaynak": "kanit/SONUC-15-airflow-holdout.md",
       "desen": "Endpoint bulma \\| \\*\\*0/134\\*\\*[\\s\\S]*Endpoint bulma \\| 118/134[\\s\\S]*Gövde alanı bulma \\| \\*\\*213/213 \\(%100\\)\\*\\*[\\s\\S]*Giriş durumu \\| \\*\\*%2,5\\*\\*[\\s\\S]*Kesin\" damgalı giriş kararı \\| 89, \\*\\*hepsi yanlış\\*\\*"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "After the fixes it led to (not held out): 134/134, auth 99.3%, body fields 275/275, **0 wrong certain decisions**",
       "kaynak": "kanit/SONUC-15-airflow-holdout.md",
       "desen": "Endpoint bulma . 0/134 . 118/134 . \\*\\*134/134\\*\\*[\\s\\S]*Giriş durumu . ölçülemedi . %2,5 . \\*\\*%99,3\\*\\*[\\s\\S]*Kesin damgalı yanlış giriş kararı . ölçülemedi . 89 . \\*\\*0\\*\\*[\\s\\S]*Gövde alanı bulma . ölçülemedi . 213/213 . \\*\\*275/275"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "Bu ölçümün yol açtığı düzeltmelerden sonra (holdout değil): 134/134, giriş %99,3, gövde alanı 275/275, **kesin damgalı yanlış karar 0**",
       "kaynak": "kanit/SONUC-15-airflow-holdout.md",
       "desen": "Endpoint bulma . 0/134 . 118/134 . \\*\\*134/134\\*\\*[\\s\\S]*Giriş durumu . ölçülemedi . %2,5 . \\*\\*%99,3\\*\\*[\\s\\S]*Kesin damgalı yanlış giriş kararı . ölçülemedi . 89 . \\*\\*0\\*\\*[\\s\\S]*Gövde alanı bulma . ölçülemedi . 213/213 . \\*\\*275/275"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "**endpoints 128/136, auth 98.4%, body fields 0/174** (a response middleware after the handler hid the handler); after the fixes it led to (not held out) body fields 49/174",
       "kaynak": "kanit/SONUC-16-directus-holdout.md",
       "desen": "Endpoint bulma . \\*\\*128/136 \\(%94,1\\)\\*\\*[\\s\\S]*Giriş durumu . \\*\\*%98,4\\*\\*[\\s\\S]*Gövde alanı bulma . \\*\\*0/174 \\(%0,0\\)\\*\\*[\\s\\S]*Gövde alanı bulma . 0/174 . \\*\\*49/174 \\(%28,2\\)\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "**endpoint 128/136, giriş %98,4, gövde alanı 0/174** (işleyiciden sonra gelen cevap ara katmanı işleyiciyi gizledi); düzeltmeden sonra (holdout değil) gövde alanı 49/174",
       "kaynak": "kanit/SONUC-16-directus-holdout.md",
       "desen": "Endpoint bulma . \\*\\*128/136 \\(%94,1\\)\\*\\*[\\s\\S]*Giriş durumu . \\*\\*%98,4\\*\\*[\\s\\S]*Gövde alanı bulma . \\*\\*0/174 \\(%0,0\\)\\*\\*[\\s\\S]*Gövde alanı bulma . 0/174 . \\*\\*49/174 \\(%28,2\\)\\*\\*"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "**12/12 at 3.8 turns and $0.20 per task**",
       "kaynak": "kanit/SONUC-11-islem-araclari.md",
       "desen": "\\| Başarı[^\\n]*\\*\\*12/12\\*\\*[\\s\\S]*?Ortalama tur \\| \\*\\*3,83\\*\\*[\\s\\S]*?Ortalama maliyet \\| \\*\\*0,201 \\$\\*\\*"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "11/12 at 6.3 turns and $0.23",
       "kaynak": "kanit/SONUC-11-islem-araclari.md",
       "desen": "\\| Başarı[^\\n]*\\| 11/12 \\|[\\s\\S]*?Ortalama tur[^\\n]*\\| 6,33 \\|[\\s\\S]*?Ortalama maliyet[^\\n]*\\| 0,233 \\$ \\|"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "**12/12, görev başına 3,8 tur ve 0,20 $**",
       "kaynak": "kanit/SONUC-11-islem-araclari.md",
       "desen": "\\| Başarı[^\\n]*\\*\\*12/12\\*\\*[\\s\\S]*?Ortalama tur \\| \\*\\*3,83\\*\\*[\\s\\S]*?Ortalama maliyet \\| \\*\\*0,201 \\$\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "11/12, 6,3 tur ve 0,23 $",
       "kaynak": "kanit/SONUC-11-islem-araclari.md",
       "desen": "\\| Başarı[^\\n]*\\| 11/12 \\|[\\s\\S]*?Ortalama tur[^\\n]*\\| 6,33 \\|[\\s\\S]*?Ortalama maliyet[^\\n]*\\| 0,233 \\$ \\|"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "endpoints 18/19 (the app has no `DELETE /articles/:slug`) plus 2 routes the code really serves, 20/20 against a hand count; auth 18/18 with no wrong certain decision; body fields inside the envelope 16/18",
       "kaynak": "kanit/SONUC-17-django-flask.md",
       "desen": "Endpoint bulma \\| \\*\\*18/19\\*\\*[\\s\\S]*Giriş durumu \\| \\*\\*18/18\\*\\*, kesin damgalı yanlış karar 0[\\s\\S]*Gövde alanı \\(zarf içi\\) \\| \\*\\*16/18\\*\\*"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "20/20 against a hand count",
       "kaynak": "kanit/SONUC-17-django-flask.md",
       "desen": "django-realworld-example-app \\(DRF\\) \\| `29c9d42[0-9a-f]+` \\| 20 \\| \\*\\*20/20\\*\\*[\\s\\S]*rest-framework-tutorial \\(DRF\\) \\| `8429d95[0-9a-f]+` \\| 10 \\| \\*\\*10/10\\*\\*"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "rest-framework-tutorial: 10/10 against a hand count",
       "kaynak": "kanit/SONUC-17-django-flask.md",
       "desen": "django-realworld-example-app \\(DRF\\) \\| `29c9d42[0-9a-f]+` \\| 20 \\| \\*\\*20/20\\*\\*[\\s\\S]*rest-framework-tutorial \\(DRF\\) \\| `8429d95[0-9a-f]+` \\| 10 \\| \\*\\*10/10\\*\\*"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "endpoints 19/19, auth 19/19, body fields inside the envelope 18/18",
       "kaynak": "kanit/SONUC-17-django-flask.md",
       "desen": "Endpoint bulma \\| \\*\\*19/19\\*\\*[\\s\\S]*Giriş durumu \\| \\*\\*19/19\\*\\*, kesin damgalı yanlış karar 0[\\s\\S]*Gövde alanı \\(zarf içi\\) \\| \\*\\*18/18\\*\\*"
     },
     {
-      "belge": "README.md",
+      "belge": "docs/REFERENCE.md",
       "metin": "Hand counts: microblog 35/35, flasky 50/50",
       "kaynak": "kanit/SONUC-17-django-flask.md",
       "desen": "microblog \\| `a975ef6[0-9a-f]+` \\| 35 \\| \\*\\*35/35\\*\\*[\\s\\S]*flasky \\| `3beedd6[0-9a-f]+` \\| 50 \\| \\*\\*50/50\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "endpoint 18/19 (uygulamada `DELETE /articles/:slug` yok) ve kodun gerçekten sunduğu 2 rota daha, elle sayıma karşı 20/20; giriş 18/18, kesin damgalı yanlış karar yok; zarf içindeki gövde alanı 16/18",
       "kaynak": "kanit/SONUC-17-django-flask.md",
       "desen": "Endpoint bulma \\| \\*\\*18/19\\*\\*[\\s\\S]*Giriş durumu \\| \\*\\*18/18\\*\\*, kesin damgalı yanlış karar 0[\\s\\S]*Gövde alanı \\(zarf içi\\) \\| \\*\\*16/18\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "elle sayıma karşı 20/20",
       "kaynak": "kanit/SONUC-17-django-flask.md",
       "desen": "django-realworld-example-app \\(DRF\\) \\| `29c9d42[0-9a-f]+` \\| 20 \\| \\*\\*20/20\\*\\*[\\s\\S]*rest-framework-tutorial \\(DRF\\) \\| `8429d95[0-9a-f]+` \\| 10 \\| \\*\\*10/10\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "rest-framework-tutorial: elle sayıma karşı 10/10",
       "kaynak": "kanit/SONUC-17-django-flask.md",
       "desen": "django-realworld-example-app \\(DRF\\) \\| `29c9d42[0-9a-f]+` \\| 20 \\| \\*\\*20/20\\*\\*[\\s\\S]*rest-framework-tutorial \\(DRF\\) \\| `8429d95[0-9a-f]+` \\| 10 \\| \\*\\*10/10\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "endpoint 19/19, giriş 19/19, zarf içindeki gövde alanı 18/18",
       "kaynak": "kanit/SONUC-17-django-flask.md",
       "desen": "Endpoint bulma \\| \\*\\*19/19\\*\\*[\\s\\S]*Giriş durumu \\| \\*\\*19/19\\*\\*, kesin damgalı yanlış karar 0[\\s\\S]*Gövde alanı \\(zarf içi\\) \\| \\*\\*18/18\\*\\*"
     },
     {
-      "belge": "README.tr.md",
+      "belge": "docs/BASVURU.md",
       "metin": "Elle sayım: microblog 35/35, flasky 50/50",
       "kaynak": "kanit/SONUC-17-django-flask.md",
       "desen": "microblog \\| `a975ef6[0-9a-f]+` \\| 35 \\| \\*\\*35/35\\*\\*[\\s\\S]*flasky \\| `3beedd6[0-9a-f]+` \\| 50 \\| \\*\\*50/50\\*\\*"
