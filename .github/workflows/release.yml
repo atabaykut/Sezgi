@@ -1,0 +1,178 @@
+# Etiket (ör. v0.1.0) itildiğinde Windows, Linux ve macOS için hazır derlenmiş dosyaları üretir,
+# SHA-256 özetlerini ve GitHub'ın yapı kanıtını (build provenance) ekleyip taslak sürüm olarak yükler.
+# Sürüm taslak açılır: yayın kararı bir insanındır.
+#
+# Güvenlik düzeni:
+# - Önce CI (testler, cargo-deny, belge tutarlılığı) çalışır; geçmezse hiçbir şey derlenmez.
+# - Derleme işinde (bağımlılıkların build.rs ve proc-macro kodu burada çalışır) kimlik belirteci izni yoktur.
+# - Yapı kanıtı ayrı bir işte, yalnızca derlenmiş arşivleri indirip imzalar; orada cargo ya da üçüncü taraf kod çalışmaz.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: ci
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux: eski glibc'li runner; ikili en çok GLIBC_2.34 ister (Ubuntu 22.04, Debian 12, RHEL 9). Yeni runner'da
+          # std'nin zayıf pidfd sembolleri GLIBC_2.39 sürümüyle bağlanır ve eski sistemlerde yükleyici uyarısı basar
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-22.04, glibc: true }
+          - { target: aarch64-unknown-linux-gnu, os: ubuntu-22.04-arm, glibc: true }
+          # macOS: her mimari kendi yerel koşucusunda (Apple SDK'sı yalnızca macOS'ta; Security ve CoreFoundation çerçevelerine
+          # bağlanır). En düşük sürüm macOS 11.0 (MACOSX_DEPLOYMENT_TARGET); derleme sonrası Mach-O başlığından denetlenir.
+          # x86_64: macos-13 koşucusu kaldırıldı; Intel koşucusu macos-15-intel
+          - { target: x86_64-apple-darwin, os: macos-15-intel, macos: true, arch: x86_64 }
+          - { target: aarch64-apple-darwin, os: macos-14, macos: true, arch: arm64 }
+          # Windows: msvc ikilisi yalnızca GitHub sürümü içindir; npm paketi gnu ikilisinden (platformlar.json'daki hedef)
+          - { target: x86_64-pc-windows-msvc, os: windows-latest }
+          - { target: x86_64-pc-windows-gnu, os: ubuntu-latest, mingw: true }
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable
+        with:
+          targets: ${{ matrix.target }}
+      # Windows gnu: Linux'ta MinGW ile çapraz derleme (yerel npm paketlemesiyle aynı araç zinciri)
+      - name: MinGW
+        if: ${{ matrix.mingw }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64
+          echo "CC_x86_64_pc_windows_gnu=x86_64-w64-mingw32-gcc" >> "$GITHUB_ENV"
+          echo "CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER=x86_64-w64-mingw32-gcc" >> "$GITHUB_ENV"
+      - name: macOS en düşük sürümü
+        if: ${{ matrix.macos }}
+        run: echo "MACOSX_DEPLOYMENT_TARGET=11.0" >> "$GITHUB_ENV"
+      - run: cargo build --release --locked --target ${{ matrix.target }}
+      # Mimari, LC_BUILD_VERSION (platform macos, minos 11.0) ve arm64'te bağlayıcının ad-hoc imzası (Apple Silicon imzasız
+      # ikiliyi çalıştırmaz; strip imzayı bozmamalı); sonra ikili gerçekten çalıştırılır
+      - name: Mach-O başlığı ve en düşük macOS 11.0
+        if: ${{ matrix.macos }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ikili="target/${{ matrix.target }}/release/sezgi"
+          file "$ikili"
+          mimari="$(lipo -archs "$ikili" | xargs)"
+          [ "$mimari" = "${{ matrix.arch }}" ] || { echo "✗ mimari $mimari (beklenen ${{ matrix.arch }})"; exit 1; }
+          platform="$(otool -l "$ikili" | awk '$1 == "cmd" && $2 == "LC_BUILD_VERSION" {b = 1} b && $1 == "platform" {print $2; exit}')"
+          minos="$(otool -l "$ikili" | awk '$1 == "cmd" && $2 == "LC_BUILD_VERSION" {b = 1} b && $1 == "minos" {print $2; exit}')"
+          echo "platform: $platform, minos: $minos"
+          [ "$platform" = "1" ] || [ "$platform" = "macos" ] || { echo "✗ LC_BUILD_VERSION platform $platform (macos olmalı)"; exit 1; }
+          [ "$minos" = "11.0" ] || { echo "✗ en düşük macOS $minos (11.0 olmalı)"; exit 1; }
+          if [ "${{ matrix.arch }}" = arm64 ]; then codesign --verify --verbose "$ikili"; fi
+          "$ikili" --version
+      - name: glibc sürümü en çok 2.34
+        if: ${{ matrix.glibc }}
+        shell: bash
+        run: |
+          en_yuksek="$(readelf -V --dyn-syms "target/${{ matrix.target }}/release/sezgi" | grep -o 'GLIBC_[0-9.]*' | sort -Vu | tail -1)"
+          echo "en yüksek: $en_yuksek"
+          [ "$( { echo "$en_yuksek"; echo GLIBC_2.34; } | sort -V | tail -1)" = "GLIBC_2.34" ] || { echo "✗ $en_yuksek > GLIBC_2.34"; exit 1; }
+      - name: Paketle
+        shell: bash
+        run: |
+          ad="sezgi-${GITHUB_REF_NAME}-${{ matrix.target }}"
+          mkdir "$ad"
+          if [[ "${{ matrix.target }}" == *windows* ]]; then ikili=sezgi.exe; else ikili=sezgi; fi
+          cp "target/${{ matrix.target }}/release/$ikili" README.md LICENSE "$ad/"
+          if [[ "${{ matrix.target }}" == *windows* ]]; then
+            7z a "$ad.zip" "$ad" >/dev/null; dosya="$ad.zip"
+          else
+            tar czf "$ad.tar.gz" "$ad"; dosya="$ad.tar.gz"
+          fi
+          if command -v sha256sum >/dev/null; then sha256sum "$dosya" > "$dosya.sha256"; else shasum -a 256 "$dosya" > "$dosya.sha256"; fi
+          echo "DOSYA=$dosya" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ matrix.target }}
+          path: |
+            ${{ env.DOSYA }}
+            ${{ env.DOSYA }}.sha256
+
+  attest:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        with:
+          subject-path: |
+            dist/*.zip
+            dist/*.tar.gz
+
+  # npm paketleri: her platformun derlenmiş ikilisinden @sezgi/cli-<os>-<cpu> ve ana "sezgi" paketinin tarball'ları.
+  # Burada yayınlanmaz; tarball'lar taslak sürüme eklenir. Yayın, onaylı ve elle yapılır (önce platform paketleri).
+  npm:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Paketle
+        shell: bash
+        run: |
+          set -euo pipefail
+          surum="$(node -p "require('./npm/sezgi/package.json').version")"
+          [[ "v$surum" == "$GITHUB_REF_NAME" ]] || { echo "npm sürümü ($surum) etiketle ($GITHUB_REF_NAME) aynı değil"; exit 1; }
+          mkdir -p npm-dist acik
+          for anahtar in $(node -p "Object.keys(require('./npm/sezgi/platformlar.json').platformlar).join(' ')"); do
+            hedef="$(node -p "require('./npm/sezgi/platformlar.json').platformlar['$anahtar'].hedef")"
+            ad="sezgi-${GITHUB_REF_NAME}-${hedef}"
+            if [[ "$hedef" == *windows* ]]; then unzip -q "dist/$ad.zip" -d acik; ikili="acik/$ad/sezgi.exe"
+            else tar xzf "dist/$ad.tar.gz" -C acik; ikili="acik/$ad/sezgi"; fi
+            node npm/platform-paketi.js "$anahtar" "$ikili" "paket-$anahtar"
+            (cd npm-dist && npm pack "../paket-$anahtar")
+          done
+          (cd npm-dist && npm pack ../npm/sezgi)
+          (cd npm-dist && sha256sum *.tgz > npm-paketleri.sha256)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: npm
+          path: npm-dist/*
+
+  release:
+    needs: [attest, npm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Taslak sürüm
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Blok metin: notlardaki ": " düz YAML değerinde eşleme sayılırdı (iş akışı geçersiz olurdu)
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* --draft --verify-tag --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" \
+            --notes "Hazır derlenmiş dosyalar. Doğrulama: sha256 özeti ve 'gh attestation verify <dosya> --repo $GITHUB_REPOSITORY'."

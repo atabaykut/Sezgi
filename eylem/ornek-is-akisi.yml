@@ -1,0 +1,27 @@
+# Örnek: her PR'da Sezgi karşılaştırması. `.github/workflows/sezgi.yml` olarak kopyalayın ve Sezgi eyleminin satırına
+# kullandığınız sürümün tam commit SHA'sını yazın (etiket değil: etiket sonradan başka commit'i gösterebilir).
+name: sezgi-karsilastir
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  # Özetin PR'a yorum olarak yazılması için; istemiyorsanız kaldırın ve `yorum: false` verin
+  pull-requests: write
+
+jobs:
+  karsilastir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # Taban commit'in haritası da kurulur: geçmiş gerekir
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: atabaykut/Sezgi@SEZGI_SURUM_COMMIT_SHA
+        with:
+          # Uygulamanın depo köküne göre klasörü
+          uygulama: .
+          # Bozan değişiklikte iş başarısız olsun
+          sert: true

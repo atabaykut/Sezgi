@@ -1,0 +1,22 @@
+# cargo-deny: bağımlılıkların lisans, güvenlik açığı (RustSec) ve kaynak denetimi
+[graph]
+all-features = true
+
+[advisories]
+version = 2
+yanked = "deny"
+
+[licenses]
+version = 2
+confidence-threshold = 0.9
+# ISC ve BSD-3-Clause: canlı moddaki HTTPS (rustls, ring, rustls-webpki, subtle); ikisi de izinli, OSI onaylı,
+# Apache-2.0 / MIT ile uyumlu
+allow = ["Apache-2.0", "MIT", "Unicode-3.0", "Zlib", "Unlicense", "ISC", "BSD-3-Clause"]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

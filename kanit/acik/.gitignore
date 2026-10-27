@@ -1,0 +1,7 @@
+depolar/
+node_modules/
+holdout/
+# Ölçüm çıktıları (üçüncü taraf koddan türetilmiş haritalar) depoya girmez; yalnızca özet girer
+sonuc/*
+!sonuc/OZET.md
+!sonuc/OZET-duzeltme-oncesi.md

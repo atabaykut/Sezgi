@@ -1,0 +1,281 @@
+{
+  "uygulama": "Immich server (commit aec0dd1)",
+  "hakem": "Immich resmî OpenAPI dosyası (open-api/immich-openapi-specs.json)",
+  "roller_aciklama": "gereken izinler (ör. album.create) ve yönetici gerekiyorsa 'admin'; yoksa boş",
+  "gorev_sayisi": 16,
+  "gorevler": [
+    {
+      "id": "I01",
+      "tur": "cagri",
+      "soru": "Yeni bir albüm oluştur.",
+      "beklenen": {
+        "yontem": "POST",
+        "yol": "/api/albums",
+        "giris": "gerekli",
+        "roller": [
+          "ALBUM.CREATE"
+        ],
+        "zorunlu_alanlar": [
+          "albumName"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json POST /albums"
+    },
+    {
+      "id": "I02",
+      "tur": "cagri",
+      "soru": "Var olan bir albüme fotoğraf ekle.",
+      "beklenen": {
+        "yontem": "PUT",
+        "yol": "/api/albums/{}/assets",
+        "giris": "gerekli",
+        "roller": [
+          "ALBUMASSET.CREATE"
+        ],
+        "zorunlu_alanlar": [
+          "ids"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json PUT /albums/{id}/assets"
+    },
+    {
+      "id": "I03",
+      "tur": "cagri",
+      "soru": "Bir albümü başka kullanıcılarla paylaş.",
+      "beklenen": {
+        "yontem": "PUT",
+        "yol": "/api/albums/{}/users",
+        "giris": "gerekli",
+        "roller": [
+          "ALBUMUSER.CREATE"
+        ],
+        "zorunlu_alanlar": [
+          "albumUsers"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json PUT /albums/{id}/users"
+    },
+    {
+      "id": "I04",
+      "tur": "cagri",
+      "soru": "Fotoğrafları herkese açık bir bağlantıyla paylaşmak için paylaşım linki oluştur.",
+      "beklenen": {
+        "yontem": "POST",
+        "yol": "/api/shared-links",
+        "giris": "gerekli",
+        "roller": [
+          "SHAREDLINK.CREATE"
+        ],
+        "zorunlu_alanlar": [
+          "type"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json POST /shared-links"
+    },
+    {
+      "id": "I05",
+      "tur": "cagri",
+      "soru": "Yüz tanımadaki iki kişiyi tek kişide birleştir.",
+      "beklenen": {
+        "yontem": "POST",
+        "yol": "/api/people/merge",
+        "giris": "gerekli",
+        "roller": [
+          "PERSON.MERGE"
+        ],
+        "zorunlu_alanlar": [
+          "ids"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json POST /people/merge"
+    },
+    {
+      "id": "I06",
+      "tur": "cagri",
+      "soru": "Yeni bir etiket oluştur.",
+      "beklenen": {
+        "yontem": "POST",
+        "yol": "/api/tags",
+        "giris": "gerekli",
+        "roller": [
+          "TAG.CREATE"
+        ],
+        "zorunlu_alanlar": [
+          "name"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json POST /tags"
+    },
+    {
+      "id": "I07",
+      "tur": "cagri",
+      "soru": "Yönetici olarak yeni bir kullanıcı hesabı oluştur.",
+      "beklenen": {
+        "yontem": "POST",
+        "yol": "/api/admin/users",
+        "giris": "gerekli",
+        "roller": [
+          "ADMIN",
+          "ADMINUSER.CREATE"
+        ],
+        "zorunlu_alanlar": [
+          "email",
+          "name",
+          "password"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json POST /admin/users"
+    },
+    {
+      "id": "I08",
+      "tur": "cagri",
+      "soru": "E-posta ve şifreyle giriş yap.",
+      "beklenen": {
+        "yontem": "POST",
+        "yol": "/api/auth/login",
+        "giris": "herkese_acik",
+        "roller": [],
+        "zorunlu_alanlar": [
+          "email",
+          "password"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json POST /auth/login"
+    },
+    {
+      "id": "I09",
+      "tur": "cagri",
+      "soru": "Sunucunun ayakta olup olmadığını kontrol et.",
+      "beklenen": {
+        "yontem": "GET",
+        "yol": "/api/server/ping",
+        "giris": "herkese_acik",
+        "roller": [],
+        "zorunlu_alanlar": []
+      },
+      "kaynak": "immich-openapi-specs.json GET /server/ping"
+    },
+    {
+      "id": "I10",
+      "tur": "cagri",
+      "soru": "Bir albümdeki fotoğrafa beğeni ya da yorum ekle.",
+      "beklenen": {
+        "yontem": "POST",
+        "yol": "/api/activities",
+        "giris": "gerekli",
+        "roller": [
+          "ACTIVITY.CREATE"
+        ],
+        "zorunlu_alanlar": [
+          "albumId",
+          "type"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json POST /activities"
+    },
+    {
+      "id": "I11",
+      "tur": "cagri",
+      "soru": "Yeni bir API anahtarı oluştur.",
+      "beklenen": {
+        "yontem": "POST",
+        "yol": "/api/api-keys",
+        "giris": "gerekli",
+        "roller": [
+          "APIKEY.CREATE"
+        ],
+        "zorunlu_alanlar": [
+          "permissions"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json POST /api-keys"
+    },
+    {
+      "id": "I12",
+      "tur": "cagri",
+      "soru": "Yeni bir hatıra (memory) oluştur.",
+      "beklenen": {
+        "yontem": "POST",
+        "yol": "/api/memories",
+        "giris": "gerekli",
+        "roller": [
+          "MEMORY.CREATE"
+        ],
+        "zorunlu_alanlar": [
+          "data",
+          "memoryAt",
+          "type"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json POST /memories"
+    },
+    {
+      "id": "I13",
+      "tur": "cagri",
+      "soru": "Yönetici olarak yeni bir harici kütüphane tanımla.",
+      "beklenen": {
+        "yontem": "POST",
+        "yol": "/api/libraries",
+        "giris": "gerekli",
+        "roller": [
+          "ADMIN",
+          "LIBRARY.CREATE"
+        ],
+        "zorunlu_alanlar": [
+          "ownerId"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json POST /libraries"
+    },
+    {
+      "id": "I14",
+      "tur": "cagri",
+      "soru": "Bir kullanıcıyı partner olarak ekleyip fotoğraflarını paylaşmaya başla.",
+      "beklenen": {
+        "yontem": "POST",
+        "yol": "/api/partners",
+        "giris": "gerekli",
+        "roller": [
+          "PARTNER.CREATE"
+        ],
+        "zorunlu_alanlar": [
+          "sharedWithId"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json POST /partners"
+    },
+    {
+      "id": "I15",
+      "tur": "cagri",
+      "soru": "Yüz tanımadaki bir kişinin adını değiştir.",
+      "beklenen": {
+        "yontem": "PUT",
+        "yol": "/api/people/{}",
+        "giris": "gerekli",
+        "roller": [
+          "PERSON.UPDATE"
+        ],
+        "zorunlu_alanlar": []
+      },
+      "kaynak": "immich-openapi-specs.json PUT /people/{id}"
+    },
+    {
+      "id": "I16",
+      "tur": "cagri",
+      "soru": "Birkaç fotoğrafı tek bir yığın (stack) altında grupla.",
+      "beklenen": {
+        "yontem": "POST",
+        "yol": "/api/stacks",
+        "giris": "gerekli",
+        "roller": [
+          "STACK.CREATE"
+        ],
+        "zorunlu_alanlar": [
+          "assetIds"
+        ]
+      },
+      "kaynak": "immich-openapi-specs.json POST /stacks"
+    }
+  ],
+  "dogrulama_talimati": "Bu uygulama iyi bilinen bir açık kaynak projedir, ama API sürümden sürüme değişir. Ezberden cevap verme: cevabının her parçasını (adres, giriş, izinler, zorunlu alanlar) elindeki araçlarla bu sürüm üzerinde doğrula."
+}

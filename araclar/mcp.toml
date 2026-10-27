@@ -1,0 +1,82 @@
+# `sezgi add mcp` için bilinen yapay zekâ araçları: MCP sunucusu listesini hangi dosyada, hangi biçimde tuttukları.
+# Katkıya açık bir listedir: yeni bir araç bir [[arac]] bloğuyla eklenir. Listede olmayan araçlar için
+# `sezgi add mcp` genel bağlantı bilgisini (komut ve argümanlar) yazdırır.
+#
+# Yol yer tutucuları:
+#   {proje}  uygulama klasörü          {ev}     kullanıcı klasörü (USERPROFILE / HOME)
+#   {ayar}   kullanıcı ayar klasörü: Windows'ta APPDATA, macOS'ta ~/Library/Application Support,
+#            diğerlerinde XDG_CONFIG_HOME ya da ~/.config
+# kapsam: "proje" yalnızca bu uygulamayı etkiler; "genel" bütün projeleri etkiler (ayrıca uyarılır).
+# bicim:  "json"  dosyadaki <kok> nesnesine { "<ad>": { "command", "args" } } eklenir (tip varsa "type" de yazılır)
+#         "codex-toml"  dosyanın sonuna [mcp_servers.<ad>] bloğu eklenir
+# belirti: aracın bu bilgisayarda kurulu olduğunu gösteren klasörler ya da PATH'teki komutlar ("komut:ad").
+# talimat: yönlendirme satırının ekleneceği, aracın okuduğu talimat dosyası (proje kökünde).
+
+[[arac]]
+kimlik = "claude-code"
+ad = "Claude Code"
+kapsam = "proje"
+dosya = "{proje}/.mcp.json"
+bicim = "json"
+kok = "mcpServers"
+belirti = ["komut:claude", "{ev}/.claude"]
+talimat = "CLAUDE.md"
+
+[[arac]]
+kimlik = "cursor"
+ad = "Cursor"
+kapsam = "proje"
+dosya = "{proje}/.cursor/mcp.json"
+bicim = "json"
+kok = "mcpServers"
+belirti = ["komut:cursor", "{ev}/.cursor"]
+talimat = "AGENTS.md"
+
+[[arac]]
+kimlik = "vscode"
+ad = "VS Code (Copilot)"
+kapsam = "proje"
+dosya = "{proje}/.vscode/mcp.json"
+bicim = "json"
+kok = "servers"
+tip = "stdio"
+belirti = ["komut:code", "{ayar}/Code"]
+talimat = "AGENTS.md"
+
+[[arac]]
+kimlik = "gemini"
+ad = "Gemini CLI"
+kapsam = "proje"
+dosya = "{proje}/.gemini/settings.json"
+bicim = "json"
+kok = "mcpServers"
+belirti = ["komut:gemini", "{ev}/.gemini"]
+talimat = "GEMINI.md"
+
+[[arac]]
+kimlik = "codex"
+ad = "Codex"
+kapsam = "genel"
+dosya = "{ev}/.codex/config.toml"
+bicim = "codex-toml"
+belirti = ["komut:codex", "{ev}/.codex"]
+talimat = "AGENTS.md"
+
+[[arac]]
+kimlik = "claude-desktop"
+ad = "Claude Desktop"
+kapsam = "genel"
+dosya = "{ayar}/Claude/claude_desktop_config.json"
+bicim = "json"
+kok = "mcpServers"
+belirti = ["{ayar}/Claude"]
+
+[[arac]]
+kimlik = "windsurf"
+ad = "Windsurf"
+kapsam = "genel"
+dosya = "{ev}/.codeium/windsurf/mcp_config.json"
+bicim = "json"
+kok = "mcpServers"
+belirti = ["{ev}/.codeium/windsurf"]
+talimat = "AGENTS.md"

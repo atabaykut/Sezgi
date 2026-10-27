@@ -1,0 +1,15 @@
+{
+  "name": "sezgi-acik-kanit",
+  "private": true,
+  "description": "Tools for the public Sezgi benchmark (TypeScript compiler for the independent referees, ajv for card validation). Installed here, never inside the measured applications.",
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@noble/post-quantum": "0.7.1",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "canonicalize": "5.1.0",
+    "typescript": "5.9.2"
+  }
+}

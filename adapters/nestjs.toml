@@ -1,0 +1,126 @@
+# Sezgi çatı adaptörü: NestJS (sürüm 0.1)
+# Adaptör kod değil veridir: NestJS'in kalıplarını Sezgi'nin genel TypeScript modeline eşler.
+# Dekoratör kullanan başka bir TypeScript çatısı çoğunlukla bu dosyanın bir benzeriyle eklenir. TypeScript sınıf modeli,
+# zod, modül grafiği ve Prisma izleme Rust'tadır: dekoratörsüz bir çatı ya da başka bir dil Rust kodu gerektirir.
+
+[adaptor]
+ad = "nestjs"
+surum = "0.1.1"
+dil = "typescript"
+# Bu adaptörün uygulanacağını gösteren bağımlılık
+isaret_bagimlilik = "@nestjs/core"
+
+[uygulama]
+# Genel adres öneki (düzenli ifadeyle, yorumları silinmiş kaynak metinde aranır)
+# Önek önce bu dosyada aranır, bulunamazsa bütün kaynak dosyalarda aranır
+genel_onek_dosya = "src/main.ts"
+genel_onek_desen = '''setGlobalPrefix\(\s*['"`]([^'"`]+)['"`]'''
+
+[modul]
+# Hangi controller hangi uygulamaya ait: kök modülden @Module({ imports, controllers }) ağacı izlenir.
+# Bir depoda birden fazla uygulama varsa (ör. API ve bakım sunucusu) en çok controller'ı olan kök "ana" sayılır.
+# Kök, uygulamanın test olmayan dosyalarındaki NestFactory.create(...) çağrısından bulunur.
+dekorator = "Module"
+kok_desen = '''NestFactory\.create\w*(?:<[^>]*>)?\(\s*(\w+)'''
+# Genel guard: yalnızca kökten ulaşılan modüllerin providers dizisindeki { provide: APP_GUARD, useClass: X }
+# (yorum, test modülü ve uygulamanın içe aktarmadığı kardeş paket sayılmaz)
+genel_guard_saglayici = "APP_GUARD"
+
+[kontrolcu]
+dekorator = "Controller"
+dosya_eki = ".controller.ts"
+
+[rota]
+# Dekoratör adı = HTTP yöntemi
+Get = "GET"
+Post = "POST"
+Put = "PUT"
+Patch = "PATCH"
+Delete = "DELETE"
+All = "ALL"
+Options = "OPTIONS"
+Head = "HEAD"
+
+[yetki]
+# Tanımı izlenemeyen (ör. kütüphaneden gelen) herkese açıklık işaretlerinin yaygın adları: herkese açık sayılır ama kesin
+# değildir. Tanımı izlenebilen işaret (SetMetadata(ANAHTAR, true)) adından bağımsız tanınır ve giriş guard'ı aynı
+# ANAHTAR'ı Reflector ile okuyorsa kesindir.
+herkese_acik_dekorator = ["Public", "SkipAuth", "AllowAnonymous", "IsPublic"]
+guard_dekorator = "UseGuards"
+# "Roles" ve uygulamaya özel "StaffRoles" gibi işaretler: adı bu desene uyan her dekoratör
+rol_dekorator_desen = "Roles$"
+# Guard adı bu desene uyuyorsa giriş gerektirir
+kimlik_guard_desen = "(?i)(jwt|auth)"
+# Passport strateji guard'ı: AuthGuard('strateji') ya da strateji adı alan bir guard üreticisi
+# (ör. OAuthCallbackGuard('google')). Yalnızca var olan oturumu doğrulayan stratejiler giriş ister.
+# Girişi başlatan stratejiler (google, github, oidc, local...) oturumsuz isteği reddetmez (yönlendirir ya da giriş yapar);
+# bunlar, stratejisi yazılmamış AuthGuard() ve metin argümanlı başka guard üreticileri tanınmayan guard sayılır:
+# giriş kararı kesin olmaz.
+strateji_guard_desen = '''^[A-Za-z_$][\w$]*\(\s*(?:['"`]([^'"`]*)['"`])?\s*\)$'''
+oturum_strateji_desen = "(?i)^(jwt|bearer|api-?key|headerapikey|session|basic)"
+# Guard adı bu desene de uyuyorsa giriş isteğe bağlıdır
+istege_bagli_guard_desen = "(?i)optional"
+# Kimlikle ilgisi olmadığı bilinen guard'lar (hız sınırı gibi): "tanınmayan guard" sayılmaz
+kimlik_disi_guard_desen = "(?i)throttl"
+# Genel guard'ın kodla kurulduğunu gösteren desen (adı okunamaz): varsa açık sayılan kapılar "çıkarım" kalır
+genel_guard_kurulum_desen = '''useGlobalGuards\('''
+rol_oneki_sil = "UserRole."
+# İşaretle açılan yetki modeli: Bir uygulama girişi her endpoint'te kendi dekoratörüyle açıyorsa
+# (ör. @Authenticated({ permission: Permission.AlbumCreate, admin: true })), o dekoratörü taşıyan
+# endpoint giriş gerektirir, taşımayan herkese açıktır.
+kimlik_dekorator = ["Authenticated", "Auth"]
+izin_alani_desen = '''permission:\s*([\w.]+)'''
+yonetici_alani_desen = '''admin:\s*true'''
+# Kimlik dekoratörü herkese açıklığı kendi içinde de söyleyebilir: @Authenticated({ public: true })
+herkese_acik_alani_desen = '''public:\s*true'''
+
+[parametre]
+govde = "Body"
+sorgu = "Query"
+yol = "Param"
+# Dosya yüklemesi: dosya gövde şemasının parçası değildir, önizlemede sınanmaz ("dosya doğrulaması kontrol edilemedi")
+dosya = ["UploadedFile", "UploadedFiles"]
+dosya_desen = '''(ParseFilePipe|FileValidator|(?:File|Files|FileFields|AnyFiles)Interceptor|\w*Upload\w*Interceptor|multipart/form-data)'''
+
+[dto]
+istege_bagli_dekorator = ["IsOptional", "ValidateIf"]
+# Doğrulayıcı dekoratörlerin geldiği modüller: buradan içe aktarılan dekoratör alanı doğrular (alanın varlığı denetlenir).
+# Projenin kendi dekoratörleri (ör. applyDecorators(IsOptional(), IsString())) tanımları izlenerek anlamlandırılır;
+# tanımı izlenemeyen ya da hiç doğrulayıcısı olmayan alanın zorunluluğu "belirsiz" kalır (TypeScript'teki ? kanıt sayılmaz).
+dogrulayici_modul = ["class-validator"]
+kural_olmayan_dekorator = ["ApiProperty", "ApiPropertyOptional", "ApiHideProperty", "Type", "Transform", "Expose", "Exclude"]
+# Türetilmiş tipler: hepsi isteğe bağlı / yalnız seçilenler / seçilenler hariç / birleşim
+tumu_istege_bagli = ["PartialType"]
+secici = ["PickType"]
+haric = ["OmitType"]
+birlesim = ["IntersectionType"]
+# Zod ile tanımlanan girdiler: class X extends createZodDto(XSchema) {}
+zod_dto_desen = '''^createZodDto\(\s*(\w+)\s*\)'''
+# İzin verilen değerleri sınırlayan dekoratörler (önizlemede kontrol edilir)
+enum_dekorator = ["IsEnum"]
+liste_dekorator = ["IsIn"]
+
+[kullanimdan_kalkma]
+# Kapı kullanımdan kaldırılmış mı: @Deprecated() işareti ya da özet dekoratörü içinde deprecated: true ya da
+# .deprecated(...) çağrısı. Değer okunur: deprecated: false kalkmış sayılmaz.
+dekorator = ["Deprecated"]
+desen = '''(?i)(deprecated\s*:\s*true|\.deprecated\s*\()'''
+# Yerine gelen işlem: ör. .deprecated('v3.2.1', { replacementId: 'mergePeople' })
+yerine_desen = '''replacementId:\s*['"`](\w+)'''
+
+[ozet]
+# Özet (summary) taşıyan dekoratörler; uygulamalar kendi sarmalayıcılarını yazabilir (ör. @Endpoint)
+dekorator = ["ApiOperation", "Endpoint"]
+alan_desen = '''summary:\s*['"`]([^'"`]+)'''
+
+[veri]
+# Veritabanı bağları (Prisma): <alıcı>.<model>.<işlem>(...) çağrıları. Alıcının adı önemli değildir
+# (this.prisma, tx, this.db.prisma); model erişimcisi şema dosyasındaki model adının küçük harfle başlayan hâlidir.
+sema_uzantisi = "prisma"
+# Şema uygulama klasörünün dışındaysa (monorepo), Prisma'nın kendi ayarı: package.json içinde "prisma": { "schema": "..." }
+paket_ayari = ["prisma", "schema"]
+model_desen = '''(?m)^\s*model\s+(\w+)\s*\{'''
+okuma = ["findUnique", "findUniqueOrThrow", "findFirst", "findFirstOrThrow", "findMany", "count", "aggregate", "groupBy"]
+yazma = ["create", "createMany", "createManyAndReturn", "update", "updateMany", "updateManyAndReturn", "upsert", "delete", "deleteMany"]
+# Controller'dan servis metotlarına kadar izlenecek en fazla adım
+derinlik = 6

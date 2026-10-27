@@ -1,0 +1,18 @@
+{
+  "name": "sezgi",
+  "version": "0.1.0",
+  "description": "Sezgi: maps an application's operations, rules, access, call graph, external effects and business meaning from its code (NestJS, FastAPI, Django, Flask, Express, Fastify, Next.js, Spring Boot (Java, Kotlin), Ktor, Rails, ASP.NET Core, Go, Laravel) and serves them to AI agents over MCP in English or Turkish, with a signable Benlik Card and an opt-in, gated live mode for test copies (writes on real data are experimental and need a human password).",
+  "bin": { "sezgi": "bin/sezgi.js" },
+  "files": ["bin", "platformlar.json", "README.md", "LICENSE"],
+  "optionalDependencies": {
+    "@sezgi/cli-win32-x64": "0.1.0",
+    "@sezgi/cli-darwin-arm64": "0.1.0",
+    "@sezgi/cli-darwin-x64": "0.1.0",
+    "@sezgi/cli-linux-x64": "0.1.0",
+    "@sezgi/cli-linux-arm64": "0.1.0"
+  },
+  "keywords": ["sezgi", "benlik", "ai-agents", "mcp", "nestjs", "fastapi", "express", "api-discovery"],
+  "author": "Aykut Atabay",
+  "license": "Apache-2.0",
+  "engines": { "node": ">=20" }
+}

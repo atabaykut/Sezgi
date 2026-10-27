@@ -1,0 +1,47 @@
+# Sezgi karşılaştırma eylemi: PR'da taban commit'in ve PR'ın haritasını kurar, karşılaştırır. Bağlı yapay zekâları ve
+# entegrasyonları bozacak değişiklikte (kaldırılan işlem, yeni zorunlu girdi, daralan değerler, sıkılaşan sınırlar,
+# yeni giriş zorunluluğu, kısıtlanan roller) iş başarısız olur; özet adım özetine ve PR'a yorum olarak yazılır.
+# Örnek iş akışı: eylem/ornek-is-akisi.yml. Eylem başka bir eylem çağırmaz; yalnızca kabuk, git ve gh kullanır.
+name: Sezgi karşılaştırma
+description: PR'ın, uygulamanın yapay zekâlara sunduğu işlemleri bozup bozmadığını denetler (sezgi karsilastir --sert).
+inputs:
+  uygulama:
+    description: Uygulamanın depo köküne göre klasörü
+    default: "."
+  taban:
+    description: Karşılaştırılacak eski commit. Boşsa PR'ın taban commit'i
+    default: ""
+  sert:
+    description: "true: bozan değişiklikte iş başarısız olur; false: yalnızca raporlanır"
+    default: "true"
+  yorum:
+    description: "true: özet PR'a yorum olarak yazılır (tek yorum, güncellenir; pull-requests: write gerekir)"
+    default: "true"
+  sezgi-surumu:
+    description: npm'den çalıştırılacak sezgi sürümü
+    default: "0.1.0"
+  sezgi:
+    description: Kurulu sezgi ikilisinin yolu (verilirse npm kullanılmaz)
+    default: ""
+  github-token:
+    description: PR yorumu için belirteç
+    default: ${{ github.token }}
+outputs:
+  kirilma:
+    description: "true: bozan değişiklik var"
+    value: ${{ steps.karsilastir.outputs.kirilma }}
+runs:
+  using: composite
+  steps:
+    - id: karsilastir
+      shell: bash
+      env:
+        SEZGI_UYGULAMA: ${{ inputs.uygulama }}
+        SEZGI_TABAN: ${{ inputs.taban || github.event.pull_request.base.sha }}
+        SEZGI_SERT: ${{ inputs.sert }}
+        SEZGI_YORUM: ${{ inputs.yorum }}
+        SEZGI_SURUM: ${{ inputs.sezgi-surumu }}
+        SEZGI_IKILI: ${{ inputs.sezgi }}
+        SEZGI_PR: ${{ github.event.pull_request.number }}
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: bash "$GITHUB_ACTION_PATH/eylem/karsilastir.sh"

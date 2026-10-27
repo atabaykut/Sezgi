@@ -1,0 +1,45 @@
+[package]
+name = "sezgi"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.99"
+description = "Sezgi: reads a NestJS application once and serves its endpoints, inputs, rules, auth and table links to AI agents over MCP; writes a signed Benlik Card."
+license = "Apache-2.0"
+authors = ["Aykut Atabay"]
+
+[dependencies]
+tree-sitter = "0.27.1"
+tree-sitter-typescript = "0.23.2"
+tree-sitter-python = "0.25.0"
+tree-sitter-c-sharp = "=0.23.5"
+tree-sitter-go = "=0.25.0"
+tree-sitter-java = "=0.23.5"
+tree-sitter-kotlin-ng = "=1.1.0"
+tree-sitter-php = "=0.25.1"
+tree-sitter-ruby = "0.23.1"
+rayon = "1.12.0"
+ignore = "0.4.33"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = { version = "1.0.154", features = ["preserve_order"] }
+toml = "1.1.8"
+regex = "1.13.1"
+ml-dsa = "0.1.1"
+base64 = "0.23.1"
+getrandom = "0.4.3"
+shake = "0.1.0"
+miniz_oxide = { version = "0.8.9", default-features = false, features = ["with-alloc"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+rustls-native-certs = "0.8"
+ring = "0.17"
+keyring = { version = "3", default-features = false, features = ["windows-native", "apple-native", "linux-native"] }
+
+# İnsan anahtarının sistem çapası (Windows): dosya sahibi, kullanıcı adı, sistem sürücüsü ve parola için konsol yankısı;
+# çıktı dili için kullanıcının arayüz dili (Globalization).
+# Cargo.lock'ta zaten var (keyring, schannel, winapi-util); yalnızca özellikler açılır.
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Globalization", "Win32_Security", "Win32_Security_Authorization", "Win32_System_Console", "Win32_System_SystemInformation", "Win32_System_WindowsProgramming"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

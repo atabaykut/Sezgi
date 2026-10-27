@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sezgi Ayna</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/ayna.css">
+<script src="/ayna.js" defer></script>
+</head>
+<body data-sekme="sezgi">
+<a class="atla" href="#icerik">Skip to content</a>
+<header>
+  <h1>Sezgi Ayna <span id="uygulama"></span></h1>
+  <div class="bilgi" id="kaynak"></div>
+  <div class="sag"><span id="imza" class="rozet" hidden>signature…</span><button class="tema" id="tema" type="button" title="Light / dark theme" aria-label="Switch between light and dark theme">◐ Theme</button><button class="tema" id="dil" type="button" lang="tr" title="Türkçe" aria-label="Türkçeye geç">TR</button></div>
+</header>
+<section class="sayilar" id="sayilar" aria-label="Summary figures" hidden></section>
+<nav role="tablist" aria-label="Ayna sections">
+  <button role="tab" id="sekme-sezgi" aria-controls="sezgi" aria-selected="true" data-sekme="sezgi">Sezgi</button>
+  <button role="tab" id="sekme-bilgi" aria-controls="bilgi" aria-selected="false" tabindex="-1" data-sekme="bilgi">What we know</button>
+  <button role="tab" id="sekme-kapilar" aria-controls="kapilar" aria-selected="false" tabindex="-1" data-sekme="kapilar" data-harita hidden>Endpoints</button>
+  <button role="tab" id="sekme-kapsam" aria-controls="kapsam" aria-selected="false" tabindex="-1" data-sekme="kapsam" data-harita hidden>Coverage</button>
+  <button role="tab" id="sekme-kart" aria-controls="kart" aria-selected="false" tabindex="-1" data-sekme="kart" data-harita hidden>Benlik Card</button>
+  <button role="tab" id="sekme-izinler" aria-controls="izinler" aria-selected="false" tabindex="-1" data-sekme="izinler" data-harita hidden>Permissions and tokens</button>
+</nav>
+<main id="icerik">
+  <section id="sezgi" class="tanitim" role="tabpanel" aria-labelledby="sekme-sezgi" tabindex="0">
+    <div class="panel kahraman">
+      <p class="ust-baslik">What is Sezgi?</p>
+      <h2>It reads your application's code: it understands what the app is and what each operation affects, explains this to AI with evidence, and lets the AI work on it safely.</h2>
+      <p class="soluk bosluksuz">Every fact carries a trust stamp: certain, observed, inferred or unknown. In live mode every AI request passes a policy check: the token's permission, the map's freshness, an input preview, the operation's trust stamp and its effects. A delete, an effect on an external system, a write that cannot be undone, evidence that is not certain or a rule the preview cannot check needs human approval. Sezgi says plainly what it does not know. Everything runs on this computer.</p>
+      <div class="satir-rozet" id="proje-durum"></div>
+    </div>
+    <div class="panel anlam" id="anlam" hidden aria-labelledby="anlam-baslik"></div>
+    <div class="panel ara-panel" id="ara-panel" hidden>
+      <form id="ara-form" role="search" aria-label="What do you want to do?">
+        <label class="ust-baslik" for="ara-gorev">What do you want to do?</label>
+        <div class="ara-satir">
+          <input type="search" id="ara-gorev" autocomplete="off" placeholder="e.g. share an album · delete a user · kullanıcıyı sil">
+          <button class="ana" type="submit">Find</button>
+        </div>
+        <p class="soluk bosluksuz" id="ara-ipucu">Write in English or Turkish. Sezgi maps the request to this app's operations; each result says what it affects, whether it can be undone and whether approval is needed. Nothing is run.</p>
+      </form>
+      <div id="ara-sonuc" aria-live="polite"></div>
+    </div>
+    <div class="panel sonraki" id="sonraki" hidden></div>
+    <h2 class="bolum-baslik" id="yetenek-baslik">What can Sezgi do?</h2>
+    <div class="yetenekler ana-yetenekler" id="yetenekler" role="list" aria-labelledby="yetenek-baslik"></div>
+    <h2 class="bolum-baslik ikincil-baslik" id="diger-baslik">Also</h2>
+    <div class="yetenekler diger-yetenekler" id="diger-yetenekler" role="list" aria-labelledby="diger-baslik"></div>
+    <p class="soluk dipnot">The states are computed from the real state of this computer (map, call graph, connections, live mode, human password, switchboard). Ayna sets nothing up; run the command in a terminal.</p>
+  </section>
+  <section id="bilgi" class="bilgi-ekrani" role="tabpanel" aria-labelledby="sekme-bilgi" tabindex="0" hidden>
+    <div class="panel ic-bosluk">
+      <h2 class="bosluksuz">What do we know about this application?</h2>
+      <p class="soluk">The answers come only from the map, the evidence store and the coverage report; Sezgi produces no new facts. Every item has a trust stamp; an answer's stamp is that of its weakest item. A question that cannot be answered is shown as "unknown", with the reason.</p>
+      <div class="olcek" id="olcek" aria-label="Trust scale"></div>
+      <div class="satir-rozet" id="bilgi-ozet"></div>
+    </div>
+    <div class="sorular" id="sorular"></div>
+  </section>
+  <section id="kapilar" class="bolme" role="tabpanel" aria-labelledby="sekme-kapilar" hidden>
+    <div class="panel">
+      <div class="liste-ust">
+        <input type="search" id="ara" placeholder="Search: path, operation, table or request (delete user)…" aria-label="Search">
+        <div class="suzgecler">
+          <select id="s-yontem" aria-label="Method"><option value="">Any method</option><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select>
+          <select id="s-giris" aria-label="Login"><option value="">Any login</option><option value="gerekli">Login required</option><option value="herkese_acik">Public</option><option value="istege_bagli">Optional</option></select>
+          <select id="s-diger" aria-label="Other"><option value="">All</option><option value="yazar">Writes data</option><option value="bilinmeyen">Schema not resolved</option><option value="kalkmis">Deprecated</option><option value="ikincil">Secondary app</option></select>
+        </div>
+        <div class="soluk" id="adet"></div>
+      </div>
+      <div class="liste" id="liste"></div>
+    </div>
+    <div class="panel ayrinti" id="ayrinti" tabindex="-1"><div class="bos">Pick an endpoint on the left: what it does, what it affects, who may run it and whether approval is needed appear here.</div></div>
+  </section>
+  <section id="kapsam" class="kapsam" role="tabpanel" aria-labelledby="sekme-kapsam" tabindex="0" hidden></section>
+  <section id="kart" role="tabpanel" aria-labelledby="sekme-kart" tabindex="0" hidden>
+    <div class="panel ic-bosluk">
+      <div class="satir-rozet" id="kart-ozet"></div>
+      <pre class="sonuc kart-json" id="kart-json"></pre>
+    </div>
+  </section>
+  <section id="izinler" class="izin-ekrani" role="tabpanel" aria-labelledby="sekme-izinler" hidden>
+    <div class="panel ic-bosluk">
+      <h3 class="bosluksuz">Which operations will you open to the AI?</h3>
+      <p class="soluk">All are closed by default. A token is created from the ones you check; an AI connected with that token <b>sees only the operations you chose</b> (search, describe, preview, call). The level comes from the kind of operation: read (GET), write (POST/PUT/PATCH), destructive (DELETE, human approval every time).</p>
+      <p class="soluk bosluksuz" id="iz-mod"></p>
+    </div>
+    <div class="panel">
+      <div class="liste-ust">
+        <input type="search" id="iz-ara" placeholder="Search: module, path, description, table…" aria-label="Search operations">
+        <div class="suzgecler">
+          <button class="ikincil" id="iz-okumalar">Select all reads</button>
+          <button class="ikincil" id="iz-temizle">Clear selection</button>
+          <span class="soluk" id="iz-adet"></span>
+        </div>
+      </div>
+      <div id="iz-moduller"></div>
+    </div>
+    <div class="panel ic-bosluk izin-form">
+      <h3 class="bosluksuz">Create token</h3>
+      <div class="uc">
+        <input type="text" id="iz-ad" maxlength="80" placeholder="Token name (e.g. Claude – design team)" aria-label="Token name">
+        <select id="iz-sure" aria-label="Duration"><option value="1">1 day</option><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option></select>
+        <select id="iz-onay" aria-label="Approval"><option value="yikici">Approval: destructive operations only</option><option value="hepsi">Approval: every write</option></select>
+      </div>
+      <button class="ana" id="iz-uret" disabled>Create token</button>
+      <div id="iz-sonuc" hidden></div>
+    </div>
+    <div class="panel ic-bosluk">
+      <h3 class="bosluksuz">Existing tokens</h3>
+      <div id="iz-tokenler"></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

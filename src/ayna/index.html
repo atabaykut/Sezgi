@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sezgi Ayna</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/ayna.css">
+<script src="/ayna.js" defer></script>
+</head>
+<body data-sekme="sezgi">
+<a class="atla" href="#icerik">İçeriğe geç</a>
+<header>
+  <h1>Sezgi Ayna <span id="uygulama"></span></h1>
+  <div class="bilgi" id="kaynak"></div>
+  <div class="sag"><span id="imza" class="rozet" hidden>imza…</span><button class="tema" id="tema" type="button" title="Açık / koyu tema" aria-label="Açık ya da koyu temaya geç">◐ Tema</button><button class="tema" id="dil" type="button" lang="en" title="English" aria-label="Switch to English">EN</button></div>
+</header>
+<section class="sayilar" id="sayilar" aria-label="Özet sayılar" hidden></section>
+<nav role="tablist" aria-label="Ayna bölümleri">
+  <button role="tab" id="sekme-sezgi" aria-controls="sezgi" aria-selected="true" data-sekme="sezgi">Sezgi</button>
+  <button role="tab" id="sekme-bilgi" aria-controls="bilgi" aria-selected="false" tabindex="-1" data-sekme="bilgi">Ne biliyoruz</button>
+  <button role="tab" id="sekme-kapilar" aria-controls="kapilar" aria-selected="false" tabindex="-1" data-sekme="kapilar" data-harita hidden>Kapılar</button>
+  <button role="tab" id="sekme-kapsam" aria-controls="kapsam" aria-selected="false" tabindex="-1" data-sekme="kapsam" data-harita hidden>Kapsam</button>
+  <button role="tab" id="sekme-kart" aria-controls="kart" aria-selected="false" tabindex="-1" data-sekme="kart" data-harita hidden>Benlik Kartı</button>
+  <button role="tab" id="sekme-izinler" aria-controls="izinler" aria-selected="false" tabindex="-1" data-sekme="izinler" data-harita hidden>İzinler ve token</button>
+</nav>
+<main id="icerik">
+  <section id="sezgi" class="tanitim" role="tabpanel" aria-labelledby="sekme-sezgi" tabindex="0">
+    <div class="panel kahraman">
+      <p class="ust-baslik">Sezgi nedir?</p>
+      <h2>Uygulamanızın kodunu okur: ne olduğunu, hangi işlemin neyi etkilediğini anlar, bunu yapay zekâya kanıtla anlatır ve ona güvenle iş yaptırır.</h2>
+      <p class="soluk bosluksuz">Her bilgi bir güven damgası taşır: kesin, gözlem, yorum ya da bilinmiyor. Canlı modda yapay zekânın her isteği bir politika denetiminden geçer: token'ın izni, haritanın tazeliği, girdi önizlemesi, işlemin güven damgası ve etkisi; silme, dış sisteme etki, geri alınamaz yazma, kesin olmayan kanıt ya da önizlemenin denetleyemediği bir kural insan onayı ister. Sezgi neyin bilinmediğini açıkça söyler. Bütün çalışma bu bilgisayarda olur.</p>
+      <div class="satir-rozet" id="proje-durum"></div>
+    </div>
+    <div class="panel anlam" id="anlam" hidden aria-labelledby="anlam-baslik"></div>
+    <div class="panel ara-panel" id="ara-panel" hidden>
+      <form id="ara-form" role="search" aria-label="Ne yapmak istiyorsun?">
+        <label class="ust-baslik" for="ara-gorev">Ne yapmak istiyorsun?</label>
+        <div class="ara-satir">
+          <input type="search" id="ara-gorev" autocomplete="off" placeholder="ör. albüm paylaş · kullanıcıyı sil · delete user">
+          <button class="ana" type="submit">Bul</button>
+        </div>
+        <p class="soluk bosluksuz" id="ara-ipucu">Türkçe ya da İngilizce yazın. Sezgi isteği bu uygulamanın işlemlerine çevirir; her sonuç neyi etkilediğini, geri alınıp alınamayacağını ve onay gerekip gerekmediğini söyler. Hiçbir şey çalıştırılmaz.</p>
+      </form>
+      <div id="ara-sonuc" aria-live="polite"></div>
+    </div>
+    <div class="panel sonraki" id="sonraki" hidden></div>
+    <h2 class="bolum-baslik" id="yetenek-baslik">Sezgi neler yapabilir?</h2>
+    <div class="yetenekler ana-yetenekler" id="yetenekler" role="list" aria-labelledby="yetenek-baslik"></div>
+    <h2 class="bolum-baslik ikincil-baslik" id="diger-baslik">Ayrıca</h2>
+    <div class="yetenekler diger-yetenekler" id="diger-yetenekler" role="list" aria-labelledby="diger-baslik"></div>
+    <p class="soluk dipnot">Durumlar bu bilgisayardaki gerçek durumdan hesaplanır (harita, çağrı grafiği, bağlantılar, canlı mod, insan parolası, santral). Ayna hiçbir şey kurmaz; komutu terminalde çalıştırın.</p>
+  </section>
+  <section id="bilgi" class="bilgi-ekrani" role="tabpanel" aria-labelledby="sekme-bilgi" tabindex="0" hidden>
+    <div class="panel ic-bosluk">
+      <h2 class="bosluksuz">Bu uygulama hakkında ne biliyoruz?</h2>
+      <p class="soluk">Yanıtlar yalnızca haritadan, kanıt deposundan ve kapsam raporundan gelir; Sezgi yeni bilgi üretmez. Her maddenin güven damgası vardır; bir yanıtın damgası en zayıf maddesininkidir. Yanıtlanamayan soru "bilinmiyor" olarak, nedeniyle gösterilir.</p>
+      <div class="olcek" id="olcek" aria-label="Güven ölçeği"></div>
+      <div class="satir-rozet" id="bilgi-ozet"></div>
+    </div>
+    <div class="sorular" id="sorular"></div>
+  </section>
+  <section id="kapilar" class="bolme" role="tabpanel" aria-labelledby="sekme-kapilar" hidden>
+    <div class="panel">
+      <div class="liste-ust">
+        <input type="search" id="ara" placeholder="Ara: yol, işlem, tablo ya da istek (kullanıcı sil)…" aria-label="Ara">
+        <div class="suzgecler">
+          <select id="s-yontem" aria-label="Yöntem"><option value="">Her yöntem</option><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select>
+          <select id="s-giris" aria-label="Giriş"><option value="">Her giriş</option><option value="gerekli">Giriş gerekli</option><option value="herkese_acik">Herkese açık</option><option value="istege_bagli">İsteğe bağlı</option></select>
+          <select id="s-diger" aria-label="Diğer"><option value="">Hepsi</option><option value="yazar">Veri yazanlar</option><option value="bilinmeyen">Şeması çözülemeyen</option><option value="kalkmis">Kullanımdan kalkmış</option><option value="ikincil">İkincil uygulama</option></select>
+        </div>
+        <div class="soluk" id="adet"></div>
+      </div>
+      <div class="liste" id="liste"></div>
+    </div>
+    <div class="panel ayrinti" id="ayrinti" tabindex="-1"><div class="bos">Soldan bir kapı seç: ne yaptığı, neyi etkilediği, kimin yapabileceği ve onay gerekip gerekmediği burada görünür.</div></div>
+  </section>
+  <section id="kapsam" class="kapsam" role="tabpanel" aria-labelledby="sekme-kapsam" tabindex="0" hidden></section>
+  <section id="kart" role="tabpanel" aria-labelledby="sekme-kart" tabindex="0" hidden>
+    <div class="panel ic-bosluk">
+      <div class="satir-rozet" id="kart-ozet"></div>
+      <pre class="sonuc kart-json" id="kart-json"></pre>
+    </div>
+  </section>
+  <section id="izinler" class="izin-ekrani" role="tabpanel" aria-labelledby="sekme-izinler" hidden>
+    <div class="panel ic-bosluk">
+      <h3 class="bosluksuz">Yapay zekâya hangi işlemleri açacaksın?</h3>
+      <p class="soluk">Hepsi varsayılan olarak kapalı. Seçtiklerinle bir token üretilir; o token'la bağlanan yapay zekâ <b>yalnızca seçtiğin işlemleri görür</b> (arama, tanıma, önizleme, çağırma). Seviye işlemin türünden gelir: okuma (GET), yazma (POST/PUT/PATCH), yıkıcı (DELETE, her seferinde insan onayı).</p>
+      <p class="soluk bosluksuz" id="iz-mod"></p>
+    </div>
+    <div class="panel">
+      <div class="liste-ust">
+        <input type="search" id="iz-ara" placeholder="Ara: modül, yol, açıklama, tablo…" aria-label="İşlem ara">
+        <div class="suzgecler">
+          <button class="ikincil" id="iz-okumalar">Bütün okumaları seç</button>
+          <button class="ikincil" id="iz-temizle">Seçimi temizle</button>
+          <span class="soluk" id="iz-adet"></span>
+        </div>
+      </div>
+      <div id="iz-moduller"></div>
+    </div>
+    <div class="panel ic-bosluk izin-form">
+      <h3 class="bosluksuz">Token üret</h3>
+      <div class="uc">
+        <input type="text" id="iz-ad" maxlength="80" placeholder="Token adı (ör. Claude – tasarım ekibi)" aria-label="Token adı">
+        <select id="iz-sure" aria-label="Süre"><option value="1">1 gün</option><option value="7">7 gün</option><option value="30" selected>30 gün</option><option value="90">90 gün</option></select>
+        <select id="iz-onay" aria-label="Onay"><option value="yikici">Onay: yalnızca yıkıcı işlemler</option><option value="hepsi">Onay: bütün yazmalar</option></select>
+      </div>
+      <button class="ana" id="iz-uret" disabled>Token üret</button>
+      <div id="iz-sonuc" hidden></div>
+    </div>
+    <div class="panel ic-bosluk">
+      <h3 class="bosluksuz">Mevcut tokenler</h3>
+      <div id="iz-tokenler"></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>
