@@ -47,6 +47,11 @@ jobs:
       - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable
         with:
           targets: ${{ matrix.target }}
+      # Hedef, rust-toolchain.toml'un sabitlediği sürüme de eklenir: yukarıdaki adım onu "stable"a ekler, cargo ise
+      # sabit sürümle derler (çapraz hedefte std bulunamaz)
+      - name: Hedef (sabit araç zinciri)
+        shell: bash
+        run: rustup target add ${{ matrix.target }}
       # Windows gnu: Linux'ta MinGW ile çapraz derleme (yerel npm paketlemesiyle aynı araç zinciri)
       - name: MinGW
         if: ${{ matrix.mingw }}
