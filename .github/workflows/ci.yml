@@ -34,9 +34,12 @@ jobs:
       # macOS duman testi: küçük bir Express uygulaması haritalanır, doktor çalışır; canlı modda insan oturumu ve kayıt
       # anahtarı Anahtar Zinciri'ne yazılır (dosyaya değil) ve yeni bir süreçte geri okunur (kayıt zinciri çözülür).
       # Sezgi yapılandırması geçici klasörde (XDG_CONFIG_HOME); oturum sonunda kapatılır (anahtarlık girdisi silinir).
+      # Çıktı Türkçe aranır: runner'ın sistem dili (en_US) yerine SEZGI_LANG=tr.
       - name: macOS duman testi (harita, doktor, Anahtar Zinciri)
         if: runner.os == 'macOS'
         shell: bash
+        env:
+          SEZGI_LANG: tr
         run: |
           set -euo pipefail
           B="$PWD/target/release/sezgi"
