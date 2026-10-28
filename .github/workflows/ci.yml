@@ -88,10 +88,13 @@ jobs:
           printf '#!/bin/sh\nexec "%s" --no-sandbox "$@"\n' "$krom" > "$RUNNER_TEMP/tarayici"
           chmod +x "$RUNNER_TEMP/tarayici"
           echo "SEZGI_TARAYICI=$RUNNER_TEMP/tarayici" >> "$GITHUB_ENV"
-      - name: Testler
-        run: bash testler/calistir.sh
       - name: Testlerle clippy
         run: SEZGI_KOMUT=clippy bash testler/calistir.sh --all-targets -- -D warnings
+      # Gerçek veri testleri insan çapasını kurar (`sezgi insan kur --sistem`): çapa kök sahipli olmalı, bu yüzden test
+      # katmanı yerel Docker ortamındaki gibi kök kullanıcıyla koşar. Clippy önce çalışır: kökün yazdığı derleme
+      # klasörüne normal kullanıcı yazamaz.
+      - name: Testler
+        run: sudo -E env "PATH=$PATH" "CARGO_HOME=${CARGO_HOME:-$HOME/.cargo}" "RUSTUP_HOME=${RUSTUP_HOME:-$HOME/.rustup}" bash testler/calistir.sh --no-fail-fast
 
   deny:
     runs-on: ubuntu-latest
