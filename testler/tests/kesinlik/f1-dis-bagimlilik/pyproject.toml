@@ -1,0 +1,3 @@
+[project]
+name = "f1-dis-bagimlilik"
+dependencies = ["fastapi"]

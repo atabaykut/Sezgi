@@ -1,0 +1,4 @@
+{
+  "aciklama": "FastAPI: izlenemeyen (kütüphaneden gelen) bir bağımlılık kimlik isteyebilir; uç kesin olarak 'herkese açık' denemez.",
+  "kontroller": [{ "kapi": "GET /raporlar", "konu": "giris", "yasak": "herkese_acik" }]
+}

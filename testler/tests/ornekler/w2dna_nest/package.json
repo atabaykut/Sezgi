@@ -1,0 +1,1 @@
+{ "name": "w2dna-nest", "private": true, "dependencies": { "@nestjs/core": "10.0.0", "@nestjs/common": "10.0.0", "class-validator": "0.14.1", "@prisma/client": "5.0.0" } }

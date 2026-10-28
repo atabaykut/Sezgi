@@ -1,0 +1,1 @@
+{ "name": "d8-cagri-nest", "private": true, "dependencies": { "@nestjs/core": "10.0.0", "@nestjs/common": "10.0.0", "@nestjs/passport": "10.0.0", "class-validator": "0.14.1", "kysely": "0.27.0", "nestjs-kysely": "1.0.0" } }

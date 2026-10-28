@@ -1,0 +1,15 @@
+<h2>Kahramanlar</h2>
+<div>
+  <input #heroName />
+  <button type="button" (click)="add(heroName.value); heroName.value = ''">
+    Add hero
+  </button>
+</div>
+<ul>
+  @for (hero of heroes; track hero.id) {
+    <li>
+      <a [routerLink]="['/detail', hero.id]">{{ hero.name }}</a>
+      <button type="button" aria-label="Delete hero" (click)="delete(hero)">x</button>
+    </li>
+  }
+</ul>

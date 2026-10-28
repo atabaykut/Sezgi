@@ -1,0 +1,5 @@
+{
+  "name": "frontend",
+  "private": true,
+  "dependencies": { "react": "^18.2.0", "react-router-dom": "^6.11.0", "@reduxjs/toolkit": "^1.9.5", "react-redux": "^8.0.5" }
+}

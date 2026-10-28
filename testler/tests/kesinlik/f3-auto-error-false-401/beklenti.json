@@ -1,0 +1,7 @@
+{
+  "aciklama": "FastAPI: auto_error=False şemayı kullanan fonksiyonun çağırdığı yardımcı 401 fırlatıyor (Airflow). 'isteğe bağlı' ya da 'açık' kesin denemez.",
+  "kontroller": [
+    { "kapi": "DELETE /isler/:is_id", "konu": "giris", "yasak": "istege_bagli" },
+    { "kapi": "DELETE /isler/:is_id", "konu": "giris", "yasak": "herkese_acik" }
+  ]
+}

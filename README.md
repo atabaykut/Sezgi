@@ -154,9 +154,11 @@ For everyday use, `init`, `connect`, `mirror` and `watch` are enough. Turkish na
 
 ## More
 
+- [Example application](ornek/siparis/README.md): a small order app you can try in 5 minutes, with what Sezgi should find in it.
+- [FAQ](docs/FAQ.md): the hard questions, answered with links to the evidence; [architecture](docs/ARCHITECTURE.md); [removing Sezgi completely](docs/UNINSTALL.md).
 - [Detailed reference](docs/REFERENCE.md): how each language is read, the Benlik Card, every live-mode gate, run-time observation, the switchboard, known limitations and the roadmap.
 - [SECURITY.md](SECURITY.md): threat model and how to report a vulnerability.
-- [`kanit/`](https://github.com/atabaykut/Sezgi/tree/main/kanit): every measurement, its method and raw results.
+- [`kanit/`](https://github.com/atabaykut/Sezgi/tree/main/kanit): every measurement, its method and raw results (English summary in its README).
 - [Glossary](docs/GLOSSARY.md) and [changelog](CHANGELOG.md).
 - [Türkçe README](README.tr.md).
 

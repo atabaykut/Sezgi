@@ -1,0 +1,14 @@
+{
+  "aciklama": "K1.4: herkese açıklık dekoratörün adından değil tanımından çıkar: SetMetadata(KEY, true) ve guard'ın aynı KEY'i Reflector ile okuması.",
+  "kontroller": [
+    { "kapi": "GET /p/a", "konu": "giris_kesin", "beklenen": "herkese_acik" },
+    { "kapi": "GET /p/b", "konu": "giris_kesin", "beklenen": "herkese_acik" },
+    { "kapi": "GET /p/c", "konu": "giris_kesin", "beklenen": "herkese_acik" },
+    { "kapi": "GET /p/d", "konu": "giris_kesin", "beklenen": "herkese_acik" },
+    { "kapi": "GET /p/e", "konu": "giris_kesin", "beklenen": "gerekli" },
+    { "kapi": "GET /p/f", "konu": "giris_kesin", "beklenen": "gerekli" },
+    { "kapi": "GET /p/b", "konu": "giris", "yasak": "gerekli" },
+    { "kapi": "GET /p/d", "konu": "giris", "yasak": "gerekli" },
+    { "kapi": "GET /p/f", "konu": "giris", "yasak": "herkese_acik" }
+  ]
+}

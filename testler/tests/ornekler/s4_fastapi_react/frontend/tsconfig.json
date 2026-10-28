@@ -1,0 +1,7 @@
+{
+  // Yorumlu tsconfig (gerçek projelerdeki gibi)
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] }
+  }
+}

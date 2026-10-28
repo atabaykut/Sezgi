@@ -1,0 +1,4 @@
+[project]
+name = "d9-guven-cop-py"
+version = "0.1.0"
+dependencies = ["fastapi>=0.115", "sqlalchemy"]

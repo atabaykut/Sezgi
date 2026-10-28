@@ -637,8 +637,10 @@ pub(crate) fn yaz(cikti: &Path, kok: &Path, belge: &Value, imzala: Option<&str>)
         format!("sha256:{}", &crate::benlik::sha256_hex(d.join("\n").as_bytes())[..16])
     };
     crate::kanit::yaz(cikti, &mut b.depo)?;
-    crate::guvenli::atomik_yaz(&cikti.join("kapilar.json"), serde_json::to_string_pretty(&harita(&b, &kaynak_ref)).unwrap_or_default().as_bytes())?;
+    let h = harita(&b, &kaynak_ref);
+    crate::guvenli::atomik_yaz(&cikti.join("kapilar.json"), serde_json::to_string_pretty(&h).unwrap_or_default().as_bytes())?;
     let (mut kart, mut paket) = kart(&b, &kaynak_ref, verilis, 30);
+    kart[crate::benlik::HARITA_OZETI] = serde_json::json!(crate::benlik::harita_ozeti(&h));
     let imza = match imzala {
         Some(kimlik) => {
             crate::imza::imzala(&mut kart, kimlik).and_then(|_| crate::imza::imzala_baglamla(&mut paket, kimlik, crate::imza::KANIT_BAGLAMI))?;

@@ -374,8 +374,21 @@ pub(crate) fn konum() -> Result<(PathBuf, &'static str), (&'static str, String)>
 }
 
 fn ac_turlu() -> Result<Kopru, (&'static str, String)> {
-    let (paket, _) = konum()?;
-    ac_paketten(paket)
+    let (paket, kaynak) = konum()?;
+    let kopru = ac_paketten(paket)?;
+    // Sabitleme denetimleri sürümü tanır, kurulumdan sonra değiştirilmiş dosyaları değil: Sezgi'nin kendi kurduğu
+    // klasörün dışındaki (SEZGI_REA ya da PATH) bir REA'nın klasörünü başka bir programın yazamadığı kullanıcıya söylenir
+    if kaynak != KAYNAK_ONEK {
+        eprintln!(
+            "{}",
+            tf!(
+                "! REA Sezgi'nin kurduğu klasörden değil ({kaynak}: {}): dosyalarının içeriği doğrulanmadı; bu klasörü başka bir program (ör. bir kodlama ajanı) yazamamalı",
+                "! REA is not from the folder Sezgi installed ({kaynak}: {}): its file contents are not verified; no other program (such as a coding agent) should be able to write that folder",
+                crate::guvenli::gorunen(&kopru.paket)
+            )
+        );
+    }
+    Ok(kopru)
 }
 
 /// Verilen paket klasöründe sabitleme denetimleri; hepsi tutarsa köprü (yalnızca yerel `node --version` ve `rea

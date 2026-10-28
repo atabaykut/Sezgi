@@ -1,0 +1,11 @@
+{
+    "name": "acme/kitapci",
+    "version": "1.4.0",
+    "type": "project",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0",
+        "laravel/sanctum": "^4.0",
+        "spatie/laravel-permission": "^6.0"
+    }
+}

@@ -1,0 +1,1 @@
+{ "name": "d6-rr7-web", "private": true, "dependencies": { "react-router": "7.1.0", "@react-router/node": "7.1.0", "react": "19.0.0" }, "devDependencies": { "@react-router/dev": "7.1.0" } }

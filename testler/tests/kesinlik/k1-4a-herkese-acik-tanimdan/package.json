@@ -1,0 +1,1 @@
+{ "name": "k1-4a", "private": true, "dependencies": { "@nestjs/core": "10.0.0", "@nestjs/passport": "10.0.0" } }

@@ -1,0 +1,10 @@
+server:
+  port: 8080
+  servlet:
+    context-path: ${MAGAZA_YOLU:/magaza}
+spring:
+  jpa:
+    open-in-view: false
+---
+spring.config.activate.on-profile: prod
+server.servlet.context-path: /baska

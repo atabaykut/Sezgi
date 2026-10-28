@@ -1,0 +1,17 @@
+#!/bin/sh
+# Sahte node: REA'nın yerine geçer. `node --version` → v24.22.0; `node --max-old-space-size=N <betik> <komut> ...`
+# → komutu W3R_IZ dosyasına yazar ve W3R_CEVAP/<komut>.json içeriğini döner. Tarayıcı senaryosunda alt sürece verilen
+# gizli değer değişkenlerinin yalnızca ADLARI kaydedilir ve girdi dosyası W3R_IZ.girdi olarak kopyalanır.
+if [ "$1" = "--version" ]; then echo "v24.22.0"; exit 0; fi
+shift; shift
+komut="$1"
+echo "$*" >> "${W3R_IZ:-/dev/null}"
+if [ "$komut" = "capture-browser-scenario" ]; then
+  env | grep -o '^SEZGI_SENARYO_DEGER_[0-9]*' | sed 's/^/ortam /' >> "${W3R_IZ:-/dev/null}"
+  [ -n "$W3R_IZ" ] && cp "$2" "${W3R_IZ}.girdi"
+fi
+if [ "$komut" = "--version" ]; then echo "6.7.0"; exit 0; fi
+dosya="${W3R_CEVAP}/${komut}.json"
+if [ -f "$dosya" ]; then cat "$dosya"; [ "$komut" = "doctor" ] && exit 1; exit 0; fi
+echo "{\"error\":\"sahte: $komut için cevap yok\"}" >&2
+exit 3

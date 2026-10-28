@@ -177,6 +177,12 @@ pub fn guven_durumu(kart: &Value, anahtarlar: &Value) -> Guven {
     }
 }
 
+/// Uygulama için sabitlenmiş ya da daha önce görülmüş bir anahtar var mı: varsa kartı artık imzasız olamaz (imzalı
+/// kartın imzasız bir kartla değiştirilmesi)
+pub fn bilinen_anahtar(uygulama: &str) -> bool {
+    guven_oku(SABIT_DOSYA)[uygulama].as_array().is_some_and(|l| !l.is_empty()) || guven_oku(GORULEN_DOSYA).get(uygulama).is_some()
+}
+
 /// İlk kullanımda güven: uygulama için anahtar ilk kez görülüyorsa kaydeder
 pub fn gorulen_kaydet(kart: &Value, anahtarlar: &Value) -> Result<(), String> {
     let (Some(uygulama), Some(acik)) = (kart["app"]["id"].as_str(), imzalayan(kart, anahtarlar)) else { return Ok(()) };

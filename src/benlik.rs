@@ -6,6 +6,8 @@
 //! - `x-issued_at` / `x-expires_at`: kartın geçerlilik süresi (imza bunları kapsar);
 //! - `x-basis`: işlemlerin dayandığı kaynak dosyaların SHA-256 özetleri. `stale` elle yazılmaz, bu özetlerden hesaplanır;
 //! - `x-revision`: işlem kümesinin kanonik (JCS) özeti; `changes` commit'e değil buna bağlıdır;
+//! - `x-map_digest`: kartla birlikte yazılan haritanın (`kapilar.json`) kanonik (JCS) SHA-256 özeti. Canlı modun onay
+//!   kararı haritadan okunur; harita karttan sonra değiştiyse yazma yapılmaz (kart imzalıysa bu bağ da imzalıdır);
 //! - `x-evidence` (kayıt başına JCS özeti) + `x-evidence_root` (RFC 6962 Merkle kökü) + ayrı kanıt paketi;
 //! - `operation.x-dna`: işlemin davranış özeti (giriş, hata koşulları, veri etkisi, geri alma, kapsam).
 
@@ -616,6 +618,14 @@ pub fn dis_ekle(kart: &mut Value, dna: &Value, dis: &Value) {
 /// Baytların SHA-256 özeti (küçük harf onaltılık)
 pub fn sha256_hex(b: &[u8]) -> String {
     onaltilik(ring::digest::digest(&ring::digest::SHA256, b).as_ref())
+}
+
+/// Kartın haritaya bağı: haritanın kanonik (JCS) SHA-256 özeti. Biçimden (girinti, satır sonu) bağımsızdır;
+/// paylaşım dosyasından yeniden yazılan harita da aynı özeti verir.
+pub const HARITA_OZETI: &str = "x-map_digest";
+
+pub fn harita_ozeti(harita: &Value) -> String {
+    format!("sha256:{}", sha256_hex(crate::imza::kanonik(harita).as_bytes()))
 }
 
 fn onaltilik(b: &[u8]) -> String {

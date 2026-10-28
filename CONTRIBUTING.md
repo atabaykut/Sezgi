@@ -27,9 +27,10 @@ cargo build --release --locked
 cargo deny check                 # licences (deny.toml), advisories, sources
 cargo audit
 node kanit/belge-tutarlilik.js   # every number in the READMEs matches its source in kanit/
+bash testler/calistir.sh         # the test layer (Linux: needs `script` and a headless Chrome, see the script)
 ```
 
-The integration test suite (fixture applications, the negative corpus of places where Sezgi must not claim certainty, live-mode and security tests) is maintained outside this repository; the repository holds the product only. Maintainers run your change against it and add your small application as a fixture; a fix comes with a test that failed before it.
+The test layer lives in `testler/`: integration tests and fixture applications (`testler/tests`, `testler/tests/ornekler`), including the negative corpus of places where Sezgi must not claim certainty and the live-mode and security tests, plus unit and property tests for `src/` (`testler/src-ekleri`). `testler/calistir.sh` copies the product to a temporary folder, attaches the tests and runs `cargo test` there, so the crate itself stays free of test code. Add your small application as a fixture under `testler/tests/ornekler`; a fix comes with a test that failed before it.
 
 ### Rules
 

@@ -1,0 +1,4 @@
+{
+  "aciklama": "FastAPI: Annotated takma adının içindeki bağımlılık, takma adın tanımlandığı modülde çözülür (geliştirme sırasında bulunan hata: kullanıldığı modülde aranıyor, zincir kopuyordu).",
+  "kontroller": [{ "kapi": "GET /siparisler/", "konu": "giris_kesin", "beklenen": "gerekli" }]
+}

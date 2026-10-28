@@ -1,0 +1,1 @@
+{ "name": "d6-angular-web", "private": true, "dependencies": { "@angular/core": "19.0.0", "@angular/common": "19.0.0", "@angular/router": "19.0.0", "rxjs": "7.8.0" } }

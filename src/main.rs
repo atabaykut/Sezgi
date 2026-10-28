@@ -1110,6 +1110,8 @@ fn init(args: &[String], onbellek: &mut Onbellek, ayrintili: bool) -> Option<Ini
     }
     let verilis = simdi_sn();
     let mut kart = benlik::kart(&ad, &uygulama_surumu, &ref_, &adaptor_kimligi, &kapilar, &benlik::zaman_metni(verilis));
+    // Kart haritaya bağlanır: canlı mod onay kararını haritadan okur, harita sonradan değişirse yazma yapılmaz
+    kart[benlik::HARITA_OZETI] = serde_json::json!(benlik::harita_ozeti(&harita));
     benlik::dna_ekle(&mut kart, &ozet["dna"]);
     benlik::olaylari_ekle(&mut kart, &ozet["dna"], &ozet["olaylar"]);
     benlik::dis_ekle(&mut kart, &ozet["dna"], &ozet["dis"]);

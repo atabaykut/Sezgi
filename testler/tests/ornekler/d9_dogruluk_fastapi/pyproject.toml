@@ -1,0 +1,4 @@
+[project]
+name = "d9-dogruluk-fastapi"
+version = "0.1.0"
+dependencies = ["fastapi>=0.115", "sqlmodel"]

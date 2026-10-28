@@ -1,0 +1,11 @@
+model Makale {
+  id       Int      @id
+  yazarId  Int
+  yorumlar Yorum[]
+}
+
+model Yorum {
+  id       Int    @id
+  makaleId Int
+  makale   Makale @relation(fields: [makaleId], references: [id], onDelete: Cascade)
+}

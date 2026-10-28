@@ -68,6 +68,31 @@ jobs:
           "$B" kayit --dogrula | tee /dev/stderr | grep -q "sağlam"
           "$B" oturum kapat
 
+  # Test katmanı (testler/): bütünleşik testler, örnek uygulamalar, birim ve özellik testleri. Linux'ta koşar: sahte
+  # terminal testleri `script` (util-linux) ister, Ayna tarayıcı testleri başsız Chrome ister (runner'da kurulu; kum havuzu
+  # runner'ın kullanıcı ad alanı kısıtı yüzünden yalnızca bu test tarayıcısı için kapatılır).
+  testler:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable
+        with:
+          components: clippy
+      - name: Başsız tarayıcı
+        shell: bash
+        run: |
+          set -euo pipefail
+          krom="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          printf '#!/bin/sh\nexec "%s" --no-sandbox "$@"\n' "$krom" > "$RUNNER_TEMP/tarayici"
+          chmod +x "$RUNNER_TEMP/tarayici"
+          echo "SEZGI_TARAYICI=$RUNNER_TEMP/tarayici" >> "$GITHUB_ENV"
+      - name: Testler
+        run: bash testler/calistir.sh
+      - name: Testlerle clippy
+        run: SEZGI_KOMUT=clippy bash testler/calistir.sh --all-targets -- -D warnings
+
   deny:
     runs-on: ubuntu-latest
     steps:

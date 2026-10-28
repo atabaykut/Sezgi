@@ -1,0 +1,16 @@
+model Siparis {
+  id       Int      @id
+  durum    String
+  kalemler Kalem[]
+}
+
+model Kalem {
+  id        Int     @id
+  siparisId Int
+  siparis   Siparis @relation(fields: [siparisId], references: [id], onDelete: Cascade)
+}
+
+model Not {
+  id        Int       @id
+  deletedAt DateTime?
+}

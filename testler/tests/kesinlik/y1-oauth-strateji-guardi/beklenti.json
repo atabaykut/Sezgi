@@ -1,0 +1,9 @@
+{
+  "aciklama": "Y1: AuthGuard('google') gibi giriş başlatan Passport stratejileri oturum gerektirmez; adındaki 'auth' kesin 'giriş gerekli' kanıtı değildir.",
+  "kontroller": [
+    { "kapi": "GET /auth/google", "konu": "giris", "yasak": "gerekli" },
+    { "kapi": "GET /auth/giris", "konu": "giris", "yasak": "gerekli" },
+    { "kapi": "GET /auth/google/callback", "konu": "giris", "yasak": "gerekli" },
+    { "kapi": "GET /auth/ben", "konu": "giris_kesin", "beklenen": "gerekli" }
+  ]
+}

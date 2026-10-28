@@ -1,0 +1,12 @@
+{
+  "aciklama": "K1.1: TypeScript '?' tek başına isteğe bağlılık kanıtı değildir; doğrulayıcısı olmayan alanın zorunluluğu bilinemez.",
+  "kontroller": [
+    { "kapi": "POST /a", "konu": "alan", "alan": "ad", "yasak_zorunlu": false },
+    { "kapi": "POST /a", "konu": "alan", "alan": "not", "yasak_zorunlu": true },
+    { "kapi": "POST /a", "konu": "alan", "alan": "takma", "yasak_zorunlu": true },
+    { "kapi": "POST /a", "konu": "alan", "alan": "serbest", "yasak_zorunlu": null },
+    { "kapi": "POST /a", "konu": "alan", "alan": "ham", "yasak_zorunlu": null },
+    { "kapi": "POST /a", "konu": "alan", "alan": "kosul", "yasak_zorunlu": null },
+    { "kapi": "POST /a", "konu": "onizle", "istek": { "kapi": "POST /a", "oturum": true, "govde": { "not": "x", "ham": "y" } }, "yasak": "GEÇER" }
+  ]
+}

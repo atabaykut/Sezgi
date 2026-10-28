@@ -1,0 +1,4 @@
+[project]
+name = "kitapci"
+version = "1.2.0"
+dependencies = ["fastapi>=0.115", "pydantic-settings", "sqlmodel"]

@@ -1,0 +1,1 @@
+{ "name": "transfer", "private": true, "dependencies": { "@nestjs/core": "10.0.0", "@nestjs/common": "10.0.0", "class-validator": "0.14.1" } }

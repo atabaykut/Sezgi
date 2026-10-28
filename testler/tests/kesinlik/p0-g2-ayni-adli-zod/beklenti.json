@@ -1,0 +1,70 @@
+{
+  "aciklama": "P0.3 (B23): iki dosyada aynı adlı modül-yerel zod sabiti (Immich PeopleUpdateSchema deseni) ve iki dosyada aynı adlı enum. Ad, kullanan dosyanın gördüğü tanıma göre çözülür (içe aktarma → aynı dosya → tek aday); belirsizse şema kesin sayılmaz. Asla yanlış alan + kesin.",
+  "kontroller": [
+    {
+      "kapi": "PUT /kisiler",
+      "konu": "sema",
+      "beklenen_alanlar": [
+        "people"
+      ],
+      "cozulmeli": true
+    },
+    {
+      "kapi": "PUT /kisiler/tercihler",
+      "konu": "sema",
+      "beklenen_alanlar": [
+        "enabled",
+        "minimumFaces"
+      ],
+      "cozulmeli": true
+    },
+    {
+      "kapi": "PUT /kisiler/belirsiz",
+      "konu": "sema"
+    },
+    {
+      "kapi": "PUT /kisiler/durum",
+      "konu": "sema",
+      "beklenen_alanlar": [
+        "durum"
+      ],
+      "cozulmeli": true
+    },
+    {
+      "kapi": "PUT /kisiler",
+      "konu": "onizle",
+      "istek": {
+        "kapi": "PUT /kisiler",
+        "oturum": true,
+        "govde": {
+          "enabled": true
+        }
+      },
+      "yasak": "GEÇER"
+    },
+    {
+      "kapi": "PUT /kisiler/durum",
+      "konu": "onizle",
+      "istek": {
+        "kapi": "PUT /kisiler/durum",
+        "oturum": true,
+        "govde": {
+          "durum": "acik"
+        }
+      },
+      "yasak": "REDDEDİLİR"
+    },
+    {
+      "kapi": "PUT /kisiler/durum",
+      "konu": "onizle",
+      "istek": {
+        "kapi": "PUT /kisiler/durum",
+        "oturum": true,
+        "govde": {
+          "durum": "taslak"
+        }
+      },
+      "beklenen": "REDDEDİLİR"
+    }
+  ]
+}

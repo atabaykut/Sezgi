@@ -1,0 +1,1 @@
+{ "name": "d6-solid-server", "private": true, "dependencies": { "express": "4.19.2" } }

@@ -155,6 +155,8 @@ Günlük kullanım için `init`, `bagla`, `ayna` ve `izle` yeterli. Komutların 
 
 ## Daha fazlası
 
+- [Örnek uygulama](ornek/siparis/README.md): 5 dakikada deneyebileceğiniz küçük bir sipariş uygulaması ve Sezgi'nin onda bulması gerekenler (İngilizce).
+- [Sık sorulan sorular](docs/FAQ.md), [mimari](docs/ARCHITECTURE.md) ve [Sezgi'yi tamamen kaldırma](docs/UNINSTALL.md) (İngilizce).
 - [Ayrıntılı başvuru](docs/BASVURU.md): her dilin nasıl okunduğu, Benlik Kartı, canlı modun bütün kapıları, çalışma zamanı gözlemi, santral, bilinen sınırlar ve yol haritası.
 - [SECURITY.md](SECURITY.md): tehdit modeli ve güvenlik açığı bildirimi.
 - [`kanit/`](https://github.com/atabaykut/Sezgi/tree/main/kanit): bütün ölçümler, yöntemleri ve ham sonuçları.

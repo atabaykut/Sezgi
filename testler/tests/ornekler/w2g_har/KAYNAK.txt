@@ -1,0 +1,6 @@
+Gerçek Test 1'in ağ kaydı (HAR): fastapi-template (MIT, commit b1125d8) konteynerde ayağa kaldırıldı ve Playwright
+ile giriş → /items → Add Item → Save → satır menüsü → Delete akışı kaydedildi.
+- oturum.har, har_isaretleri.json: yeniden üretim (kur.sh, har_kaydet.js; imaj rea-denetim:799e826, PostgreSQL 15,
+  Python 3.14 + uv, vite build, chrome-headless-shell). Parola test parolasıdır; konteyner silindi.
+- test1_ajan2.har, test1_ajan2_isaretler.json: Ajan 2'nin özgün kaydı.
+İki kayıt da bilerek JWT, e-posta ve parola içerir: içe aktarmanın bunları saklamadığı sınanır.

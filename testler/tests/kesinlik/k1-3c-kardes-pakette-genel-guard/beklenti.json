@@ -1,0 +1,7 @@
+{
+  "aciklama": "K1.3: uygulamanın modül grafiğinde olmayan kardeş paketin APP_GUARDı sayılmaz.",
+  "uygulama": "apps/api",
+  "kontroller": [
+    { "kapi": "GET /a", "konu": "giris", "yasak": "gerekli" }
+  ]
+}

@@ -1,0 +1,639 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://benlik.dev/schema/0.1/benlik-card.schema.json",
+  "title": "Benlik Card",
+  "description": "A signed, stamped, machine-readable self-description of an application's capabilities, rules, identity model and data handling. Draft 0.1.",
+  "type": "object",
+  "required": [
+    "benlik",
+    "app",
+    "generator",
+    "operations",
+    "coverage",
+    "identity",
+    "data_ledger",
+    "signature"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "benlik": {
+      "description": "Version of the Benlik Card format.",
+      "type": "string",
+      "pattern": "^0\\.1(\\.\\d+)?$"
+    },
+    "app": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "version",
+        "source_ref"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable identifier of the application."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string"
+        },
+        "source_ref": {
+          "type": "string",
+          "description": "Code state the card was generated from (commit hash or build id). A card whose source_ref does not match the running build is stale."
+        },
+        "description": {
+          "$ref": "#/$defs/stampedText"
+        }
+      },
+      "patternProperties": {
+        "^x-": {
+          "description": "Extension member. Generators MAY add x- members; consumers MUST ignore those they do not understand."
+        }
+      }
+    },
+    "generator": {
+      "type": "object",
+      "required": [
+        "name",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Tool that produced the card, e.g. 'sezgi' or 'handwritten'."
+        },
+        "version": {
+          "type": "string"
+        },
+        "adapters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Framework adapters used, e.g. 'nestjs@0.1'."
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "operations": {
+      "type": "array",
+      "description": "Every operation an agent may be able to perform. Operations not listed do not exist for agents.",
+      "items": {
+        "$ref": "#/$defs/operation"
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "description": "What the generator knows, guesses and does not know. A clean coverage report means 'no recorded gap', not proof of completeness.",
+      "required": [
+        "operations_found",
+        "operations_complete",
+        "rules_by_stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "operations_found": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "operations_complete": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rules_by_stamp": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "certain": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "data": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "approved": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "inferred": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unknown": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "skipped_files": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "partially_parsed_files": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "description": "How writes are attributed. The generator never grants authority; it only narrows it: effective permission = the user's permission in the application ∩ the token's scope.",
+      "required": [
+        "model",
+        "write_requires_human"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "enum": [
+            "oidc-token-exchange",
+            "user-session",
+            "read-only"
+          ]
+        },
+        "issuer": {
+          "type": "string",
+          "description": "OIDC issuer URL, when model is oidc-token-exchange."
+        },
+        "write_requires_human": {
+          "const": true,
+          "description": "Writes are never performed without a real user identity."
+        },
+        "service_account_writes": {
+          "const": false,
+          "description": "Writes to real data with a service account are not allowed."
+        }
+      }
+    },
+    "data_ledger": {
+      "type": "array",
+      "description": "Everything the generator or its runtime stores, by class.",
+      "items": {
+        "type": "object",
+        "required": [
+          "class",
+          "stored",
+          "retention_days"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "class": {
+            "enum": [
+              "code_derived",
+              "operational_log",
+              "customer_data"
+            ]
+          },
+          "stored": {
+            "type": "boolean"
+          },
+          "contents": {
+            "type": "string"
+          },
+          "retention_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "null means 'kept while the code exists' (code_derived only)."
+          },
+          "erase_command": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "changes": {
+      "type": "object",
+      "description": "Differences from the previous card.",
+      "additionalProperties": false,
+      "properties": {
+        "previous_source_ref": {
+          "type": "string"
+        },
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "removed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "breaking": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "operation",
+              "reason"
+            ],
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "required": [
+        "alg",
+        "key_id",
+        "public_key_url",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "alg": {
+          "enum": [
+            "ML-DSA-65",
+            "Ed25519",
+            "none"
+          ],
+          "description": "Signature algorithm. ML-DSA (FIPS 204) is quantum-resistant. 'none' marks an unsigned development card, which agents MUST NOT trust for writes."
+        },
+        "key_id": {
+          "type": "string"
+        },
+        "public_key_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "description": "Base64 signature over the canonical JSON of the card without the 'signature' member (RFC 8785 JSON Canonicalization Scheme)."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stamp": {
+      "description": "How a fact is known. Only certain, data and approved facts may enable writes.",
+      "enum": [
+        "certain",
+        "data",
+        "approved",
+        "inferred",
+        "unknown"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "file"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "line_start": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "line_end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "kind": {
+          "enum": [
+            "code",
+            "test",
+            "ui_text",
+            "schema",
+            "config_table",
+            "trace",
+            "annotation"
+          ]
+        }
+      }
+    },
+    "stampedText": {
+      "type": "object",
+      "required": [
+        "text",
+        "stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "stamp": {
+          "$ref": "#/$defs/stamp"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "required": [
+        "type",
+        "required",
+        "stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean",
+            "date",
+            "datetime",
+            "object",
+            "array",
+            "enum",
+            "file",
+            "unknown"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "format": {
+          "type": "string"
+        },
+        "enum": {
+          "type": "array"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "min_length": {
+          "type": "integer"
+        },
+        "max_length": {
+          "type": "integer"
+        },
+        "description": {
+          "type": "string"
+        },
+        "stamp": {
+          "$ref": "#/$defs/stamp"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      },
+      "patternProperties": {
+        "^x-": {
+          "description": "Extension member. Generators MAY add x- members; consumers MUST ignore those they do not understand."
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "required": [
+        "text",
+        "stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "rejects_with": {
+          "type": "string",
+          "description": "Error code or status the application returns when the rule fails."
+        },
+        "stamp": {
+          "$ref": "#/$defs/stamp"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      }
+    },
+    "operation": {
+      "type": "object",
+      "required": [
+        "id",
+        "effect",
+        "entry",
+        "inputs",
+        "stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+$"
+        },
+        "name": {
+          "$ref": "#/$defs/stampedText"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Business-language names, e.g. from UI labels."
+        },
+        "does": {
+          "$ref": "#/$defs/stampedText"
+        },
+        "does_not": {
+          "$ref": "#/$defs/stampedText"
+        },
+        "effect": {
+          "enum": [
+            "read",
+            "write",
+            "destructive"
+          ]
+        },
+        "effect_stamp": {
+          "$ref": "#/$defs/stamp",
+          "description": "Stamp of the effect classification. An effect derived only from the HTTP method is 'inferred'."
+        },
+        "entry": {
+          "type": "object",
+          "required": [
+            "protocol"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "protocol": {
+              "enum": [
+                "http",
+                "graphql",
+                "grpc",
+                "trpc",
+                "websocket",
+                "queue",
+                "schedule"
+              ]
+            },
+            "method": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/field"
+          }
+        },
+        "preconditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/stampedText"
+          }
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rule"
+          }
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "side_effects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "text",
+              "reversible",
+              "stamp"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "reversible": {
+                "type": "boolean"
+              },
+              "stamp": {
+                "$ref": "#/$defs/stamp"
+              }
+            }
+          }
+        },
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "requires_approval": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "object",
+          "description": "Tables or collections the operation may read and may write, as far as the generator could follow the code. Not a complete list; see SPEC 6.1.",
+          "required": [
+            "reads",
+            "writes",
+            "stamp"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "reads": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "writes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "stamp": {
+              "$ref": "#/$defs/stamp"
+            },
+            "partial": {
+              "type": "boolean",
+              "description": "The generator saw storage access it could not resolve (e.g. raw SQL); the lists may be incomplete."
+            }
+          }
+        },
+        "deprecated": {
+          "type": "boolean",
+          "description": "The operation still works but should not be used by new integrations."
+        },
+        "replaced_by": {
+          "type": "string",
+          "description": "Id or name of the operation that replaces a deprecated one."
+        },
+        "version": {
+          "type": "string",
+          "description": "API version this operation belongs to, when several versions share an address."
+        },
+        "stamp": {
+          "$ref": "#/$defs/stamp",
+          "description": "Overall stamp: the weakest stamp among the facts a write would rely on."
+        },
+        "stale": {
+          "type": "boolean"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      },
+      "patternProperties": {
+        "^x-": {
+          "description": "Extension member. Generators MAY add x- members; consumers MUST ignore those they do not understand."
+        }
+      }
+    }
+  },
+  "patternProperties": {
+    "^x-": {
+      "description": "Extension member. Generators MAY add x- members; consumers MUST ignore those they do not understand."
+    }
+  }
+}

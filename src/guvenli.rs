@@ -79,6 +79,12 @@ pub fn temiz(s: &str) -> String {
     s.chars().map(|c| if gorunmez(c) { ' ' } else { c }).take(300).collect()
 }
 
+/// Uygulamadan gelen cevap: görünmez karakterler boşluğa (satır sonu ve sekme kalır), en fazla `n` karakter. Cevap
+/// kaynak koddan değil çalışan uygulamadan gelir ama onun verisi de (ör. bir kullanıcının yazdığı yorum) talimat taşıyabilir.
+pub fn cevap_temiz(s: &str, n: usize) -> String {
+    s.chars().map(|c| if c != '\n' && c != '\t' && gorunmez(c) { ' ' } else { c }).take(n).collect()
+}
+
 /// Bir JSON değerindeki bütün metinleri ve anahtarları temizler (MCP ve Ayna haritayı yüklerken)
 pub fn json_temiz(v: &mut serde_json::Value) {
     use serde_json::Value;

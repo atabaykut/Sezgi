@@ -1,0 +1,1 @@
+{ "name": "fastify-temel-ornek", "private": true, "dependencies": { "fastify": "5.2.1" } }

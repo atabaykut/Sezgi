@@ -1,0 +1,6 @@
+Kabul fikstürü: Coffee 2.27 (versionCode 47), com.github.muellerma.coffee
+Kaynak: F-Droid resmî deposu, https://f-droid.org/repo/com.github.muellerma.coffee_47.apk
+SHA-256: ae4688fe48e751517e7a1d56aed27bff10b87daac0d7e28993fb193a7dc8f223
+Lisans: Apache-2.0 (F-Droid üst verisi fdroid_metadata.yml: License, AuthorName mueller-ma,
+        SourceCode https://github.com/mueller-ma/Coffee)
+Kullanım: yalnızca statik okuma (bildirim ayrıştırma testleri); APK çalıştırılmaz.

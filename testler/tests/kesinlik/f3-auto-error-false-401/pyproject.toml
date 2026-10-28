@@ -1,0 +1,3 @@
+[project]
+name = "f2-auto-error-false"
+dependencies = ["fastapi"]

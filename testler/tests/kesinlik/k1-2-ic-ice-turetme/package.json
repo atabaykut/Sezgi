@@ -1,0 +1,1 @@
+{ "name": "k1-2-ic-ice-turetme", "private": true, "dependencies": { "@nestjs/core": "10.0.0", "@nestjs/common": "10.0.0", "@nestjs/swagger": "7.0.0", "class-validator": "0.14.1" } }

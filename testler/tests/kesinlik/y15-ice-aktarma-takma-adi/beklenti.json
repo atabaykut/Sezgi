@@ -1,0 +1,7 @@
+{
+  "aciklama": "Y15: içe aktarma takma adıyla kullanılan dekoratör (IsOptional as Secimli, ApiProperty as Belge) asıl adıyla anlamlandırılır.",
+  "kontroller": [
+    { "kapi": "POST /a", "konu": "alan", "alan": "not", "yasak_zorunlu": true },
+    { "kapi": "POST /a", "konu": "alan", "alan": "ad", "yasak_zorunlu": false }
+  ]
+}

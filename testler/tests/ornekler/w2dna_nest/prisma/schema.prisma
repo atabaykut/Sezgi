@@ -1,0 +1,12 @@
+model Varlik {
+  id        String   @id
+  sahipId   String
+  deletedAt DateTime?
+  etiketler Etiket[]
+}
+
+model Etiket {
+  id       String @id
+  varlikId String
+  varlik   Varlik @relation(fields: [varlikId], references: [id], onDelete: Cascade)
+}

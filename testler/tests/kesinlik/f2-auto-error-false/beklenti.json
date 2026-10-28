@@ -1,0 +1,7 @@
+{
+  "aciklama": "FastAPI: auto_error=False ile güvenlik şeması oturumsuz isteği kendisi reddetmez; ama hatayı başka bir fonksiyon verebilir (Airflow, kanit/SONUC-15). Ne 'giriş gerekli' ne de 'isteğe bağlı' kesin denebilir.",
+  "kontroller": [
+    { "kapi": "GET /vitrin", "konu": "giris", "yasak": "gerekli" },
+    { "kapi": "GET /vitrin", "konu": "giris", "yasak": "istege_bagli" }
+  ]
+}

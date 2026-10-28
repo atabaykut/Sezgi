@@ -1,0 +1,9 @@
+{
+  "aciklama": "Bileşik dekoratör: projedeki bir dekoratör tanımında koşulsuz olarak UseGuards(...) uyguluyorsa (applyDecorators ya da doğrudan, iç içe) guard'lar kapıya eklenir ve giriş kararı kesin olabilir. Koşullu uygulanan guard ve tanınmayan guard'lar kesin karar vermez (Ghostfolio @RequiresScope / @RequiresScopeOfAccess).",
+  "kontroller": [
+    { "kapi": "GET /hesap", "konu": "giris_kesin", "beklenen": "gerekli" },
+    { "kapi": "GET /ic", "konu": "giris_kesin", "beklenen": "gerekli" },
+    { "kapi": "GET /hesap/erisim", "konu": "giris", "yasak": "herkese_acik" },
+    { "kapi": "GET /hesap/belki", "konu": "giris", "yasak": "gerekli" }
+  ]
+}

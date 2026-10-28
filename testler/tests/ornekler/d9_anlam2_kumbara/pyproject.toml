@@ -1,0 +1,4 @@
+[project]
+name = "kumbara"
+version = "0.6.0"
+dependencies = ["fastapi>=0.115", "sqlmodel"]

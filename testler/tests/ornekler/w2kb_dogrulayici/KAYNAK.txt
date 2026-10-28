@@ -1,0 +1,3 @@
+Benlik doğrulayıcısının (Rust, crate `benlik`) iki sürümü, testte kartın hiçbir işlemi yazılabilir saymadığını
+denetlemek için. Kaynak: depo `paketler/crates/benlik` (v011: Draft 0.1.1 doğrulayıcısı, commit bd9ced3; v020: 0.2.0).
+Yalnızca `#[cfg(test)] mod tests` bölümü çıkarıldı (depo yollarına bağlı). Lisans Apache-2.0.

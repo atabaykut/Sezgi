@@ -1,0 +1,1 @@
+{ "name": "w2y-arka-uc", "private": true, "dependencies": { "@nestjs/core": "10.0.0", "@nestjs/common": "10.0.0", "class-validator": "0.14.1", "zod": "4.0.0", "react": "18.3.1", "react-dom": "18.3.1", "react-email": "3.0.0" } }

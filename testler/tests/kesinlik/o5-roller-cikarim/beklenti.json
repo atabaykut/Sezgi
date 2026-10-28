@@ -1,0 +1,8 @@
+{
+  "aciklama": "O5: rol kararı kesin değilse (iki düzeyde rol, çözülemeyen rol değeri) önizleme ne GEÇER ne 403 diyebilir.",
+  "kontroller": [
+    { "kapi": "GET /a/iki", "konu": "onizle", "istek": { "kapi": "GET /a/iki", "oturum": true, "roller": ["editor"] }, "yasak": "GEÇER" },
+    { "kapi": "GET /a/iki", "konu": "onizle", "istek": { "kapi": "GET /a/iki", "oturum": true, "roller": ["misafir"] }, "yasak": "GEÇER" },
+    { "kapi": "GET /a/sayi", "konu": "onizle", "istek": { "kapi": "GET /a/sayi", "oturum": true, "roller": ["1"] }, "yasak": "REDDEDİLİR" }
+  ]
+}

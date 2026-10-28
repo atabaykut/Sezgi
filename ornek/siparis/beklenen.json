@@ -1,0 +1,154 @@
+{
+  "generated_by": "sezgi 0.1.0 (sezgi init .)",
+  "note": "Summary of .sezgi/kapilar.json and benlik.json. always_needs_approval = the operation has etki_onayi; approval_reason is an English rendering of it.",
+  "operations": [
+    {
+      "operation": "products.get-api-products",
+      "method": "GET",
+      "path": "/api/products",
+      "login": false,
+      "roles": [],
+      "effect": "read",
+      "tables_read": [
+        "products"
+      ],
+      "tables_written": [],
+      "tables_deleted_by_cascade": [],
+      "external_effects": [],
+      "ownership_check": false,
+      "reversible": null,
+      "needs_approval": false,
+      "always_needs_approval": false,
+      "approval_reason": null
+    },
+    {
+      "operation": "orders.get-api-orders-id",
+      "method": "GET",
+      "path": "/api/orders/:id",
+      "login": true,
+      "roles": [],
+      "effect": "read",
+      "tables_read": [
+        "orders"
+      ],
+      "tables_written": [],
+      "tables_deleted_by_cascade": [],
+      "external_effects": [],
+      "ownership_check": true,
+      "reversible": null,
+      "needs_approval": false,
+      "always_needs_approval": false,
+      "approval_reason": null
+    },
+    {
+      "operation": "orders.post-api-orders",
+      "method": "POST",
+      "path": "/api/orders",
+      "login": true,
+      "roles": [],
+      "effect": "write",
+      "tables_read": [
+        "products"
+      ],
+      "tables_written": [
+        "orders"
+      ],
+      "tables_deleted_by_cascade": [],
+      "external_effects": [],
+      "ownership_check": false,
+      "reversible": "unknown",
+      "needs_approval": true,
+      "always_needs_approval": false,
+      "approval_reason": null
+    },
+    {
+      "operation": "orders.post-api-orders-id-refund",
+      "method": "POST",
+      "path": "/api/orders/:id/refund",
+      "login": true,
+      "roles": [],
+      "effect": "write",
+      "tables_read": [
+        "orders"
+      ],
+      "tables_written": [
+        "orders"
+      ],
+      "tables_deleted_by_cascade": [],
+      "external_effects": [
+        "http:POST api.payments.example.com"
+      ],
+      "ownership_check": true,
+      "reversible": "irreversible",
+      "needs_approval": true,
+      "always_needs_approval": true,
+      "approval_reason": "external effect: HTTP POST api.payments.example.com/refunds cannot be undone"
+    },
+    {
+      "operation": "orders.post-api-orders-id-emailreceipt",
+      "method": "POST",
+      "path": "/api/orders/:id/email-receipt",
+      "login": true,
+      "roles": [],
+      "effect": "write",
+      "tables_read": [
+        "orders"
+      ],
+      "tables_written": [],
+      "tables_deleted_by_cascade": [],
+      "external_effects": [
+        "email:smtp",
+        "email:nodemailer"
+      ],
+      "ownership_check": true,
+      "reversible": "irreversible",
+      "needs_approval": true,
+      "always_needs_approval": true,
+      "approval_reason": "external effect: e-mail (nodemailer, smtp) cannot be undone"
+    },
+    {
+      "operation": "account.post-api-account-changepassword",
+      "method": "POST",
+      "path": "/api/account/change-password",
+      "login": true,
+      "roles": [],
+      "effect": "write",
+      "tables_read": [
+        "users"
+      ],
+      "tables_written": [
+        "users"
+      ],
+      "tables_deleted_by_cascade": [],
+      "external_effects": [],
+      "ownership_check": false,
+      "reversible": "unknown",
+      "needs_approval": true,
+      "always_needs_approval": true,
+      "approval_reason": "changes credentials (password) and reversibility is not proven"
+    },
+    {
+      "operation": "users.delete-api-users-id",
+      "method": "DELETE",
+      "path": "/api/users/:id",
+      "login": true,
+      "roles": [
+        "admin"
+      ],
+      "effect": "destructive",
+      "tables_read": [],
+      "tables_written": [
+        "users"
+      ],
+      "tables_deleted_by_cascade": [
+        "orders"
+      ],
+      "external_effects": [],
+      "ownership_check": false,
+      "reversible": "irreversible",
+      "needs_approval": true,
+      "always_needs_approval": true,
+      "approval_reason": "cannot be undone: hard delete (DELETE FROM users), orders deleted by cascade"
+    }
+  ]
+}

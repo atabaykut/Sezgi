@@ -1,0 +1,8 @@
+{
+  "aciklama": "O6: NestJS önce genel, sonra controller, sonra rota guard'larını çalıştırır ve hepsi geçmelidir (docs.nestjs.com/faq/request-lifecycle, /guards).",
+  "kontroller": [
+    { "kapi": "GET /a/karisik", "konu": "giris", "yasak": "istege_bagli" },
+    { "kapi": "GET /a/karisik", "konu": "giris_kesin", "beklenen": "gerekli" },
+    { "kapi": "GET /a/acik-istege", "konu": "giris_kesin", "beklenen": "istege_bagli" }
+  ]
+}

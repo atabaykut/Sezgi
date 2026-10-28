@@ -1,0 +1,1 @@
+{ "name": "@k13c/api", "private": true, "dependencies": { "@nestjs/core": "10.0.0", "@k13c/ortak": "*" } }

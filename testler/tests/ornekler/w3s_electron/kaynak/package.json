@@ -1,0 +1,7 @@
+{
+  "name": "otel-masaustu",
+  "productName": "Otel Masaüstü",
+  "version": "1.4.0",
+  "main": "main.js",
+  "description": "Kaynaksız keşif test örneği (Electron)"
+}

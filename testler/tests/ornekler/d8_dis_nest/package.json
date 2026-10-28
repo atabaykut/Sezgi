@@ -1,0 +1,1 @@
+{ "name": "d8-dis-nest", "private": true, "dependencies": { "@nestjs/core": "10.0.0", "@nestjs/common": "10.0.0", "class-validator": "0.14.1", "zod": "4.0.0" } }

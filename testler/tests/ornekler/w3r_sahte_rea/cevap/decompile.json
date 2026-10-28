@@ -1,0 +1,1 @@
+{"evidence_id": "ev_sahte_dec", "operation": "procedure_pseudo_code", "provider": {"id": "ghidra", "version": "12.1"}, "confidence": "inference", "authority": "analyst-inference", "normalized_result": {"procedure": "main", "pseudo_code": "int main(void) {\n  return GIZLI_KOD_PARCASI;\n}\n"}}

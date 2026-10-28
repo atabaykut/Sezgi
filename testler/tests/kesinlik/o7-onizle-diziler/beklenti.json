@@ -1,0 +1,11 @@
+{
+  "aciklama": "O7: önizleme geçerli dizi ve birleşim isteklerini reddetmemeli; desteklemediği kalıpta yanlış REDDEDİLİR yerine kontrol edilemedi demeli.",
+  "kontroller": [
+    { "kapi": "POST /a/liste", "konu": "onizle", "istek": { "kapi": "POST /a/liste", "oturum": true, "govde": { "ids": [1, 2], "etiketler": ["a"] } }, "yasak": "REDDEDİLİR" },
+    { "kapi": "POST /a/liste", "konu": "onizle", "istek": { "kapi": "POST /a/liste", "oturum": true, "govde": { "ids": [1.5], "etiketler": ["a"] } }, "beklenen": "REDDEDİLİR" },
+    { "kapi": "POST /a/liste", "konu": "onizle", "istek": { "kapi": "POST /a/liste", "oturum": true, "govde": { "ids": [1], "etiketler": [5] } }, "beklenen": "REDDEDİLİR" },
+    { "kapi": "POST /a/zod", "konu": "onizle", "istek": { "kapi": "POST /a/zod", "oturum": true, "govde": { "adlar": ["x"], "deger": 5, "kisa": ["ab"] } }, "yasak": "REDDEDİLİR" },
+    { "kapi": "POST /a/zod", "konu": "onizle", "istek": { "kapi": "POST /a/zod", "oturum": true, "govde": { "adlar": "x", "deger": "y", "kisa": ["ab"] } }, "beklenen": "REDDEDİLİR" },
+    { "kapi": "POST /a/zod", "konu": "onizle", "istek": { "kapi": "POST /a/zod", "oturum": true, "govde": { "adlar": ["x"], "deger": true, "kisa": ["ab"] } }, "yasak": "GEÇER" }
+  ]
+}

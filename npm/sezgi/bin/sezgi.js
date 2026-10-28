@@ -9,8 +9,15 @@ const path = require('path');
 const { platformlar } = require('../platformlar.json');
 
 function ikiliYolu() {
-  // Kendi derlediğin ikiliyi kullanmak için: SEZGI_IKILI=/yol/sezgi
-  if (process.env.SEZGI_IKILI) return process.env.SEZGI_IKILI;
+  // Kendi derlediğin ikiliyi kullanmak için: SEZGI_IKILI=/yol/sezgi. Bu paketin ikilisi yerine başka bir program
+  // çalışır ve o program insan parolasını da sorabilir: her çalıştırmada stderr'e yazılır (stdout MCP'ye ayrılmıştır)
+  if (process.env.SEZGI_IKILI) {
+    console.error(
+      `! SEZGI_IKILI: bu paketin ikilisi yerine ${process.env.SEZGI_IKILI} çalıştırılıyor; bunu siz ayarlamadıysanız parola girmeyin.\n` +
+      `! SEZGI_IKILI: running ${process.env.SEZGI_IKILI} instead of this package's binary; if you did not set this, do not enter a password.`
+    );
+    return process.env.SEZGI_IKILI;
+  }
   const anahtar = `${process.platform}-${process.arch}`;
   const p = platformlar[anahtar];
   if (!p) {

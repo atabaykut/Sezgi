@@ -359,6 +359,27 @@ fn cocuklar(n: Node) -> Vec<Node> {
     n.named_children(&mut w).collect()
 }
 
+/// Düğümün kısaltılmış metni: uzun düğümün yalnızca başı okunur. İç içe çağrılarda (`f(f(f(...)))`) her düğümün bütün
+/// metnini okuyup kısaltmak toplamda karesel sürer; kötü niyetli bir depo bununla haritalamayı dakikalarca meşgul ederdi.
+fn kisa_dugum(d: Node, k: &[u8], n: usize) -> String {
+    let (bas, son) = (d.start_byte(), d.end_byte());
+    // Boşluklar tek boşluğa indirildiği için kısaltmadan önce bundan fazlası okunur
+    let pay = n * 4 + 1024;
+    if son - bas <= pay {
+        return kisa(&metin(d, k), n);
+    }
+    let mut bit = bas + pay;
+    while bit > bas && k.get(bit).is_some_and(|b| b & 0xC0 == 0x80) {
+        bit -= 1;
+    }
+    let s = kisa(std::str::from_utf8(&k[bas..bit]).unwrap_or(""), n);
+    if s.ends_with('…') {
+        s
+    } else {
+        format!("{s}…")
+    }
+}
+
 /// Tek satıra indirilmiş, kısaltılmış metin
 fn kisa(s: &str, n: usize) -> String {
     let s: String = s.split_whitespace().collect::<Vec<_>>().join(" ");
@@ -798,7 +819,7 @@ pub fn ayristir(yol: &Path, b: Vec<u8>) -> Option<DosyaOzeti> {
     };
     p.set_language(&lang).ok()?;
     let agac = p.parse(&b, None)?;
-    let mut c = Cikarici { k: &b, dil, oz: DosyaOzeti { dil: Some(dil), ..Default::default() } };
+    let mut c = Cikarici { k: &b, dil, oz: DosyaOzeti { dil: Some(dil), ..Default::default() }, ebeveyn_dekorator: false };
     c.gez(agac.root_node());
     c.oz.yontem_dallari = yontem_dallari(dil, &String::from_utf8_lossy(&b));
     Some(c.oz)
@@ -808,6 +829,9 @@ struct Cikarici<'a> {
     k: &'a [u8],
     dil: Dil,
     oz: DosyaOzeti,
+    /// İşlenen düğümün ebeveyni bir dekoratör mü: tree-sitter'da `parent()` kökten aşağı iner (derinlikle orantılı), iç
+    /// içe binlerce çağrıda her düğüm için sormak karesel olurdu; gezinti ebeveyni zaten bilir
+    ebeveyn_dekorator: bool,
 }
 
 /// Gezinme bağlamı: içinde bulunulan sınıf, fonksiyon ve Go alıcısının adı
@@ -834,9 +858,10 @@ impl<'a> Cikarici<'a> {
     }
 
     fn gez(&mut self, kok: Node) {
-        let mut yigin: Vec<(Node, Baglam)> = vec![(kok, Baglam { sinif: None, fonk: None, alici: None })];
-        while let Some((n, b)) = yigin.pop() {
+        let mut yigin = vec![(kok, Baglam { sinif: None, fonk: None, alici: None }, false)];
+        while let Some((n, b, ebeveyn_dekorator)) = yigin.pop() {
             let mut b2 = b;
+            self.ebeveyn_dekorator = ebeveyn_dekorator;
             let devam = self.dugum(n, b, &mut b2);
             if !devam {
                 continue;
@@ -844,7 +869,7 @@ impl<'a> Cikarici<'a> {
             let bas = yigin.len();
             let mut w = n.walk();
             for c in n.named_children(&mut w) {
-                yigin.push((c, b2));
+                yigin.push((c, b2, n.kind() == "decorator"));
             }
             yigin[bas..].reverse();
         }
@@ -891,7 +916,7 @@ impl<'a> Cikarici<'a> {
     }
 
     fn karsilastirma(&mut self, b: Baglam, n: Node) {
-        self.karsilastirma_metni(b, n, metin(n, self.k));
+        self.karsilastirma_metni(b, n, kisa_dugum(n, self.k, 160));
     }
 
     fn karsilastirma_metni(&mut self, b: Baglam, n: Node, m: String) {
@@ -929,7 +954,7 @@ impl<'a> Cikarici<'a> {
                 .map(|x| {
                     // C# / PHP / Ruby argüman sarmalayıcısı
                     let x = if matches!(x.kind(), "argument") { x.named_child(0).unwrap_or(x) } else { x };
-                    kisa(&self.m(x), ARGUMAN_UZUNLUGU)
+                    kisa_dugum(x, self.k, ARGUMAN_UZUNLUGU)
                 })
                 .collect()
         })
@@ -1222,7 +1247,7 @@ impl<'a> Cikarici<'a> {
             }
             "call_expression" => {
                 // Süsleyici (`@Auth() auth`, `@Body() dto`) istek anında çağrılmaz, sınıf tanımında çalışır: çağrı kenarı değildir
-                if n.parent().is_some_and(|p| p.kind() == "decorator") {
+                if self.ebeveyn_dekorator {
                     return true;
                 }
                 let Some(fn_) = alan(n, "function") else { return true };
@@ -1404,7 +1429,7 @@ impl<'a> Cikarici<'a> {
                     self.py_parametreler(f, alan(n, "parameters"));
                     if let Some(d) = n.parent().filter(|p| p.kind() == "decorated_definition") {
                         for c in cocuklar(d).into_iter().filter(|c| c.kind() == "decorator") {
-                            let t = kisa(&self.m(c), 160);
+                            let t = kisa_dugum(c, self.k, 160);
                             self.oz.fonksiyonlar[f].isaretler.push((t, satir(c)));
                         }
                     }
@@ -1561,14 +1586,14 @@ impl<'a> Cikarici<'a> {
                 "modifiers" => {
                     for a in cocuklar(c) {
                         if matches!(a.kind(), "annotation" | "marker_annotation") {
-                            v.push((kisa(&self.m(a), 200), satir(a)));
+                            v.push((kisa_dugum(a, self.k, 200), satir(a)));
                         }
                     }
                 }
                 "attribute_list" => {
                     for a in cocuklar(c) {
                         if a.kind() == "attribute" {
-                            v.push((kisa(&self.m(a), 200), satir(a)));
+                            v.push((kisa_dugum(a, self.k, 200), satir(a)));
                         }
                     }
                 }
@@ -1935,7 +1960,7 @@ impl<'a> Cikarici<'a> {
                 };
                 let mut argumanlar = self.argumanlar(args);
                 if let Some(l) = lambda {
-                    argumanlar.push(kisa(&self.m(l), ARGUMAN_UZUNLUGU));
+                    argumanlar.push(kisa_dugum(l, self.k, ARGUMAN_UZUNLUGU));
                 }
                 let yeni = alici.is_empty() && ad.starts_with(char::is_uppercase);
                 let dinamik = matches!(ad.as_str(), "invoke" | "call") && alici.last().is_some_and(|x| x == "<ifade>");

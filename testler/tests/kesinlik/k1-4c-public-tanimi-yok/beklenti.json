@@ -1,0 +1,6 @@
+{
+  "aciklama": "K1.4: tanımı depoda olmayan @Public() adından herkese açık sayılabilir ama kesin olamaz.",
+  "kontroller": [
+    { "kapi": "GET /a", "konu": "giris", "yasak": "herkese_acik" }
+  ]
+}

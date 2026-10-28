@@ -1,0 +1,1 @@
+{ "name": "w2dna-express", "private": true, "dependencies": { "express": "4.19.2", "@prisma/client": "5.0.0" } }

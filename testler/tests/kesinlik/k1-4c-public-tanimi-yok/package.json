@@ -1,0 +1,1 @@
+{ "name": "k1-4c", "private": true, "dependencies": { "@nestjs/core": "10.0.0", "@acme/kimlik": "1.0.0" } }

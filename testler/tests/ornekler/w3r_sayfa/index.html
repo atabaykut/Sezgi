@@ -1,0 +1,9 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Rezervasyon</title></head><body><h1>Rezervasyon</h1>
+<form id="f" toolname="rezervasyon_ara" tooldescription="Tarihe gore oda arar"><input name="tarih" type="date" required></form>
+<script>
+if (navigator.modelContext && navigator.modelContext.registerTool) {
+  navigator.modelContext.registerTool({ name: "rezervasyon_iptal", description: "Rezervasyonu iptal eder", inputSchema: { type: "object", properties: { id: { type: "integer" }, neden: { type: "string" } }, required: ["id"] }, annotations: { readOnly: false }, execute: async () => ({ content: [] }) });
+  navigator.modelContext.registerTool({ name: "oda_listele", description: "Bos odalari listeler", inputSchema: { type: "object", properties: {} }, annotations: { readOnly: true }, execute: async () => ({ content: [] }) });
+  document.title = "Rezervasyon (webmcp var)";
+}
+</script></body></html>

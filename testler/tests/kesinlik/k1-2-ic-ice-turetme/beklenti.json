@@ -1,0 +1,16 @@
+{
+  "aciklama": "K1.2: iç içe türetilmiş DTO'lar ya doğru alanlarla ya da belirsiz çözülür; hiçbir durumda boş ya da yanlış şema kesin olamaz.",
+  "kontroller": [
+    { "kapi": "POST /t/a", "konu": "sema", "beklenen_alanlar": ["ad", "yas", "not"], "cozulmeli": true },
+    { "kapi": "POST /t/a", "konu": "alan", "alan": "ad", "yasak_zorunlu": true },
+    { "kapi": "POST /t/b", "konu": "sema", "beklenen_alanlar": ["ad", "yas"], "cozulmeli": true },
+    { "kapi": "POST /t/b", "konu": "alan", "alan": "yas", "yasak_zorunlu": true },
+    { "kapi": "POST /t/c", "konu": "sema", "beklenen_alanlar": ["id", "ad", "yas", "not", "etiket"], "cozulmeli": true },
+    { "kapi": "POST /t/c", "konu": "alan", "alan": "etiket", "yasak_zorunlu": false },
+    { "kapi": "POST /t/d", "konu": "sema", "beklenen_alanlar": ["id", "ad", "yas", "etiket"], "cozulmeli": true },
+    { "kapi": "POST /t/e", "konu": "sema", "beklenen_alanlar": null },
+    { "kapi": "POST /t/f", "konu": "sema", "beklenen_alanlar": null },
+    { "kapi": "POST /t/g", "konu": "sema", "beklenen_alanlar": ["id", "ad", "yas", "not", "etiket", "renk"], "cozulmeli": true },
+    { "kapi": "POST /t/h", "konu": "sema", "beklenen_alanlar": null }
+  ]
+}

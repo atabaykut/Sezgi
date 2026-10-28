@@ -1,0 +1,4 @@
+[project]
+name = "w2dna-fastapi"
+version = "0.1.0"
+dependencies = ["fastapi", "sqlmodel"]

@@ -1,0 +1,11 @@
+{
+    "name": "acme/kitaplik",
+    "type": "project",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0"
+    },
+    "autoload": {
+        "files": ["app/helpers.php"]
+    }
+}

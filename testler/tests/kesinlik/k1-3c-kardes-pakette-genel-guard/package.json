@@ -1,0 +1,1 @@
+{ "name": "k1-3c-monorepo", "private": true, "workspaces": ["apps/*", "packages/*"] }

@@ -1,0 +1,28 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Yolcu {
+  id         String     @id
+  adSoyad    String
+  pasaportNo String
+  Transfer   Transfer[]
+}
+
+model Arac {
+  id       String     @id
+  plaka    String
+  kapasite Int
+  Transfer Transfer[]
+}
+
+model Transfer {
+  id             String @id
+  rezervasyonRef String
+  yolcuId        String
+  aracId         String
+  yolcuSayisi    Int
+  Yolcu          Yolcu  @relation(fields: [yolcuId], references: [id])
+  Arac           Arac   @relation(fields: [aracId], references: [id])
+}

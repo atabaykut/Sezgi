@@ -1,0 +1,4 @@
+[project]
+name = "fabrika"
+version = "0.3.0"
+dependencies = ["fastapi"]

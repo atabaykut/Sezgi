@@ -1,0 +1,1 @@
+{ "name": "d9-guven-cop-ts", "private": true, "dependencies": { "express": "4.21.0", "typeorm": "0.3.20" } }

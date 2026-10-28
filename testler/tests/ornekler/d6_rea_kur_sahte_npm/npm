@@ -1,0 +1,20 @@
+#!/bin/sh
+# Sahte npm (`sezgi rea kur` testleri): argümanları D6_IZ dosyasına yazar, `--prefix <önek>` klasörüne D6_KAYNAK'taki
+# sahte REA kurulumunu (node_modules) kopyalar. D6_KIP: iyi (olduğu gibi), bozuk (etki tablosu değişir: sabitleme
+# tutmaz), hata (yarım kurulum bırakıp 1 ile çıkar). Ağa çıkmaz.
+echo "$*" >> "${D6_IZ:-/dev/null}"
+onek=""
+onceki=""
+for a in "$@"; do
+  [ "$onceki" = "--prefix" ] && onek="$a"
+  onceki="$a"
+done
+[ -n "$onek" ] || { echo "sahte npm: --prefix yok" >&2; exit 2; }
+mkdir -p "$onek/node_modules"
+cp -R "$D6_KAYNAK/." "$onek/node_modules/"
+case "${D6_KIP:-iyi}" in
+  bozuk) echo "// degisti" >> "$onek/node_modules/rea-agents/dist/contracts/toolEffects.js" ;;
+  hata) echo "sahte npm: ERR! network" >&2; exit 1 ;;
+esac
+echo "added 1 package"
+exit 0

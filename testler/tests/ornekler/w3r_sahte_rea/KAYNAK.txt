@@ -1,0 +1,4 @@
+Sahte REA kurulumu (testler için). paket/node_modules/rea-agents/dist/contracts/toolEffects.js ve LICENSE, npm
+rea-agents@6.7.0 paketinden değiştirilmeden alındı (MIT, Copyright (c) 2026 morluto): Sezgi'nin sabitlediği etki tablosu
+özetinin tutması için. Paketin geri kalanı yok; `node` betiği REA komutlarını kaydeder ve cevap/ klasöründeki hazır
+çıktıları döner (bir kısmı gerçek REA 6.7.0 çıktılarından kısaltıldı, yerel test sayfası ve test komutu üzerinde).

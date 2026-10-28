@@ -1,0 +1,14 @@
+{
+  "aciklama": "Go: tanımı görünmeyen dış ara katman açıklığı kesin yapmaz; doğrulayıcısız json.Decoder ve koşullu binding kuralı zorunluluğu kesin yapmaz; false bayrağıyla bütün retleri kapatılan ara katman girişi gerekli yapmaz; Gin BasicAuth kesin karardır; binding kuralları önizlemede uygulanır.",
+  "kontroller": [
+    { "kapi": "GET /a/kalkanli", "konu": "giris", "yasak": "herkese_acik" },
+    { "kapi": "GET /a/kalkanli", "konu": "giris", "yasak": "gerekli" },
+    { "kapi": "GET /a/temel", "konu": "giris_kesin", "beklenen": "gerekli" },
+    { "kapi": "GET /a/bayrakli", "konu": "giris", "yasak": "gerekli" },
+    { "kapi": "POST /a/cozucu", "konu": "alan", "alan": "ad", "yasak_zorunlu": null },
+    { "kapi": "POST /a/kosullu", "konu": "alan", "alan": "vergi", "yasak_zorunlu": null },
+    { "kapi": "POST /a/kayit", "konu": "onizle", "istek": { "kapi": "POST /a/kayit", "oturum": true, "govde": { "yas": 20 } }, "beklenen": "REDDEDİLİR" },
+    { "kapi": "POST /a/kayit", "konu": "onizle", "istek": { "kapi": "POST /a/kayit", "oturum": true, "govde": { "eposta": "a@b.co", "yas": 17 } }, "beklenen": "REDDEDİLİR" },
+    { "kapi": "POST /a/kayit", "konu": "onizle", "istek": { "kapi": "POST /a/kayit", "oturum": true, "govde": { "eposta": "a@b.co", "yas": 30 } }, "yasak": "REDDEDİLİR" }
+  ]
+}
