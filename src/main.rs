@@ -1232,7 +1232,7 @@ fn init(args: &[String], onbellek: &mut Onbellek, ayrintili: bool) -> Option<Ini
         islem.push_str(&tf!(" · {rol} rol kısıtlı", " · {rol} role-restricted"));
     }
     tp!("  İşlemler     {islem}", "  Operations   {islem}");
-    if !veri_dosyalari.is_empty() {
+    if !veri_dosyalari.is_empty() || veri_bagli > 0 {
         tp!("  Tablolar     {} / {} işlem bir tabloya bağlı", "  Tables       {} / {} {i} linked to a table", veri_bagli, kapilar.len(); i = crate::dil::cogul(kapilar.len(), "operation", "operations"));
     }
     let mut eksik = vec![];
