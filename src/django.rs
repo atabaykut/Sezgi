@@ -408,6 +408,20 @@ impl<'a> Django<'a> {
         d.yildizlar.iter().rev().filter_map(|y| self.b.modul_bul(m, y)).find_map(|m2| self.ayar_modulde(m2, ad, derinlik + 1))
     }
 
+    /// `settings.AD` önekinin değeri: ayar düz bir değerse o, `getattr(configuration, 'AD', 'varsayılan')` ile
+    /// yapılandırmadan okunuyorsa varsayılanı (bir sarmalayıcının içinde de, ör. `trailing_slash(getattr(...))`)
+    fn ayar_oneki(&self, ifade: &str) -> Option<String> {
+        let ad = ifade.trim().strip_prefix("settings.").filter(|a| a.chars().all(|c| c.is_ascii_alphanumeric() || c == '_'))?;
+        let ((m, v), _) = self.ayar(ad)?;
+        if let Some(d) = self.b.deger(m, &v, 0) {
+            return Some(d);
+        }
+        static VARSAYILAN: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+        let r = VARSAYILAN.get_or_init(|| regex::Regex::new(r#"getattr\(\s*[\w.]+\s*,\s*['"]\w+['"]\s*,\s*(?:'([^']*)'|"([^"]*)")\s*\)"#).unwrap());
+        let c = r.captures(&v)?;
+        c.get(1).or(c.get(2)).map(|x| x.as_str().to_string())
+    }
+
     /// `REST_FRAMEWORK = {"ANAHTAR": değer}` sözlüğündeki değer
     fn drf_ayari(&self, anahtar: &str) -> Option<((usize, String), bool)> {
         let ((m, sozluk), kesin) = self.ayar("REST_FRAMEWORK")?;
@@ -760,9 +774,21 @@ impl<'a> Django<'a> {
         }
         let yer = format!("{}:{satir}", self.goreli(di));
         let Some(ham) = c.arg(0).or(c.anahtar("route")).or(c.anahtar("regex")).map(String::from) else { return };
-        let Some(desen) = self.b.deger(di, &ham, 0) else {
-            self.disaridakiler.push((yer, format!("yol değeri çözülemedi: {}", kisalt(&ham))));
-            return;
+        let icerme = c.arg(1).or(c.anahtar("view")).and_then(cagri_ayir).is_some_and(|x| x.kisa_ad() == "include");
+        // Önek bir ayardan gelebilir (`path(settings.BASE_PATH, include(...))`): ayarın değeri ya da yapılandırmadan
+        // okunuyorsa varsayılanı (`getattr(configuration, 'BASE_PATH', '')`) kullanılır. Hiç çözülemeyen önekin altındaki
+        // rotalar öneksiz yazılır; ikisinde de rota koşullu işaretlenir (önek kurulumda farklı olabilir), uydurulmuş
+        // sayılmaz. Önceden içerilen her şey ikincil kalıyor, kart ve OpenAPI boş çıkıyordu.
+        let (desen, onek_notu) = match self.b.deger(di, &ham, 0) {
+            Some(d) => (d, None),
+            None if icerme => match self.ayar_oneki(&ham) {
+                Some(d) => (d.clone(), Some(format!("önek {} = '{d}' (yapılandırmanın varsayılanı)", kisalt(&ham)))),
+                None => (String::new(), Some(format!("önek {} çözülemedi, öneksiz yazıldı", kisalt(&ham)))),
+            },
+            None => {
+                self.disaridakiler.push((yer, format!("yol değeri çözülemedi: {}", kisalt(&ham))));
+                return;
+            }
         };
         let (parca, params, tam) = if tur == "path" {
             let (y, p) = donusturuculu_yol(&desen);
@@ -770,7 +796,12 @@ impl<'a> Django<'a> {
         } else {
             duzenli_yol(&desen)
         };
-        let yeni = Onek { yol: yol_birlestir_ham(&onek.yol, &parca), parametreler: [onek.parametreler.clone(), params].concat(), duzenli: onek.duzenli || !tam, ..onek.clone() };
+        let mut yeni =
+            Onek { yol: yol_birlestir_ham(&onek.yol, &parca), parametreler: [onek.parametreler.clone(), params].concat(), duzenli: onek.duzenli || !tam, ..onek.clone() };
+        if let Some(n) = onek_notu {
+            yeni.kosul = Some(n);
+            yeni.kosullu = true;
+        }
         let Some(gorunum) = c.arg(1).or(c.anahtar("view")).map(String::from) else { return };
         // include(...)
         if let Some(ic) = cagri_ayir(&gorunum).filter(|x| x.kisa_ad() == "include") {

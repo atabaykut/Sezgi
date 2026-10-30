@@ -172,6 +172,64 @@ pub struct Sema {
     pub dizi: bool,
 }
 
+/// Bir şemanın iç içe alanlarına ayrılan bütçe (üst düzey alanlar her zaman kalır). İç içe serializer ve DTO'lar katman
+/// katman çoğalabilir: büyük bir uygulamada (ör. 900 işlemli bir Django REST uygulaması) her işlemin şeması yüzlerce KB
+/// tutuyor, harita yüz MB'ı aşıp okunamıyordu.
+pub const IC_ALAN_BUTCESI: usize = 120;
+/// Bütçe yüzünden iç ayrıntısı kesilen alanın kuralı: önizleme bunu tanımaz, "kontrol edilemedi" sayar; böylece
+/// kesilen kısım hiçbir zaman denetlenmiş sayılmaz (yazma onaysız gitmez)
+pub const KESILDI_KURALI: &str = "IcAyrintiKesildi()";
+
+/// Alanları katman katman (genişlik öncelikli) bütçeye göre kırpar; bütçe biten katmanda alanın iç ayrıntısı atılır ve
+/// kesildi kuralı eklenir. Kesme olduysa true.
+fn alanlari_kirp(alanlar: &mut BTreeMap<String, Alan>, butce: &mut usize) -> bool {
+    let mut kesildi = false;
+    // Önce bu katmandaki iç alanlar sayılır; sonra her biri (bütçe kaldıkça) kendi içine iner
+    for alan in alanlar.values_mut() {
+        if let Some(ic) = &alan.ic {
+            if *butce >= ic.len() {
+                *butce -= ic.len();
+            } else {
+                alan.ic = None;
+                alan.kurallar.push(KESILDI_KURALI.into());
+                kesildi = true;
+            }
+        }
+    }
+    for alan in alanlar.values_mut() {
+        if let Some(ic) = &mut alan.ic {
+            kesildi |= alanlari_kirp(ic, butce);
+        }
+    }
+    kesildi
+}
+
+fn sema_kirp(s: &mut Sema) -> bool {
+    let mut kesildi = alanlari_kirp(&mut s.alanlar, &mut IC_ALAN_BUTCESI.clone());
+    for a in &mut s.adaylar {
+        kesildi |= sema_kirp(a);
+    }
+    kesildi
+}
+
+/// Bütün işlemlerin girdi ve yanıt şemalarına iç alan bütçesini uygular; iç ayrıntısı kesilen işlem sayısını döner
+pub fn semalari_kirp(kapilar: &mut [Kapi]) -> usize {
+    let mut n = 0;
+    for k in kapilar {
+        let mut kesildi = false;
+        for g in k.govde.iter_mut().chain(k.sorgu.iter_mut()).chain(k.parametreler.iter_mut()) {
+            if let Some(s) = &mut g.sema {
+                kesildi |= sema_kirp(s);
+            }
+        }
+        if let Some(y) = &mut k.yanit {
+            kesildi |= sema_kirp(&mut y.sema);
+        }
+        n += usize::from(kesildi);
+    }
+    n
+}
+
 #[derive(Serialize, Clone, Debug)]
 pub struct Girdi {
     pub ad: Option<String>,

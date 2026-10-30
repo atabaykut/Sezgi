@@ -80,6 +80,8 @@ Sezgi also writes the application's **[Benlik Card](https://github.com/benlik-sp
 
 **Level 1:** measured during development against an independent referee or a hand count. **Level 2:** also measured once on an application whose code had not been looked at, with the measurement plan registered in advance. React, Vue, Angular, Svelte, Remix and Solid front ends are read too. For applications without source code (`.exe`, `.dll`, APK, SQLite, Electron) there is `sezgi discover`.
 
+Sezgi 0.1 maps REST/HTTP operations; GraphQL, gRPC, tRPC and WebSocket are not mapped yet. If your application uses them, or Sezgi finds far fewer operations than the route registrations in the code suggest (its own router, routes registered by reflection), `sezgi init`, `sezgi report` and the overview the AI sees say so plainly: an incomplete map is never presented as complete.
+
 ## Benchmark
 
 A public benchmark you can reproduce with one command ([`kanit/acik`](https://github.com/atabaykut/Sezgi/tree/main/kanit/acik)). Ground truth is each application's own official API document, published by its developers.

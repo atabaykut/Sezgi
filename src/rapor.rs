@@ -89,6 +89,7 @@ pub fn uret(klasor: &Path) -> Result<Value, String> {
     let git = proje.map(|p| crate::git_koku(&p).is_some());
     let imzali = imza["value"].as_str().map(|v| v != "UNSIGNED-DEV-BUILD").unwrap_or(false);
     let okunamayan = crate::adaptor::okunamayan_rota_kaynaklari(ozet);
+    let kapsam_uyarilari = crate::kapsam::uyarilar(ozet, crate::dil::en());
 
     Ok(json!({
         "uygulama": ozet["uygulama"],
@@ -100,7 +101,9 @@ pub fn uret(klasor: &Path) -> Result<Value, String> {
         "okunan": { "dosya": ozet["dosya"].as_u64(), "satir": ozet["satir"].as_u64(), "kardes_paketler": ozet["ek_paketler"], "kismen_okunan_dosyalar": ozet["kismen_okunan_dosya"] },
         "kapilar": { "ana": ana.len(), "ikincil_uygulamalar": ikincil, "giris": giris, "rol_kisitli": ana.iter().filter(|k| k["roller"].as_array().map(|r| !r.is_empty()).unwrap_or(false)).count(), "cozulemeyen_rotalar": ozet["cozulemeyen_rotalar"],
             // Rota kaynağı bulunup okunamayan yerler (bütün adaptörler): boş değilse işlem listesi eksik, kapsam kısmen
-            "okunamayan_rota_kaynaklari": okunamayan, "kapsam": if okunamayan.is_empty() { "tam" } else { "kismen" } },
+            "okunamayan_rota_kaynaklari": okunamayan, "kapsam": if okunamayan.is_empty() && kapsam_uyarilari.is_empty() { "tam" } else { "kismen" },
+            // Haritalanmayan API türleri ve kod büyüklüğüne göre çok az işlem (kapsam.rs)
+            "kapsam_uyarilari": kapsam_uyarilari },
         "girdiler": { "girdili_kapi": girdili, "alan": alan, "kural": kural_sayisi, "zorunlulugu_belirsiz_alan": belirsiz_alan, "cozulemeyen_semalar": cozulemeyen, "onizlemede_kontrol_edilemeyen_kurallar": denetlenemeyen },
         "veri": {
             "sema_dosyalari": veri_semasi,
@@ -254,6 +257,9 @@ pub fn yazdir(r: &Value) {
         if okunamayan.len() > 10 {
             tp!("      … {} yer daha (tamamı: --json)", "      … {} more (all: --json)", okunamayan.len() - 10);
         }
+    }
+    for u in r["kapilar"]["kapsam_uyarilari"].as_array().into_iter().flatten().filter_map(|x| x.as_str()) {
+        tp!("  ! kapsam: {u}", "  ! coverage: {u}");
     }
     let rotasiz: Vec<&str> = r["kapilar"]["cozulemeyen_rotalar"].as_array().into_iter().flatten().filter_map(|x| x.as_str()).collect();
     if !rotasiz.is_empty() {

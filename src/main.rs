@@ -9,6 +9,7 @@
 mod dil;
 mod adaptor;
 mod anlam;
+mod kapsam;
 // ASP.NET Core (C#, kaynak kodlu)
 mod aspnet;
 // Kaynaksız keşif (APK bildirimi): komuta bağlanması kaynaksız keşif komutuyla birlikte yapılır
@@ -975,6 +976,8 @@ fn init(args: &[String], onbellek: &mut Onbellek, ayrintili: bool) -> Option<Ini
         Some(w)
     });
     let on_yuz = on_yuz.filter(|_| web_baglari.is_some());
+    // İç içe şemalar bütçeyle sınırlanır: kesilen ayrıntı önizlemede "kontrol edilemedi" sayılır
+    let ic_kesilen = adaptor::semalari_kirp(&mut kapilar);
     let govdeli = kapilar.iter().filter(|k| !k.govde.is_empty()).count();
     let bulunamayan: Vec<&str> =
         kapilar.iter().flat_map(|k| k.govde.iter().chain(k.sorgu.iter())).filter_map(|g| g.sema.as_ref().filter(|s| s.bulunamadi).map(|s| s.dto.as_str())).collect();
@@ -1028,6 +1031,9 @@ fn init(args: &[String], onbellek: &mut Onbellek, ayrintili: bool) -> Option<Ini
     let dis_bilinmeyen = dis_zincir::isle(&dis_izlemesi, &dis_tarama, &kapilar, &mut dna_haritasi, &mut etki_onaylari, &mut dis_ozeti);
     drop(dis_izlemesi);
     drop(dis_tarama);
+    // Haritalanmayan API türleri ve kod büyüklüğüne / rota benzeri ifadelere göre çok az işlem: init, rapor ve kimsin söyler
+    let rota_benzeri = kapsam::rota_benzeri(&kok);
+    let kapsam_bilgisi = json!({ "disi": kapsam::kapsam_disi(&kok), "rota_benzeri": rota_benzeri, "dusuk": kapsam::dusuk(satir, kapilar.len(), rota_benzeri) });
     let mut ozet = json!({
         "uretici": format!("sezgi {}", env!("CARGO_PKG_VERSION")),
         "adaptor": adaptor_kimligi,
@@ -1062,6 +1068,8 @@ fn init(args: &[String], onbellek: &mut Onbellek, ayrintili: bool) -> Option<Ini
         "ek_paketler": ek_paketler,
         "satir": satir,
         "endpoint_sayisi": kapilar.len(),
+        "kapsam": kapsam_bilgisi,
+        "ic_ayrintisi_kesilen": ic_kesilen,
         "govdeli": govdeli,
         "dto_bulunamayan": bulunamayan,
         "veri_semasi": veri_dosyalari,
@@ -1101,6 +1109,16 @@ fn init(args: &[String], onbellek: &mut Onbellek, ayrintili: bool) -> Option<Ini
     // Bütünlük kontrolü: yazılan harita okunup bellektekiyle karşılaştırılır; Sezgi sessizce eksik haritayla çalışmaz
     let yazilan = guvenli::oku_harita(&cikti.join("kapilar.json")).and_then(|m| serde_json::from_str::<serde_json::Value>(&m).ok());
     if yazilan.as_ref().and_then(|v| v["endpointler"].as_array().map(|a| a.len())) != Some(kapilar.len()) {
+        let boy = std::fs::metadata(cikti.join("kapilar.json")).map(|m| m.len()).unwrap_or(0);
+        if boy > guvenli::HARITA_SINIRI {
+            te!(
+                "✗ Harita {} MB: okunabilecek en büyük harita {} MB. Lütfen bunu bildirin (uygulamanın adı ve işlem sayısıyla); Sezgi bu boyutta bir haritayı okuyamaz",
+                "✗ The map is {} MB: the largest map Sezgi can read is {} MB. Please report this (with the application's name and number of operations); Sezgi cannot read a map this size",
+                boy >> 20,
+                guvenli::HARITA_SINIRI >> 20
+            );
+            std::process::exit(1);
+        }
         te!(
             "✗ Harita eksik yazıldı ya da okunamıyor ({}): disk dolu ya da başka bir süreç dosyayı değiştiriyor olabilir",
             "✗ The map was written incompletely or cannot be read ({}): the disk may be full or another process may be changing the file",
@@ -1232,6 +1250,9 @@ fn init(args: &[String], onbellek: &mut Onbellek, ayrintili: bool) -> Option<Ini
     }
     if !eksik.is_empty() {
         tp!("  Okunamayan   {} → sezgi rapor", "  Unread       {} → sezgi report", eksik.join(" · "));
+    }
+    for u in kapsam::uyarilar(&harita["ozet"], crate::dil::en()) {
+        tp!("  ⚠ Kapsam     {u}", "  ⚠ Coverage   {u}");
     }
     if let Some(i) = &web_ozet {
         tp!(

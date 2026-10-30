@@ -30,3 +30,12 @@ fn parcali() {
 fn kodlama() {
     assert_eq!(kodla("a b/ç"), "a%20b%2F%C3%A7");
 }
+
+#[test]
+fn duz_http_yalnizca_loopback_adrese_baglanir() {
+    // Ad denetimden sonra başka adrese çözülse bile (DNS yeniden bağlama) düz http uzak sunucuya gitmez: kural
+    // bağlanılan adreste uygulanır. 192.0.2.1 belgeleme ağıdır (TEST-NET-1), hiçbir yere bağlanılmaz.
+    let a = adres("http://192.0.2.1:8080").unwrap();
+    let Err(e) = istek(&a, "GET", "/", &[], None) else { panic!("uzak adrese düz http ile bağlanılmamalı") };
+    assert!(e.contains("bu bilgisayardaki") || e.contains("on this computer"), "{e}");
+}

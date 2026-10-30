@@ -1002,8 +1002,34 @@ impl Durum {
         let t = oku(&self.kok.join("tekrar.json"));
         t[anahtar]["zaman"].as_u64().filter(|z| simdi_sn().saturating_sub(*z) < TEKRAR_SURESI).and(t[anahtar]["sira"].as_u64())
     }
+    /// Yazmayı göndermeden önce, kilit altında yer ayırır: aynı anahtar son 10 dakikada yapıldıysa ya da şu an
+    /// gönderiliyorsa (`sira` 0) Some(sira), değilse anahtarı "gönderiliyor" diye işaretler ve None. Ayrı denetim ve
+    /// yazım arasında eşzamanlı iki aynı istek ikisi de geçebilirdi.
+    fn tekrar_ayir(&self, anahtar: &str) -> Result<Option<u64>, String> {
+        let _k = self.kilitle()?;
+        if let Some(sira) = self.tekrar_var(anahtar) {
+            return Ok(Some(sira));
+        }
+        self.tekrar_yaz_kilitsiz(anahtar, 0)?;
+        Ok(None)
+    }
+    /// Gönderilemeyen yazmanın ayrılan yeri bırakılır: aynı istek yeniden denenebilir
+    fn tekrar_birak(&self, anahtar: &str) {
+        let Ok(_k) = self.kilitle() else { return };
+        let mut t = oku(&self.kok.join("tekrar.json"));
+        if let Some(m) = t.as_object_mut() {
+            if m.get(anahtar).is_some_and(|v| v["sira"] == 0) {
+                m.remove(anahtar);
+                let _ = yaz(&self.kok.join("tekrar.json"), &t);
+            }
+        }
+    }
     fn tekrar_yaz(&self, anahtar: &str, sira: u64) -> Result<(), String> {
         let _k = self.kilitle()?;
+        self.tekrar_yaz_kilitsiz(anahtar, sira)
+    }
+    /// Çağıran kilidi tutar
+    fn tekrar_yaz_kilitsiz(&self, anahtar: &str, sira: u64) -> Result<(), String> {
         let mut t = oku(&self.kok.join("tekrar.json"));
         if !t.is_object() {
             t = json!({});
@@ -1984,6 +2010,26 @@ pub fn cagir(h: &Harita, harita: &Path, a: &Value, token: &str) -> (String, bool
             false,
         );
     }
+    // Aynı yazmanın eşzamanlı ikinci kopyası gönderilmez: yer kilit altında ayrılır
+    if r != "oku" {
+        match d.tekrar_ayir(&tekrar) {
+            Ok(None) => {}
+            Ok(Some(sira)) => {
+                let mut s = temel.clone();
+                s["durum"] = json!("tekrar_reddedildi");
+                let _ = d.kaydet(s);
+                return red(if sira == 0 {
+                    t!("aynı yazma isteği şu anda gönderiliyor; ikincisi gönderilmedi", "the same write request is being sent right now; the second one was not sent").to_string()
+                } else {
+                    tf!(
+                        "aynı yazma isteği son 10 dakikada yapıldı (kayıt #{sira}); ikinci kez yapılmadı",
+                        "the same write request was made in the last 10 minutes (log #{sira}); not done a second time"
+                    )
+                });
+            }
+            Err(e) => return red(e),
+        }
+    }
     let sonuc = iletir(&d, k, &yol, govde.as_deref(), oturum.as_ref().map(|o| o.0.as_str()), &tekrar, &surum_ek);
     if let (Some(a), Ok(c)) = (&hafiza_anahtari, &sonuc) {
         crate::hafiza::koy(&d, a, c.durum, &c.govde);
@@ -2004,8 +2050,12 @@ pub fn cagir(h: &Harita, harita: &Path, a: &Value, token: &str) -> (String, bool
         }
     }
     let sira = d.kaydet(s).unwrap_or(0);
-    if r != "oku" && sonuc.as_ref().is_ok_and(|c| c.durum < 500) {
-        let _ = d.tekrar_yaz(&tekrar, sira);
+    if r != "oku" {
+        if sonuc.as_ref().is_ok_and(|c| c.durum < 500) {
+            let _ = d.tekrar_yaz(&tekrar, sira);
+        } else {
+            d.tekrar_birak(&tekrar);
+        }
     }
     match sonuc {
         Ok(c) => (

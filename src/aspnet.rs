@@ -893,8 +893,11 @@ pub fn paket(kok: &Path) -> Value {
         let son = m[bas..].find(&format!("</{ad}>"))? + bas;
         Some(m[bas..son].trim().to_string()).filter(|x| !x.is_empty() && !x.contains("$("))
     };
-    for p in proje_dosyalari(kok) {
-        let Some(m) = guvenli::oku(&p) else { continue };
+    // Önce Web SDK'lı projeler: yalnızca çerçeve başvurusu olan yardımcı proje (ör. Aspire ServiceDefaults) uygulamanın
+    // kendisi değildir
+    let mut projeler: Vec<(PathBuf, String)> = proje_dosyalari(kok).into_iter().filter_map(|p| guvenli::oku(&p).map(|m| (p, m))).collect();
+    projeler.sort_by_key(|(_, m)| !m.contains("Microsoft.NET.Sdk.Web") || m.contains("<IsAspireSharedProject>true"));
+    for (p, m) in projeler {
         if web_projesi(&m) {
             let ad = etiket(&m, "AssemblyName").unwrap_or_else(|| p.file_stem().map(|s| s.to_string_lossy().to_string()).unwrap_or_default());
             return json!({ "name": ad, "version": etiket(&m, "Version").or_else(|| etiket(&m, "VersionPrefix")) });

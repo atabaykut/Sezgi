@@ -63,6 +63,18 @@ fn tls_ayari() -> Result<Arc<rustls::ClientConfig>, String> {
         if n == 0 {
             return Err(t!("SEZGI_CA_DOSYASI içinde sertifika yok", "no certificate in SEZGI_CA_DOSYASI").into());
         }
+        // Eklenen yetkili hedefin sertifikasını imzalayabilir: kullanıcı bunu ayarladığını bilmeli (süreç başına bir kez)
+        static UYARI: std::sync::Once = std::sync::Once::new();
+        UYARI.call_once(|| {
+            let d = std::path::Path::new(&dosya).display().to_string();
+            eprintln!(
+                "{}",
+                tf!(
+                    "! SEZGI_CA_DOSYASI: {d} içindeki {n} sertifika yetkilisi de güvenilir sayılıyor; bunu siz ayarlamadıysanız durdurun",
+                    "! SEZGI_CA_DOSYASI: the {n} certificate authorities in {d} are trusted too; if you did not set this, stop"
+                )
+            );
+        });
     }
     if kokler.is_empty() {
         return Err(t!(
@@ -81,7 +93,19 @@ fn tls_ayari() -> Result<Arc<rustls::ClientConfig>, String> {
 
 pub fn istek(a: &Adres, yontem: &str, yol: &str, basliklar: &[(&str, String)], govde: Option<&[u8]>) -> Result<Cevap, String> {
     // Ad birden fazla adrese çözülebilir (localhost: önce ::1, sonra 127.0.0.1): hepsi sırayla denenir
-    let adresler: Vec<_> = (a.ana.as_str(), a.port).to_socket_addrs().map_err(|e| tf!("adres çözülemedi: {e}", "could not resolve the address: {e}"))?.collect();
+    let mut adresler: Vec<_> = (a.ana.as_str(), a.port).to_socket_addrs().map_err(|e| tf!("adres çözülemedi: {e}", "could not resolve the address: {e}"))?.collect();
+    // Düz http yalnızca bu bilgisayardaki hedefe izinlidir: kural bağlanılan adreste uygulanır. Adın denetimden sonra
+    // başka bir adrese çözülmesi (DNS yeniden bağlama) düz http'yi uzak bir sunucuya götüremez.
+    if !a.tls {
+        adresler.retain(|h| h.ip().is_loopback());
+        if adresler.is_empty() {
+            return Err(tf!(
+                "{} bu bilgisayardaki bir adrese çözülmüyor: düz http yalnızca bu bilgisayardaki hedefte kullanılır (uzak hedef https:// olmalı)",
+                "{} does not resolve to an address on this computer: plain http is used only for a target on this computer (a remote target must be https://)",
+                a.ana
+            ));
+        }
+    }
     let mut son_hata = String::from(t!("adres çözülemedi", "could not resolve the address"));
     let mut baglanti = None;
     for hedef in &adresler {

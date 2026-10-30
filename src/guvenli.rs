@@ -21,8 +21,11 @@ pub fn oku(p: &Path) -> Option<String> {
 /// Harita dosyası (`.sezgi/` içindeki kapilar.json, benlik.json, openapi.json ...): depoya işlenmiş olabilir. Sembolik
 /// bağ izlenmez (ör. `openapi.json -> ~/.ssh/...`), yalnızca düzenli dosya; büyük uygulamaların haritası kaynak dosya
 /// sınırını aşabileceği için sınır daha geniştir (64 MiB)
+/// Haritanın okunabilir en büyük boyutu
+pub const HARITA_SINIRI: u64 = 64 << 20;
+
 pub fn oku_harita(p: &Path) -> Option<String> {
-    const SINIR: u64 = 64 << 20;
+    const SINIR: u64 = HARITA_SINIRI;
     let m = std::fs::symlink_metadata(p).ok()?;
     if !m.file_type().is_file() || m.len() > SINIR {
         return None;

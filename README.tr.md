@@ -78,6 +78,8 @@ Sezgi ayrıca uygulamanın **[Benlik Kartı](https://github.com/benlik-spec/benl
 
 **Seviye 1:** geliştirme sırasında bağımsız bir hakeme ya da elle sayıma karşı ölçüldü. **Seviye 2:** ayrıca koduna önceden bakılmamış bir uygulamada, ölçüm planı önceden kayda alınarak bir kez ölçüldü. React, Vue, Angular, Svelte, Remix ve Solid ön yüzleri de okunur. Kaynak kodu olmayan uygulamalar (`.exe`, `.dll`, APK, SQLite, Electron) için `sezgi kesfet` vardır.
 
+Sezgi 0.1 REST/HTTP işlemlerini haritalar; GraphQL, gRPC, tRPC ve WebSocket henüz haritalanmaz. Bunlar uygulamanızda varsa, ya da Sezgi koddaki rota kayıtlarına göre çok az işlem bulduysa (kendi yönlendiricisi, yansımayla kurulan rotalar), `sezgi init`, `sezgi rapor` ve yapay zekânın gördüğü özet bunu açıkça söyler: eksik bir harita tam gibi sunulmaz.
+
 ## Ölçüm
 
 Herkese açık, tek komutla tekrar üretilebilir ölçüm ([`kanit/acik`](https://github.com/atabaykut/Sezgi/tree/main/kanit/acik)). Doğru cevap, her uygulamanın kendi geliştiricilerinin yayınladığı resmî API belgesidir.

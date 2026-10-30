@@ -334,6 +334,11 @@ impl Harita {
         if let Some(n) = &self.gorunurluk {
             s.push_str(n);
         }
+        // Kapsam: haritalanmayan API türleri ve çok az bulunan işlem. Yapay zekâ haritanın uygulamanın tamamı olduğunu
+        // varsaymasın
+        for u in crate::kapsam::uyarilar(&self.ozet, en) {
+            s.push_str(&format!("{}: {u}\n", dil(en, "KAPSAM", "COVERAGE")));
+        }
         s
     }
 
