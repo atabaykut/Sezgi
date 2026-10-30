@@ -12,7 +12,7 @@ The card schema check needs the Benlik Card schema. Clone the specification next
 
 ```sh
 git clone https://github.com/atabaykut/Sezgi
-git clone https://github.com/benlik-spec/benlik-spec        # next to sezgi/: olc.sh finds ../benlik-spec/schema/
+git clone https://github.com/atabaykut/Sezgi/tree/main/benlik        # next to sezgi/: olc.sh finds ../benlik-spec/schema/
 cd sezgi/kanit/acik
 # or: export BENLIK_SEMA=/path/to/benlik-card.schema.json
 ```

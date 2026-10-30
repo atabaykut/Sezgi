@@ -1,0 +1,14 @@
+Benlik Card specification
+Copyright (c) 2026 Benlik Card contributors
+
+This repository is dual-licensed by content type:
+
+- The specification text (SPEC.md, CONFORMANCE.md, README.md, README.tr.md and
+  other prose documents) is licensed under the Creative Commons Attribution 4.0
+  International License (CC BY 4.0). See LICENSE-CC-BY-4.0.
+
+- The JSON Schema (schema/), the examples (examples/), the test vectors
+  (test-vectors/) and any code are licensed under the Apache License,
+  Version 2.0. See LICENSE-APACHE-2.0.
+
+SPDX-License-Identifier: CC-BY-4.0 AND Apache-2.0

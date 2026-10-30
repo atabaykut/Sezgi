@@ -13,9 +13,9 @@ ACIK=$(yol .)
 KANIT=$(yol ..)
 # Yayınlanan depoda kanit/ Sezgi'nin kökündedir (../..); geliştirme düzeninde yan klasördür (../../sezgi)
 if [ -f ../../Cargo.toml ]; then SEZGI_KOK=$(yol ../..); else SEZGI_KOK=$(yol ../../sezgi); fi
-# Benlik Card şeması: BENLIK_SEMA ortam değişkeni, yoksa yan klasördeki benlik-spec deposu
+# Benlik Card şeması: BENLIK_SEMA ortam değişkeni, yoksa yayınlanan depodaki benlik/ klasörü ya da yan klasördeki benlik-spec
 SEMA="${BENLIK_SEMA:-}"
-for aday in "$SEZGI_KOK/../benlik-spec/schema/benlik-card.schema.json" "$KANIT/../benlik-spec/schema/benlik-card.schema.json"; do
+for aday in "$SEZGI_KOK/benlik/schema/benlik-card.schema.json" "$SEZGI_KOK/../benlik-spec/schema/benlik-card.schema.json" "$KANIT/../benlik-spec/schema/benlik-card.schema.json"; do
   [ -z "$SEMA" ] && [ -f "$aday" ] && SEMA="$aday"
 done
 # Git Bash "/api" gibi argümanları yola çevirmesin
@@ -61,7 +61,7 @@ olc() { # ad uygulama-klasörü openapi [--onek x]
     sed -n 1,6p "sonuc/$ad.karsilastirma.txt"
     echo
     echo "Benlik Kartı şema doğrulaması / card schema validation:"
-    if [ -n "$SEMA" ]; then node "$KANIT/kart-dogrula.js" "$SEMA" "sonuc/$ad/benlik.json"; else echo "(şema bulunamadı: BENLIK_SEMA=<benlik-card.schema.json> verin; github.com/benlik-spec/benlik-spec)"; fi
+    if [ -n "$SEMA" ]; then node "$KANIT/kart-dogrula.js" "$SEMA" "sonuc/$ad/benlik.json"; else echo "(şema bulunamadı: BENLIK_SEMA=<benlik-card.schema.json> verin; depodaki benlik/schema/)"; fi
     echo '```'
     echo
   } >> "$RAPOR"

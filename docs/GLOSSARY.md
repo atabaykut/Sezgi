@@ -1,6 +1,6 @@
 # Glossary (Turkish → English)
 
-Sezgi's commands, MCP tools and the internal map file use Turkish names. English aliases exist for commands, the main flags and MCP tools (`sezgi help` lists both names). `kapilar.json` is an **internal format and not yet stable**; the interoperable, English format is the [Benlik Card](https://github.com/benlik-spec/benlik-spec).
+Sezgi's commands, MCP tools and the internal map file use Turkish names. English aliases exist for commands, the main flags and MCP tools (`sezgi help` lists both names). `kapilar.json` is an **internal format and not yet stable**; the interoperable, English format is the [Benlik Card](https://github.com/atabaykut/Sezgi/tree/main/benlik).
 
 ## Commands
 

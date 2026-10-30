@@ -1,0 +1,1512 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://benlik.dev/schema/0.1/benlik-card.schema.json",
+  "title": "Benlik Card",
+  "description": "A signed, stamped, machine-readable self-description of an application's capabilities, rules, identity model and data handling. Draft 0.1.1: adds x- members for freshness, evidence and behaviour (ignored by 0.1 consumers).",
+  "type": "object",
+  "required": [
+    "benlik",
+    "app",
+    "generator",
+    "operations",
+    "coverage",
+    "identity",
+    "data_ledger",
+    "signature"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "benlik": {
+      "description": "Version of the Benlik Card format.",
+      "type": "string",
+      "pattern": "^0\\.1(\\.\\d+)?$"
+    },
+    "app": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "version",
+        "source_ref"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable identifier of the application."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string"
+        },
+        "source_ref": {
+          "type": "string",
+          "description": "Code state the card was generated from (commit hash or build id). A card whose source_ref does not match the running build is stale."
+        },
+        "description": {
+          "$ref": "#/$defs/stampedText"
+        }
+      },
+      "patternProperties": {
+        "^x-": {
+          "description": "Extension member. Generators MAY add x- members; consumers MUST ignore those they do not understand."
+        }
+      }
+    },
+    "generator": {
+      "type": "object",
+      "required": [
+        "name",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Tool that produced the card, e.g. 'sezgi' or 'handwritten'."
+        },
+        "version": {
+          "type": "string"
+        },
+        "adapters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Framework adapters used, e.g. 'nestjs@0.1'."
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "operations": {
+      "type": "array",
+      "description": "Every operation an agent may be able to perform. Operations not listed do not exist for agents.",
+      "items": {
+        "$ref": "#/$defs/operation"
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "description": "What the generator knows, guesses and does not know. A clean coverage report means 'no recorded gap', not proof of completeness.",
+      "required": [
+        "operations_found",
+        "operations_complete",
+        "rules_by_stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "operations_found": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "operations_complete": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rules_by_stamp": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "certain": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "data": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "approved": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "inferred": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unknown": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "skipped_files": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "partially_parsed_files": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "description": "How writes are attributed. The generator never grants authority; it only narrows it: effective permission = the user's permission in the application ∩ the token's scope.",
+      "required": [
+        "model",
+        "write_requires_human"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "enum": [
+            "oidc-token-exchange",
+            "user-session",
+            "read-only"
+          ]
+        },
+        "issuer": {
+          "type": "string",
+          "description": "OIDC issuer URL, when model is oidc-token-exchange."
+        },
+        "write_requires_human": {
+          "const": true,
+          "description": "Writes are never performed without a real user identity."
+        },
+        "service_account_writes": {
+          "const": false,
+          "description": "Writes to real data with a service account are not allowed."
+        }
+      }
+    },
+    "data_ledger": {
+      "type": "array",
+      "description": "Everything the generator or its runtime stores, by class.",
+      "items": {
+        "type": "object",
+        "required": [
+          "class",
+          "stored",
+          "retention_days"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "class": {
+            "enum": [
+              "code_derived",
+              "operational_log",
+              "customer_data"
+            ]
+          },
+          "stored": {
+            "type": "boolean"
+          },
+          "contents": {
+            "type": "string"
+          },
+          "retention_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "null means 'kept while the code exists' (code_derived only)."
+          },
+          "erase_command": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "changes": {
+      "type": "object",
+      "description": "Differences from the previous card.",
+      "additionalProperties": false,
+      "properties": {
+        "previous_source_ref": {
+          "type": "string"
+        },
+        "added": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "removed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "breaking": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "operation",
+              "reason"
+            ],
+            "properties": {
+              "operation": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "required": [
+        "alg",
+        "key_id",
+        "public_key_url",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "alg": {
+          "enum": [
+            "ML-DSA-65",
+            "Ed25519",
+            "none"
+          ],
+          "description": "Signature algorithm. ML-DSA (FIPS 204) is quantum-resistant. 'none' marks an unsigned development card, which agents MUST NOT trust for writes."
+        },
+        "key_id": {
+          "type": "string"
+        },
+        "public_key_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "description": "Base64 signature over the canonical JSON of the card without the 'signature' member (RFC 8785 JSON Canonicalization Scheme)."
+        }
+      }
+    },
+    "x-issued_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the card was issued (Draft 0.1.1). Covered by the signature."
+    },
+    "x-expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "After this time the card MUST NOT enable writes and must be regenerated (Draft 0.1.1). Covered by the signature."
+    },
+    "x-revision": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "Digest of the RFC 8785 (JCS) form of 'operations': identifies the proposition set independent of commits."
+    },
+    "x-basis": {
+      "type": "object",
+      "description": "SHA-256 of every source file the operations rely on, by path relative to the project root. An operation is stale when one of its files no longer has this digest.",
+      "additionalProperties": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "x-evidence": {
+      "type": "array",
+      "description": "Per-record digests of the evidence bundle (value-free projection).",
+      "items": {
+        "$ref": "#/$defs/evidenceSummary"
+      }
+    },
+    "x-evidence_root": {
+      "$ref": "#/$defs/sha256",
+      "description": "RFC 6962 Merkle tree hash over the x-evidence digests, in order."
+    },
+    "x-evidence_bundle": {
+      "type": "string",
+      "minLength": 1,
+      "description": "File name of the evidence bundle next to the card (e.g. benlik-evidence.json)."
+    },
+    "x-unread_route_sources": {
+      "type": "object",
+      "description": "Places where the code registers routes the generator could not read (Draft 0.1.1 extension, SPEC §6). When present, operations is incomplete: an operation that is not listed may still exist.",
+      "required": ["count", "sources", "coverage"],
+      "properties": {
+        "count": { "type": "integer", "minimum": 1 },
+        "sources": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "coverage": { "const": "partial" }
+      }
+    },
+    "x-journeys": {
+      "type": "array",
+      "description": "User journeys that lead to operations (Draft 0.1.1 extension): ordered screen and UI-action steps ending in an operation. Steps derived from source are at most inferred; a journey whose request sequence was observed at run time is observed. Steps are never observed from a network capture alone.",
+      "items": {
+        "$ref": "#/$defs/journey"
+      }
+    },
+    "x-nodes": {
+      "type": "array",
+      "description": "Internal events and queued jobs (Draft 0.1.1 extension, SPEC §3.7). They are not operations: an agent cannot call them. Derived statically: stamped at most inferred.",
+      "items": {
+        "$ref": "#/$defs/internalNode"
+      }
+    },
+    "x-relationships": {
+      "type": "array",
+      "description": "Edges from operations and internal nodes to internal nodes and tables (SPEC §3.7): triggers, writes (a listener deletes rows) and may_affect (rows a cascade from that delete removes). Stamped at most inferred; a missing edge is not evidence that nothing is set off.",
+      "items": {
+        "$ref": "#/$defs/relationship"
+      }
+    },
+    "x-sourceless": {
+      "const": true,
+      "description": "The card was generated from shipped files only (executables, packages, database files), without source code (SPEC §3.8). Such a card has no operations and nothing in it enables a write without a human."
+    },
+    "x-app_node": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The application node in the generator's evidence graph (e.g. app:android/<package>)."
+    },
+    "x-preview": {
+      "type": "object",
+      "description": "For a card without source code a request preview can never pass (SPEC §3.8).",
+      "required": [
+        "passes",
+        "coverage",
+        "reason"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "passes": {
+          "const": false
+        },
+        "coverage": {
+          "const": "open"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "x-capabilities": {
+      "type": "array",
+      "description": "What a card without source code found the application can do (SPEC §3.8): stamped at most observed, always behind human approval, coverage open.",
+      "items": {
+        "$ref": "#/$defs/capability"
+      }
+    },
+    "x-screens": {
+      "type": "array",
+      "description": "Screens found in shipped files (SPEC §3.8): stamped at most observed, always behind human approval.",
+      "items": {
+        "$ref": "#/$defs/screen"
+      }
+    },
+    "x-webmcp": {
+      "type": "array",
+      "description": "WebMCP tools a page declared, per origin (SPEC §3.8): names and input schema skeletons only, never descriptions; untrusted, stamped at most observed, always behind human approval.",
+      "items": {
+        "$ref": "#/$defs/webmcpOrigin"
+      }
+    }
+  },
+  "$defs": {
+    "stamp": {
+      "description": "How a fact is known (0.1 view). Since Draft 0.1.1 only 'certain' operations may enable writes; 'data' and 'approved' are kept for compatibility and count as observed, which never enables writes on its own.",
+      "enum": [
+        "certain",
+        "approved",
+        "data",
+        "inferred",
+        "unknown"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "file"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "line_start": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "line_end": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "kind": {
+          "enum": [
+            "code",
+            "test",
+            "ui_text",
+            "schema",
+            "config_table",
+            "trace",
+            "annotation"
+          ]
+        }
+      }
+    },
+    "stampedText": {
+      "type": "object",
+      "required": [
+        "text",
+        "stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "stamp": {
+          "$ref": "#/$defs/stamp"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "required": [
+        "type",
+        "required",
+        "stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean",
+            "date",
+            "datetime",
+            "object",
+            "array",
+            "enum",
+            "file",
+            "unknown"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "format": {
+          "type": "string"
+        },
+        "enum": {
+          "type": "array"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "min_length": {
+          "type": "integer"
+        },
+        "max_length": {
+          "type": "integer"
+        },
+        "description": {
+          "type": "string"
+        },
+        "stamp": {
+          "$ref": "#/$defs/stamp"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      },
+      "patternProperties": {
+        "^x-": {
+          "description": "Extension member. Generators MAY add x- members; consumers MUST ignore those they do not understand."
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "required": [
+        "text",
+        "stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "rejects_with": {
+          "type": "string",
+          "description": "Error code or status the application returns when the rule fails."
+        },
+        "stamp": {
+          "$ref": "#/$defs/stamp"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      }
+    },
+    "operation": {
+      "type": "object",
+      "required": [
+        "id",
+        "effect",
+        "entry",
+        "inputs",
+        "stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+$"
+        },
+        "name": {
+          "$ref": "#/$defs/stampedText"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Business-language names, e.g. from UI labels."
+        },
+        "does": {
+          "$ref": "#/$defs/stampedText"
+        },
+        "does_not": {
+          "$ref": "#/$defs/stampedText"
+        },
+        "effect": {
+          "enum": [
+            "read",
+            "write",
+            "destructive"
+          ]
+        },
+        "effect_stamp": {
+          "$ref": "#/$defs/stamp",
+          "description": "Stamp of the effect classification. An effect derived only from the HTTP method is 'inferred'."
+        },
+        "entry": {
+          "type": "object",
+          "required": [
+            "protocol"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "protocol": {
+              "enum": [
+                "http",
+                "graphql",
+                "grpc",
+                "trpc",
+                "websocket",
+                "queue",
+                "schedule"
+              ]
+            },
+            "method": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/field"
+          }
+        },
+        "preconditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/stampedText"
+          }
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rule"
+          }
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "side_effects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "text",
+              "reversible",
+              "stamp"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "reversible": {
+                "type": "boolean"
+              },
+              "stamp": {
+                "$ref": "#/$defs/stamp"
+              }
+            }
+          }
+        },
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "requires_approval": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "object",
+          "description": "Tables or collections the operation may read and may write, as far as the generator could follow the code. Not a complete list; see SPEC 6.1.",
+          "required": [
+            "reads",
+            "writes",
+            "stamp"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "reads": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "writes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "stamp": {
+              "$ref": "#/$defs/stamp"
+            },
+            "partial": {
+              "type": "boolean",
+              "description": "The generator saw storage access it could not resolve (e.g. raw SQL); the lists may be incomplete."
+            }
+          }
+        },
+        "deprecated": {
+          "type": "boolean",
+          "description": "The operation still works but should not be used by new integrations."
+        },
+        "replaced_by": {
+          "type": "string",
+          "description": "Id or name of the operation that replaces a deprecated one."
+        },
+        "version": {
+          "type": "string",
+          "description": "API version this operation belongs to, when several versions share an address."
+        },
+        "stamp": {
+          "$ref": "#/$defs/stamp",
+          "description": "Overall stamp: the weakest stamp among the facts a write would rely on."
+        },
+        "stale": {
+          "type": "boolean",
+          "description": "Explicit staleness flag (0.1). Since Draft 0.1.1 staleness is computed from x-basis; a generator SHOULD NOT write this member and consumers MUST treat true as stale."
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "x-dna": {
+          "$ref": "#/$defs/dna"
+        },
+        "x-response": {
+          "$ref": "#/$defs/response"
+        }
+      },
+      "patternProperties": {
+        "^x-": {
+          "description": "Extension member. Generators MAY add x- members; consumers MUST ignore those they do not understand."
+        }
+      }
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Lower-case hex SHA-256 digest."
+    },
+    "confidence": {
+      "description": "Trust scale of Draft 0.1.1 extension members: certain > observed > inferred > unknown. Only certain may enable writes.",
+      "enum": [
+        "certain",
+        "observed",
+        "inferred",
+        "unknown"
+      ]
+    },
+    "evidenceSummary": {
+      "type": "object",
+      "description": "Value-free privacy projection of one evidence record: the record itself lives in the evidence bundle and is bound by its digest.",
+      "required": [
+        "id",
+        "kind",
+        "confidence",
+        "authority",
+        "sha256"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_.-]+$"
+        },
+        "kind": {
+          "enum": [
+            "SOURCE_CODE",
+            "AST",
+            "API_SCHEMA",
+            "DATABASE_SCHEMA",
+            "BINARY_METADATA",
+            "BINARY_HEURISTIC",
+            "BINARY_STATIC",
+            "DECOMPILED",
+            "BROWSER_OBSERVATION",
+            "NETWORK_CAPTURE",
+            "RUNTIME_TRACE",
+            "AUTOMATED_TEST",
+            "USER_CONFIRMED",
+            "INFERRED_NAME"
+          ]
+        },
+        "claim_kind": {
+          "enum": [
+            "structure",
+            "call_target",
+            "behavior",
+            "business_rule",
+            "permission",
+            "data_effect"
+          ]
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "authority": {
+          "enum": [
+            "source",
+            "shipped-artifact",
+            "controlled-replay",
+            "historical-reference",
+            "external-service",
+            "analyst-inference",
+            "user"
+          ]
+        },
+        "shareable": {
+          "type": "boolean"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256",
+          "description": "SHA-256 of the RFC 8785 (JCS) form of the full record in the bundle."
+        }
+      }
+    },
+    "dnaFact": {
+      "type": "object",
+      "required": [
+        "condition",
+        "result",
+        "stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "condition": {
+          "type": "string"
+        },
+        "result": {
+          "type": "string"
+        },
+        "stamp": {
+          "$ref": "#/$defs/confidence"
+        }
+      }
+    },
+    "dna": {
+      "type": "object",
+      "description": "Behaviour DNA of the operation. Sections the generator could not close are marked 'open' in coverage; open is not evidence of absence.",
+      "required": [
+        "auth",
+        "coverage",
+        "evidence_refs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "auth": {
+          "type": "object",
+          "required": [
+            "required",
+            "stamp"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "required": {
+              "enum": [
+                "yes",
+                "no",
+                "optional",
+                "unknown"
+              ]
+            },
+            "stamp": {
+              "$ref": "#/$defs/confidence"
+            },
+            "object_level": {
+              "type": "array",
+              "description": "Object-level authorization found along the operation's call chain: an access check on specific records (requireAccess, authorize($post), @PreAuthorize with a target), an ownership comparison of the record's owner field with the requester, or an ownership filter in a query. Its outcome depends on the record and the caller, so a preview cannot pass it. One found in the handler itself MAY be certain; one reached through a service is at most inferred.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "expression",
+                  "stamp"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "access_check",
+                      "ownership",
+                      "ownership_filter",
+                      "authorization"
+                    ]
+                  },
+                  "expression": {
+                    "type": "string"
+                  },
+                  "permission": {
+                    "type": "string"
+                  },
+                  "stamp": {
+                    "$ref": "#/$defs/confidence"
+                  },
+                  "sources": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/source"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "call_chain": {
+          "type": "object",
+          "description": "Summary of the static call graph from the operation's handler: the path to the data layer, how many functions were reached and how many calls had a target the code does not tell (counted, never guessed).",
+          "required": [
+            "functions",
+            "stamp"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "functions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "reached": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unresolved_calls": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "stamp": {
+              "$ref": "#/$defs/confidence"
+            }
+          }
+        },
+        "preconditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/dnaFact"
+          }
+        },
+        "failure_modes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/dnaFact"
+          }
+        },
+        "data_effect": {
+          "type": "object",
+          "required": [
+            "reads",
+            "writes",
+            "stamp"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "reads": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "writes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "stamp": {
+              "$ref": "#/$defs/confidence"
+            },
+            "indirect": {
+              "type": "array",
+              "description": "Tables the operation changes indirectly, such as rows a database cascade deletes with the parent. Derived from the schema, so never certain.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "table",
+                  "stamp"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "table": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "stamp": {
+                    "enum": [
+                      "observed",
+                      "inferred",
+                      "unknown"
+                    ]
+                  },
+                  "sources": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/source"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "branches": {
+          "type": "array",
+          "description": "Conditions that split the operation's behaviour into two paths (e.g. permanent delete or move to trash). The condition is code text and carries no request values.",
+          "items": {
+            "type": "object",
+            "required": [
+              "condition",
+              "when_true",
+              "when_false",
+              "stamp"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "condition": {
+                "type": "string"
+              },
+              "when_true": {
+                "type": "string"
+              },
+              "when_false": {
+                "type": "string"
+              },
+              "stamp": {
+                "$ref": "#/$defs/confidence"
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/source"
+                }
+              }
+            }
+          }
+        },
+        "reversibility": {
+          "type": "object",
+          "required": [
+            "status"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "enum": [
+                "reversible",
+                "compensable",
+                "irreversible",
+                "unknown"
+              ]
+            },
+            "stamp": {
+              "$ref": "#/$defs/confidence"
+            }
+          }
+        },
+        "risk": {
+          "type": "object",
+          "required": [
+            "class"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "class": {
+              "enum": [
+                "read",
+                "write",
+                "destructive"
+              ]
+            },
+            "basis": {
+              "type": "string"
+            }
+          }
+        },
+        "requires_approval": {
+          "type": "boolean"
+        },
+        "coverage": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": [
+              "closed",
+              "open"
+            ]
+          }
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "journey": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "operation",
+        "stamp",
+        "steps"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string"
+        },
+        "operation": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The operation the journey ends in (an operations[].id)."
+        },
+        "stamp": {
+          "$ref": "#/$defs/confidence"
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "order",
+              "node",
+              "kind",
+              "stamp"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "order": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "node": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "type": "string",
+                "description": "Node kind, e.g. screen or ui."
+              },
+              "stamp": {
+                "$ref": "#/$defs/confidence"
+              }
+            }
+          }
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "description": "Schema of the successful response, from code (Draft 0.1.1 extension). certain only for an explicit declaration or an unambiguous type the framework enforces (e.g. FastAPI response_model); a return type or a guess from the handler is inferred.",
+      "required": [
+        "type",
+        "fields",
+        "stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "array": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599
+        },
+        "fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "type",
+              "required"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "required": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "stamp": {
+          "$ref": "#/$defs/confidence"
+        },
+        "basis": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      }
+    },
+    "upToObserved": {
+      "description": "Trust of a member derived from shipped files or a run-time observation: never certain (SPEC §3.3, §3.8).",
+      "enum": [
+        "observed",
+        "inferred",
+        "unknown"
+      ]
+    },
+    "upToInferred": {
+      "description": "Trust of a statically derived internal edge or node: at most inferred (SPEC §3.7).",
+      "enum": [
+        "inferred",
+        "unknown"
+      ]
+    },
+    "internalNode": {
+      "type": "object",
+      "required": [
+        "type",
+        "id",
+        "name",
+        "stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "event",
+            "job"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^(event|job):.+"
+        },
+        "name": {
+          "type": "string"
+        },
+        "handlers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Functions that listen to the event or process the job."
+        },
+        "stamp": {
+          "$ref": "#/$defs/upToInferred"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "required": [
+        "from",
+        "to",
+        "kind",
+        "stamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "type": "string",
+          "minLength": 1,
+          "description": "An operations[].id or an x-nodes id."
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1,
+          "description": "An x-nodes id or a table as db:<table>."
+        },
+        "kind": {
+          "enum": [
+            "triggers",
+            "writes",
+            "may_affect"
+          ]
+        },
+        "stamp": {
+          "$ref": "#/$defs/upToInferred"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        }
+      }
+    },
+    "capability": {
+      "type": "object",
+      "required": [
+        "id",
+        "implemented_by",
+        "kind",
+        "stamp",
+        "requires_approval",
+        "coverage"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^cap:.+"
+        },
+        "implemented_by": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The evidence-graph node that implements it (a method, a component)."
+        },
+        "kind": {
+          "type": "string"
+        },
+        "stamp": {
+          "$ref": "#/$defs/upToObserved"
+        },
+        "requires_approval": {
+          "const": true
+        },
+        "coverage": {
+          "const": "open"
+        }
+      }
+    },
+    "screen": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "stamp",
+        "requires_approval"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^screen:.+"
+        },
+        "kind": {
+          "type": "string",
+          "description": "E.g. activity, form, window."
+        },
+        "stamp": {
+          "$ref": "#/$defs/upToObserved"
+        },
+        "requires_approval": {
+          "const": true
+        },
+        "exported": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Other applications can start it (Android)."
+        },
+        "launcher": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Listed in the launcher (Android)."
+        }
+      }
+    },
+    "webmcpOrigin": {
+      "type": "object",
+      "required": [
+        "origin",
+        "tools",
+        "untrusted"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "origin": {
+          "type": "string"
+        },
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/webmcpTool"
+          }
+        },
+        "untrusted": {
+          "const": true
+        }
+      }
+    },
+    "webmcpTool": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "stamp",
+        "requires_approval"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^cap:webmcp/.+"
+        },
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "inputs": {
+          "type": "array",
+          "description": "Input schema skeleton: field name, type and whether it is required; no descriptions, examples or allowed values.",
+          "items": {
+            "type": "object",
+            "required": [
+              "ad",
+              "tur",
+              "zorunlu"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "ad": {
+                "type": "string"
+              },
+              "tur": {
+                "type": "string"
+              },
+              "zorunlu": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "input_schema_sha256": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "read_only": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "consequential": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "stamp": {
+          "$ref": "#/$defs/upToObserved"
+        },
+        "requires_approval": {
+          "const": true
+        }
+      }
+    }
+  },
+  "patternProperties": {
+    "^x-": {
+      "description": "Extension member. Generators MAY add x- members; consumers MUST ignore those they do not understand."
+    }
+  }
+}

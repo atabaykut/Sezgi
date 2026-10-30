@@ -1,0 +1,2065 @@
+{
+  "aciklama": "Kanıt paketi aynı anahtarla ama kart bağlamıyla (benlik-card) imzalanmış: paket imzası benlik-evidence bağlamında doğrulanmaz, kart (paketle birlikte) geçersizdir.",
+  "kart": {
+    "benlik": "0.1.1",
+    "app": {
+      "id": "nestjs-temel-ornek",
+      "name": "nestjs-temel-ornek",
+      "version": "unknown",
+      "source_ref": "unknown"
+    },
+    "generator": {
+      "name": "sezgi",
+      "version": "0.1.0",
+      "adapters": [
+        "nestjs@0.1.1"
+      ],
+      "generated_at": "2026-10-20T12:58:11Z"
+    },
+    "operations": [
+      {
+        "id": "kitap.listele",
+        "name": {
+          "text": "Kitapları listele",
+          "stamp": "certain",
+          "sources": [
+            {
+              "file": "src/kitap/kitap.controller.ts",
+              "line_start": 15,
+              "kind": "code"
+            }
+          ]
+        },
+        "effect": "read",
+        "effect_stamp": "inferred",
+        "entry": {
+          "protocol": "http",
+          "method": "GET",
+          "path": "/api/v1/kitaplar"
+        },
+        "inputs": {
+          "ara": {
+            "type": "unknown",
+            "required": false,
+            "stamp": "unknown"
+          },
+          "sayfa": {
+            "type": "unknown",
+            "required": false,
+            "stamp": "unknown"
+          },
+          "etiket": {
+            "type": "unknown",
+            "required": false,
+            "stamp": "unknown"
+          }
+        },
+        "rules": [
+          {
+            "text": "A public marker is present, but it could not be verified that the login guard honours it; treated as public.",
+            "stamp": "inferred"
+          }
+        ],
+        "roles": [],
+        "requires_approval": false,
+        "stamp": "unknown",
+        "sources": [
+          {
+            "file": "src/kitap/kitap.controller.ts",
+            "line_start": 15,
+            "kind": "code"
+          }
+        ],
+        "data": {
+          "reads": [
+            "Kitap"
+          ],
+          "writes": [],
+          "stamp": "inferred"
+        },
+        "version": "2026-01-01",
+        "x-dna": {
+          "auth": {
+            "required": "no",
+            "stamp": "inferred"
+          },
+          "preconditions": [],
+          "failure_modes": [],
+          "reversibility": {
+            "status": "unknown"
+          },
+          "risk": {
+            "class": "read",
+            "basis": "method"
+          },
+          "requires_approval": false,
+          "coverage": {
+            "auth": "open",
+            "preconditions": "open",
+            "failure_modes": "open"
+          },
+          "evidence_refs": [
+            "e1"
+          ],
+          "data_effect": {
+            "reads": [
+              "Kitap"
+            ],
+            "writes": [],
+            "stamp": "inferred"
+          }
+        }
+      },
+      {
+        "id": "kitap.olustur",
+        "name": {
+          "text": "Kitap oluştur",
+          "stamp": "certain",
+          "sources": [
+            {
+              "file": "src/kitap/kitap.controller.ts",
+              "line_start": 21,
+              "kind": "code"
+            }
+          ]
+        },
+        "effect": "write",
+        "effect_stamp": "inferred",
+        "entry": {
+          "protocol": "http",
+          "method": "POST",
+          "path": "/api/v1/kitaplar"
+        },
+        "inputs": {
+          "baslik": {
+            "type": "string",
+            "min_length": 2,
+            "required": true,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 7,
+                "kind": "schema"
+              }
+            ]
+          },
+          "cevirmen": {
+            "type": "string",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 16,
+                "kind": "schema"
+              }
+            ]
+          },
+          "dil": {
+            "type": "enum",
+            "enum": [
+              "tr",
+              "en"
+            ],
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 11,
+                "kind": "schema"
+              }
+            ]
+          },
+          "durum": {
+            "type": "enum",
+            "enum": [
+              "TASLAK",
+              "YAYINDA"
+            ],
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 17,
+                "kind": "schema"
+              }
+            ]
+          },
+          "ikinciDil": {
+            "type": "enum",
+            "enum": [
+              "tr",
+              "en",
+              "de"
+            ],
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 18,
+                "kind": "schema"
+              }
+            ]
+          },
+          "isbn": {
+            "type": "string",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 14,
+                "kind": "schema"
+              }
+            ]
+          },
+          "kisaAd": {
+            "type": "string",
+            "max_length": 3,
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 13,
+                "kind": "schema"
+              }
+            ]
+          },
+          "oncelik": {
+            "type": "enum",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 15,
+                "kind": "schema"
+              }
+            ]
+          },
+          "sayfa": {
+            "type": "integer",
+            "min": 1.0,
+            "max": 5000.0,
+            "required": true,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 8,
+                "kind": "schema"
+              }
+            ]
+          },
+          "tur": {
+            "type": "enum",
+            "enum": [
+              "roman",
+              "siir"
+            ],
+            "required": true,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 10,
+                "kind": "schema"
+              }
+            ]
+          },
+          "yayin": {
+            "type": "datetime",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 12,
+                "kind": "schema"
+              }
+            ]
+          },
+          "yazar": {
+            "type": "string",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 9,
+                "kind": "schema"
+              }
+            ]
+          }
+        },
+        "rules": [
+          {
+            "text": "baslik: IsString()",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 7,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "baslik: MinLength(2)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 7,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "cevirmen: IsString()",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 16,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "dil: IsIn(['tr', 'en'])",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 11,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "durum: IsEnum(KitapDurumu)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 17,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "ikinciDil: IsIn(DILLER as unknown as string[])",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 18,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "isbn: Matches(/^\\d+$/)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 14,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "kisaAd: MaxLength(3)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 13,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "oncelik: IsEnum(Oncelik)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 15,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "sayfa: IsInt()",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 8,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "sayfa: Min(1)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 8,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "sayfa: Max(5000)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 8,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "tur: IsEnum(Tur)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 10,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "yayin: IsDateString()",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 12,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "yazar: IsString()",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 9,
+                "kind": "schema"
+              }
+            ]
+          }
+        ],
+        "roles": [],
+        "requires_approval": false,
+        "stamp": "certain",
+        "sources": [
+          {
+            "file": "src/kitap/kitap.controller.ts",
+            "line_start": 21,
+            "kind": "code"
+          }
+        ],
+        "data": {
+          "reads": [],
+          "writes": [
+            "Etiket",
+            "Kitap"
+          ],
+          "stamp": "inferred"
+        },
+        "version": "2026-01-01",
+        "x-dna": {
+          "auth": {
+            "required": "yes",
+            "stamp": "certain"
+          },
+          "preconditions": [],
+          "failure_modes": [
+            {
+              "condition": "baslik: IsString()",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "baslik: MinLength(2)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "cevirmen: IsString()",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "dil: IsIn(['tr', 'en'])",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "durum: IsEnum(KitapDurumu)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "ikinciDil: IsIn(DILLER as unknown as string[])",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "isbn: Matches(/^\\d+$/)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "kisaAd: MaxLength(3)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "oncelik: IsEnum(Oncelik)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "sayfa: IsInt()",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "sayfa: Min(1)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "sayfa: Max(5000)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "tur: IsEnum(Tur)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "yayin: IsDateString()",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "yazar: IsString()",
+              "result": "rejected",
+              "stamp": "certain"
+            }
+          ],
+          "reversibility": {
+            "status": "unknown"
+          },
+          "risk": {
+            "class": "write",
+            "basis": "method"
+          },
+          "requires_approval": false,
+          "coverage": {
+            "auth": "closed",
+            "preconditions": "open",
+            "failure_modes": "open"
+          },
+          "evidence_refs": [
+            "e2"
+          ],
+          "data_effect": {
+            "reads": [],
+            "writes": [
+              "Etiket",
+              "Kitap"
+            ],
+            "stamp": "inferred"
+          }
+        }
+      },
+      {
+        "id": "kitap.sil",
+        "name": {
+          "text": "sil",
+          "stamp": "certain",
+          "sources": [
+            {
+              "file": "src/kitap/kitap.controller.ts",
+              "line_start": 32,
+              "kind": "code"
+            }
+          ]
+        },
+        "effect": "destructive",
+        "effect_stamp": "inferred",
+        "entry": {
+          "protocol": "http",
+          "method": "DELETE",
+          "path": "/api/v1/kitaplar/:id"
+        },
+        "inputs": {
+          "id": {
+            "type": "string",
+            "required": true,
+            "description": "path parameter",
+            "stamp": "certain"
+          }
+        },
+        "rules": [],
+        "roles": [
+          "ADMIN"
+        ],
+        "requires_approval": true,
+        "stamp": "certain",
+        "sources": [
+          {
+            "file": "src/kitap/kitap.controller.ts",
+            "line_start": 32,
+            "kind": "code"
+          }
+        ],
+        "data": {
+          "reads": [],
+          "writes": [
+            "Gunluk",
+            "Kitap"
+          ],
+          "stamp": "inferred"
+        },
+        "version": "2026-01-01",
+        "x-dna": {
+          "auth": {
+            "required": "yes",
+            "stamp": "certain"
+          },
+          "preconditions": [],
+          "failure_modes": [],
+          "reversibility": {
+            "status": "unknown"
+          },
+          "risk": {
+            "class": "destructive",
+            "basis": "method"
+          },
+          "requires_approval": true,
+          "coverage": {
+            "auth": "closed",
+            "preconditions": "open",
+            "failure_modes": "open"
+          },
+          "evidence_refs": [
+            "e3"
+          ],
+          "data_effect": {
+            "reads": [],
+            "writes": [
+              "Gunluk",
+              "Kitap"
+            ],
+            "stamp": "inferred"
+          }
+        }
+      },
+      {
+        "id": "kitap.getir",
+        "name": {
+          "text": "Kitap ayrıntısı",
+          "stamp": "certain",
+          "sources": [
+            {
+              "file": "src/kitap/kitap.controller.ts",
+              "line_start": 38,
+              "kind": "code"
+            }
+          ]
+        },
+        "effect": "read",
+        "effect_stamp": "inferred",
+        "entry": {
+          "protocol": "http",
+          "method": "GET",
+          "path": "/api/v1/kitaplar/:id"
+        },
+        "inputs": {
+          "id": {
+            "type": "string",
+            "required": true,
+            "description": "path parameter",
+            "stamp": "certain"
+          }
+        },
+        "rules": [],
+        "roles": [],
+        "requires_approval": false,
+        "stamp": "certain",
+        "sources": [
+          {
+            "file": "src/kitap/kitap.controller.ts",
+            "line_start": 38,
+            "kind": "code"
+          }
+        ],
+        "deprecated": true,
+        "data": {
+          "reads": [],
+          "writes": [],
+          "stamp": "inferred"
+        },
+        "version": "2026-01-01",
+        "x-dna": {
+          "auth": {
+            "required": "yes",
+            "stamp": "certain"
+          },
+          "preconditions": [],
+          "failure_modes": [],
+          "reversibility": {
+            "status": "unknown"
+          },
+          "risk": {
+            "class": "read",
+            "basis": "method"
+          },
+          "requires_approval": false,
+          "coverage": {
+            "auth": "closed",
+            "preconditions": "open",
+            "failure_modes": "open"
+          },
+          "evidence_refs": [
+            "e4"
+          ],
+          "data_effect": {
+            "reads": [],
+            "writes": [],
+            "stamp": "inferred"
+          }
+        }
+      },
+      {
+        "id": "kitap.guncelle",
+        "name": {
+          "text": "guncelle",
+          "stamp": "certain",
+          "sources": [
+            {
+              "file": "src/kitap/kitap.controller.ts",
+              "line_start": 26,
+              "kind": "code"
+            }
+          ]
+        },
+        "effect": "write",
+        "effect_stamp": "inferred",
+        "entry": {
+          "protocol": "http",
+          "method": "PATCH",
+          "path": "/api/v1/kitaplar/:id"
+        },
+        "inputs": {
+          "id": {
+            "type": "string",
+            "required": true,
+            "description": "path parameter",
+            "stamp": "certain"
+          },
+          "baslik": {
+            "type": "string",
+            "min_length": 2,
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 7,
+                "kind": "schema"
+              }
+            ]
+          },
+          "cevirmen": {
+            "type": "string",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 16,
+                "kind": "schema"
+              }
+            ]
+          },
+          "dil": {
+            "type": "enum",
+            "enum": [
+              "tr",
+              "en"
+            ],
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 11,
+                "kind": "schema"
+              }
+            ]
+          },
+          "durum": {
+            "type": "enum",
+            "enum": [
+              "TASLAK",
+              "YAYINDA"
+            ],
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 17,
+                "kind": "schema"
+              }
+            ]
+          },
+          "ikinciDil": {
+            "type": "enum",
+            "enum": [
+              "tr",
+              "en",
+              "de"
+            ],
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 18,
+                "kind": "schema"
+              }
+            ]
+          },
+          "isbn": {
+            "type": "string",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 14,
+                "kind": "schema"
+              }
+            ]
+          },
+          "kisaAd": {
+            "type": "string",
+            "max_length": 3,
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 13,
+                "kind": "schema"
+              }
+            ]
+          },
+          "oncelik": {
+            "type": "enum",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 15,
+                "kind": "schema"
+              }
+            ]
+          },
+          "sayfa": {
+            "type": "integer",
+            "min": 1.0,
+            "max": 5000.0,
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 8,
+                "kind": "schema"
+              }
+            ]
+          },
+          "tur": {
+            "type": "enum",
+            "enum": [
+              "roman",
+              "siir"
+            ],
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 10,
+                "kind": "schema"
+              }
+            ]
+          },
+          "yayin": {
+            "type": "datetime",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 12,
+                "kind": "schema"
+              }
+            ]
+          },
+          "yazar": {
+            "type": "string",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 9,
+                "kind": "schema"
+              }
+            ]
+          }
+        },
+        "rules": [
+          {
+            "text": "baslik: IsString()",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 7,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "baslik: MinLength(2)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 7,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "cevirmen: IsString()",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 16,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "dil: IsIn(['tr', 'en'])",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 11,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "durum: IsEnum(KitapDurumu)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 17,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "ikinciDil: IsIn(DILLER as unknown as string[])",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 18,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "isbn: Matches(/^\\d+$/)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 14,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "kisaAd: MaxLength(3)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 13,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "oncelik: IsEnum(Oncelik)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 15,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "sayfa: IsInt()",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 8,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "sayfa: Min(1)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 8,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "sayfa: Max(5000)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 8,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "tur: IsEnum(Tur)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 10,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "yayin: IsDateString()",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 12,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "yazar: IsString()",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/kitap/dto/kitap.dto.ts",
+                "line_start": 9,
+                "kind": "schema"
+              }
+            ]
+          }
+        ],
+        "roles": [],
+        "requires_approval": false,
+        "stamp": "certain",
+        "sources": [
+          {
+            "file": "src/kitap/kitap.controller.ts",
+            "line_start": 26,
+            "kind": "code"
+          }
+        ],
+        "data": {
+          "reads": [],
+          "writes": [
+            "Kitap"
+          ],
+          "stamp": "inferred"
+        },
+        "version": "2026-01-01",
+        "x-dna": {
+          "auth": {
+            "required": "yes",
+            "stamp": "certain"
+          },
+          "preconditions": [],
+          "failure_modes": [
+            {
+              "condition": "baslik: IsString()",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "baslik: MinLength(2)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "cevirmen: IsString()",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "dil: IsIn(['tr', 'en'])",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "durum: IsEnum(KitapDurumu)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "ikinciDil: IsIn(DILLER as unknown as string[])",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "isbn: Matches(/^\\d+$/)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "kisaAd: MaxLength(3)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "oncelik: IsEnum(Oncelik)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "sayfa: IsInt()",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "sayfa: Min(1)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "sayfa: Max(5000)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "tur: IsEnum(Tur)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "yayin: IsDateString()",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "yazar: IsString()",
+              "result": "rejected",
+              "stamp": "certain"
+            }
+          ],
+          "reversibility": {
+            "status": "unknown"
+          },
+          "risk": {
+            "class": "write",
+            "basis": "method"
+          },
+          "requires_approval": false,
+          "coverage": {
+            "auth": "closed",
+            "preconditions": "open",
+            "failure_modes": "open"
+          },
+          "evidence_refs": [
+            "e5"
+          ],
+          "data_effect": {
+            "reads": [],
+            "writes": [
+              "Kitap"
+            ],
+            "stamp": "inferred"
+          }
+        }
+      },
+      {
+        "id": "kitap.getir.api-v1-kitaplar-id-detay",
+        "name": {
+          "text": "Kitap ayrıntısı",
+          "stamp": "certain",
+          "sources": [
+            {
+              "file": "src/kitap/kitap.controller.ts",
+              "line_start": 38,
+              "kind": "code"
+            }
+          ]
+        },
+        "effect": "read",
+        "effect_stamp": "inferred",
+        "entry": {
+          "protocol": "http",
+          "method": "GET",
+          "path": "/api/v1/kitaplar/:id/detay"
+        },
+        "inputs": {
+          "id": {
+            "type": "string",
+            "required": true,
+            "description": "path parameter",
+            "stamp": "certain"
+          }
+        },
+        "rules": [],
+        "roles": [],
+        "requires_approval": false,
+        "stamp": "certain",
+        "sources": [
+          {
+            "file": "src/kitap/kitap.controller.ts",
+            "line_start": 38,
+            "kind": "code"
+          }
+        ],
+        "deprecated": true,
+        "data": {
+          "reads": [],
+          "writes": [],
+          "stamp": "inferred"
+        },
+        "version": "2026-01-01",
+        "x-dna": {
+          "auth": {
+            "required": "yes",
+            "stamp": "certain"
+          },
+          "preconditions": [],
+          "failure_modes": [],
+          "reversibility": {
+            "status": "unknown"
+          },
+          "risk": {
+            "class": "read",
+            "basis": "method"
+          },
+          "requires_approval": false,
+          "coverage": {
+            "auth": "closed",
+            "preconditions": "open",
+            "failure_modes": "open"
+          },
+          "evidence_refs": [
+            "e6"
+          ],
+          "data_effect": {
+            "reads": [],
+            "writes": [],
+            "stamp": "inferred"
+          }
+        }
+      },
+      {
+        "id": "yorum.yaz",
+        "name": {
+          "text": "yaz",
+          "stamp": "certain",
+          "sources": [
+            {
+              "file": "src/yorum/yorum.controller.ts",
+              "line_start": 50,
+              "kind": "code"
+            }
+          ]
+        },
+        "effect": "write",
+        "effect_stamp": "inferred",
+        "entry": {
+          "protocol": "http",
+          "method": "POST",
+          "path": "/api/v1/yorumlar"
+        },
+        "inputs": {
+          "baslik": {
+            "type": "string",
+            "max_length": 20,
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 27,
+                "kind": "schema"
+              }
+            ]
+          },
+          "durum": {
+            "type": "enum",
+            "enum": [
+              "acik",
+              "gizli"
+            ],
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 26,
+                "kind": "schema"
+              }
+            ]
+          },
+          "ek": {
+            "type": "object",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 31,
+                "kind": "schema"
+              }
+            ]
+          },
+          "etiketler": {
+            "type": "array",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 28,
+                "kind": "schema"
+              }
+            ]
+          },
+          "herkese": {
+            "type": "string",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 25,
+                "kind": "schema"
+              }
+            ]
+          },
+          "kategori": {
+            "type": "enum",
+            "enum": [
+              "bilim",
+              "edebiyat"
+            ],
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 32,
+                "kind": "schema"
+              }
+            ]
+          },
+          "kaynaklar": {
+            "type": "array",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 30,
+                "kind": "schema"
+              }
+            ]
+          },
+          "kitapId": {
+            "type": "string",
+            "format": "uuid",
+            "required": true,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 23,
+                "kind": "schema"
+              }
+            ]
+          },
+          "metin": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 500,
+            "required": true,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 19,
+                "kind": "schema"
+              }
+            ]
+          },
+          "puan": {
+            "type": "integer",
+            "min": 1.0,
+            "max": 5.0,
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 20,
+                "kind": "schema"
+              }
+            ]
+          },
+          "tarih": {
+            "type": "string",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 24,
+                "kind": "schema"
+              }
+            ]
+          },
+          "yazar": {
+            "type": "object",
+            "required": false,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 29,
+                "kind": "schema"
+              }
+            ]
+          }
+        },
+        "rules": [
+          {
+            "text": "baslik: max(20)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 27,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "etiketler: min(1)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 28,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "metin: min(1)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 19,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "metin: max(500)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 19,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "puan: min(1)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 20,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "puan: max(5)",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 20,
+                "kind": "schema"
+              }
+            ]
+          },
+          {
+            "text": "tarih: datetime({ offset: true })",
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/yorum/yorum.controller.ts",
+                "line_start": 24,
+                "kind": "schema"
+              }
+            ]
+          }
+        ],
+        "roles": [],
+        "requires_approval": false,
+        "stamp": "certain",
+        "sources": [
+          {
+            "file": "src/yorum/yorum.controller.ts",
+            "line_start": 50,
+            "kind": "code"
+          }
+        ],
+        "data": {
+          "reads": [
+            "Kitap"
+          ],
+          "writes": [
+            "Yorum"
+          ],
+          "stamp": "inferred"
+        },
+        "x-dna": {
+          "auth": {
+            "required": "yes",
+            "stamp": "certain"
+          },
+          "preconditions": [],
+          "failure_modes": [
+            {
+              "condition": "baslik: max(20)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "etiketler: min(1)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "metin: min(1)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "metin: max(500)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "puan: min(1)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "puan: max(5)",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "tarih: datetime({ offset: true })",
+              "result": "rejected",
+              "stamp": "certain"
+            }
+          ],
+          "reversibility": {
+            "status": "unknown"
+          },
+          "risk": {
+            "class": "write",
+            "basis": "method"
+          },
+          "requires_approval": false,
+          "coverage": {
+            "auth": "closed",
+            "preconditions": "open",
+            "failure_modes": "open"
+          },
+          "evidence_refs": [
+            "e7"
+          ],
+          "data_effect": {
+            "reads": [
+              "Kitap"
+            ],
+            "writes": [
+              "Yorum"
+            ],
+            "stamp": "inferred"
+          }
+        }
+      },
+      {
+        "id": "yorum.toplu-sil",
+        "name": {
+          "text": "topluSil",
+          "stamp": "certain",
+          "sources": [
+            {
+              "file": "src/yorum/yorum.controller.ts",
+              "line_start": 55,
+              "kind": "code"
+            }
+          ]
+        },
+        "effect": "destructive",
+        "effect_stamp": "inferred",
+        "entry": {
+          "protocol": "http",
+          "method": "DELETE",
+          "path": "/api/v1/yorumlar/toplu"
+        },
+        "inputs": {},
+        "rules": [],
+        "roles": [],
+        "requires_approval": true,
+        "stamp": "unknown",
+        "sources": [
+          {
+            "file": "src/yorum/yorum.controller.ts",
+            "line_start": 55,
+            "kind": "code"
+          }
+        ],
+        "data": {
+          "reads": [],
+          "writes": [],
+          "stamp": "inferred"
+        },
+        "x-dna": {
+          "auth": {
+            "required": "yes",
+            "stamp": "certain"
+          },
+          "preconditions": [],
+          "failure_modes": [],
+          "reversibility": {
+            "status": "unknown"
+          },
+          "risk": {
+            "class": "destructive",
+            "basis": "method"
+          },
+          "requires_approval": true,
+          "coverage": {
+            "auth": "closed",
+            "preconditions": "open",
+            "failure_modes": "open"
+          },
+          "evidence_refs": [
+            "e8"
+          ],
+          "data_effect": {
+            "reads": [],
+            "writes": [],
+            "stamp": "inferred"
+          }
+        }
+      }
+    ],
+    "coverage": {
+      "operations_found": 8,
+      "operations_complete": 6,
+      "rules_by_stamp": {
+        "certain": 37,
+        "data": 0,
+        "approved": 0,
+        "inferred": 1,
+        "unknown": 0
+      }
+    },
+    "identity": {
+      "model": "user-session",
+      "write_requires_human": true,
+      "service_account_writes": false
+    },
+    "data_ledger": [
+      {
+        "class": "code_derived",
+        "stored": true,
+        "contents": "map, cards, stamps",
+        "retention_days": null
+      },
+      {
+        "class": "operational_log",
+        "stored": false,
+        "retention_days": 0
+      },
+      {
+        "class": "customer_data",
+        "stored": false,
+        "retention_days": 0
+      }
+    ],
+    "signature": {
+      "alg": "ML-DSA-65",
+      "key_id": "benlik-ornek",
+      "public_key_url": "/.well-known/benlik-keys.json",
+      "value": "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"
+    },
+    "x-issued_at": "2026-10-20T12:58:11Z",
+    "x-expires_at": "2027-10-20T12:58:11Z",
+    "x-basis": {
+      "src/kitap/kitap.controller.ts": "78b04cf25c888c907a79cbcc3c44e63a6616ca7c673a07601766866b92d1260a",
+      "src/kitap/dto/kitap.dto.ts": "cc6a350027deda8eab07688e733ccfca8f348da6c75b2b5123e57c0bcb46ec8c",
+      "src/yorum/yorum.controller.ts": "01c8871f79d704d9e455a6f19aedf58e18e19b50e1bfcca0a8845b1d5b114f65"
+    },
+    "x-evidence": [
+      {
+        "id": "e1",
+        "kind": "SOURCE_CODE",
+        "claim_kind": "structure",
+        "confidence": "certain",
+        "authority": "source",
+        "shareable": true,
+        "sha256": "d10b424d7ae6282592e699a259b67b98d40376966ce1707899a5c3c324336af1"
+      },
+      {
+        "id": "e2",
+        "kind": "SOURCE_CODE",
+        "claim_kind": "structure",
+        "confidence": "certain",
+        "authority": "source",
+        "shareable": true,
+        "sha256": "74f7b1f2204d14b8b0d75733f029fed51b2e9f111ce6db829124878414515780"
+      },
+      {
+        "id": "e3",
+        "kind": "SOURCE_CODE",
+        "claim_kind": "structure",
+        "confidence": "certain",
+        "authority": "source",
+        "shareable": true,
+        "sha256": "d5528138645f7de6cc284fd8f96a0809a77cc795ae3af456e04d51daab44fe4b"
+      },
+      {
+        "id": "e4",
+        "kind": "SOURCE_CODE",
+        "claim_kind": "structure",
+        "confidence": "certain",
+        "authority": "source",
+        "shareable": true,
+        "sha256": "2aa96b83cbe26a792ecfc3f99b66d0b6e95e026d3a0b4a93192302844d2ce57a"
+      },
+      {
+        "id": "e5",
+        "kind": "SOURCE_CODE",
+        "claim_kind": "structure",
+        "confidence": "certain",
+        "authority": "source",
+        "shareable": true,
+        "sha256": "6e871fe72efd9f84673bcffcb24c02cbba7329a651d666b2ae8c5935b9122603"
+      },
+      {
+        "id": "e6",
+        "kind": "SOURCE_CODE",
+        "claim_kind": "structure",
+        "confidence": "certain",
+        "authority": "source",
+        "shareable": true,
+        "sha256": "672e940cc5e479ed60cd1f8a6837e0f41d2ab197fbc0467d7f35f381ca05a967"
+      },
+      {
+        "id": "e7",
+        "kind": "SOURCE_CODE",
+        "claim_kind": "structure",
+        "confidence": "certain",
+        "authority": "source",
+        "shareable": true,
+        "sha256": "5bd0c98668e1d06b967e85ef6dcea1cc24337c13235507c5e91c981bc4e12d96"
+      },
+      {
+        "id": "e8",
+        "kind": "SOURCE_CODE",
+        "claim_kind": "structure",
+        "confidence": "certain",
+        "authority": "source",
+        "shareable": true,
+        "sha256": "59371ff0a44bc300832b86fe9afc088ccf4d6e2cc9fea4777ce91cddcf715c32"
+      }
+    ],
+    "x-evidence_root": "bd818ae782faec3992f09e62430e4bb0ab0d46d1250b0886f0bfefcf3941cbdf",
+    "x-evidence_bundle": "benlik-evidence.json",
+    "x-revision": "sha256:51e0971579db811f15ae421b91ebf67489ee59a612ed817cd36b337cc7ccf90f"
+  },
+  "girdi": {
+    "simdi": "2026-10-20T23:59:59Z",
+    "anahtarlar": {
+      "keys": [
+        {
+          "key_id": "benlik-ornek",
+          "alg": "ML-DSA-65",
+          "public_key": "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"
+        }
+      ]
+    },
+    "guvenilen_anahtarlar": {
+      "keys": [
+        {
+          "key_id": "benlik-ornek",
+          "alg": "ML-DSA-65",
+          "public_key": "PBlOW/b7aR0GEYqJosWgIw6MpFImurX8t/ER281vA9M7YuUgxenHFnte6dqp7AmKi6lK28x7OV0d/aJ8C+zWdBtgfJ7vTulrlqSjd0Gpmf/c8VSORQh3LSvGzDhi6zow5z3Ytxq6fLhchdDMhzLz7hxLCUVWQHpGPBNMzWKJ8K1yckEBojrnvtVVjMe8XoiwrGeFcFSFSqbeUK3vUxdgpiYu7/7j+PRlm1MZbkYO3jU5opyllpXoEWhZdKz6AT7rudi+kiEMBoIEkl+yDX6BFdRBf87wfOYAEFbmgx9efEH7AT8XhERnQnD1N+P4P6+ptf0Q1Q+KZd5NnrS79+ZnQNOYi5MX7s6OKU94CILW6hwvRa+N6gPO3BLZrGPDoRinC5c2paWrUw/GJjTVnlRWd6j/zAGZcsUho/d5qYlLpYGmx33INmsUUddSZsNTmm6nMZ5j3dO345FoNqKmp89SIzmpt8nPUkL84xRN/qYSb6ZXV6a+WhJdRdhXLRXMqhtl1MG2Ro85KsbC1rTwNgj7ZqR+D9oKOldPd8mq1G5HgZQKiNzeoPwYbGN75YfMtc2/ab6BnsZkzZ4D/hzRegYSALvc+0TvS1ahVrUEa6KwaqCAWJ0S8DuxFg5NTpHMGxGMraiPXCQu6rIxKhwmcNELIu/LF4/3n1UHJ4aOgFGkgebNlCzxR91Rb2Umj6O76Icf/bG/jaD6jYrobGxAic7zmnZwaeB6PRFM9GRz0Bd45DFU32rc1Zosfru3TaZFlVLw426WIGhG827mz2JY9S+Grc2d1goyT0D1LNm8jYJUGd/HY/jLikZcSJCqk/6Ic8OlStTTOORtKWgq5F0KlLze4K2+ZzBf01c9ToR0ejN2K+DLN4EMsNwSUZHDlDvxLRgp0hqaj535W56zsri4s8L4lzTx8bkVMwgJXGaQrmtz6XqOU7QWmZwqN23V+EB/v2l/uziW8SOvzE9Toq1kqX3/1RcN+Ii2j0Tfx2b/NNGcM31yVZHgp81OaiY/K0uQFxKExzKXvKLL1p/nphxzYTgjW5kBjnXfpzkVqb3Zj7hSlO4+zqBr0OWY4e1eWl3iMwe2wqOdcq3ii8HQ347JkZ8OSa56w/9Hf48PSTiOcc5wC0lzW+QA4LGKjFl07rENnbCzI6KK36eppTiDSK2jmIXOg61RNRlGkNGMcuG6u6jD4K03IveXCpa65XCgnTG+RaIAvkLcFVQdo8Gv6sqrmMskMCsQ8mw4+kfj09YIfiMnoaAkHsyMQKQBoTKYNqj5znc5TSJfUfmZWUdT2q0a4ujbpsYYCjS+HySbFyfOuriNBEViSbVsNww7f3Tm3j6+hgXJEIvB84ZCDa0OwjydLXqdsr5bN9LnapxGCJIk/e8un22nTUygKAuxUKAswvoev/MbaGuiq4t7S8nS02PYYp0RUQeR8nChrSTTjDm8XN957wmoaDWKM4Q/PtfSFtG/Jiez2z0MxoaFYsxhR4CkS24m8y/2ObA+vBnWGXhZdB4wNBleju7+HqaM9LCHfx9TyxTwIL96p/qGnC3lwEM1vYWxmIGzqE9fGZOEZ2L9UIqwTAiklPaasmhzDN6aa80tTxRMZSUg501bbAPtmQi6xBnTv9G/E0WKa2aDKlFYGimiBZCOjbHHCjLFrK1G33HjneO8HuRKkROUzm8XN3ToXD5wELj7nlSij3VAi1q3Iv8ojWECtCwE3woMdQ7p6mepmslpWxTMfTlvArMAKK7j1YJZu/fg6XVLg/p0u4aKSMbAQPVh7bpchVhlkXYBSIp+naynlUeP2zYXRDK/5BCo99PhoisI8Aw13ECrYS4TLnZs9LngsV9PjYqGi3fwQ7vqf2Fs/4d1KLfyx5LbfObkTX/5Pl8Dg/0LpHz6Jt6VniWdGQOcViEROX/XItKxRQusgIZuXZNgvlveAYD4sykN/jMRJ9v1Kf4feBZTcrn2NlzjG5VxYnBUyOmyBcnDt4AVvlYJGLzaY7xxWWFH5jmhGEQeuRKvywgEL491o0qCjvGn82GVEU4h70h1FG/DZLUMXKPlJdaCUw7ktybYOhxjPDgcLylMDRA7A2MzSSm43TA5dneTvGcSJ8hOChIlY+zm4Y2VuX4v0KN9mbxP4Zf2de2bltG+c4Vcb0TZ8wjYB6xFc7hXMYDRTQdphr1YLH3NAf2pr0GzRjLEFg0+vp82skjk1Sv+rSuB9lCg5h9n11Vi4TroqWkkqaka7q2/WVRbanNRsJoY0YyHxodElsKwF/1FTE8klsKzY31jezDaSTZfAQbMKh1B/tBtpQF4fVn9l7GjIbpvfTX0yT5hZBPVbGjBZb6E1Sp76lGAgooSlGCzBQlCL05TnKKPGnuB4vTtM2ETMZ7cDsMTD6ydISd1H1FHe+kNJDw1U9y1hImd/hM+ZKBRylxzh+yZM4FbiEnCTdkdYmOG/RQ1b4Tmn2wdoCYoE/u7HImYpqf1s86FT/I9EjLpn+3Nm+wbz3LHCLcq1FfQzRFnMLpzxcg3W+P3tvpqpJf2tXv5ZnbAxR4uwFTpFSp6qez0Svx4VDPxhGPbPeMiKG/6drpGp3FrE5+uB3nkL+/1mT/HCyRkJk3Q4tteYr8="
+        }
+      ]
+    },
+    "kanit_paketi": {
+      "app_id": "nestjs-temel-ornek",
+      "benlik_evidence": "0.1.1",
+      "card_revision": "sha256:51e0971579db811f15ae421b91ebf67489ee59a612ed817cd36b337cc7ccf90f",
+      "records": [
+        {
+          "authority": "source",
+          "claim_kind": "structure",
+          "confidence": "certain",
+          "contradicts": [],
+          "id": "e1",
+          "kind": "SOURCE_CODE",
+          "locator": {
+            "line_start": 15
+          },
+          "provider": {
+            "name": "sezgi",
+            "version": "0.1.0"
+          },
+          "shareable": true,
+          "subject": {
+            "file": "src/kitap/kitap.controller.ts",
+            "operation": "kitap.listele",
+            "sha256": "78b04cf25c888c907a79cbcc3c44e63a6616ca7c673a07601766866b92d1260a"
+          }
+        },
+        {
+          "authority": "source",
+          "claim_kind": "structure",
+          "confidence": "certain",
+          "contradicts": [],
+          "id": "e2",
+          "kind": "SOURCE_CODE",
+          "locator": {
+            "line_start": 21
+          },
+          "provider": {
+            "name": "sezgi",
+            "version": "0.1.0"
+          },
+          "shareable": true,
+          "subject": {
+            "file": "src/kitap/kitap.controller.ts",
+            "operation": "kitap.olustur",
+            "sha256": "78b04cf25c888c907a79cbcc3c44e63a6616ca7c673a07601766866b92d1260a"
+          }
+        },
+        {
+          "authority": "source",
+          "claim_kind": "structure",
+          "confidence": "certain",
+          "contradicts": [],
+          "id": "e3",
+          "kind": "SOURCE_CODE",
+          "locator": {
+            "line_start": 32
+          },
+          "provider": {
+            "name": "sezgi",
+            "version": "0.1.0"
+          },
+          "shareable": true,
+          "subject": {
+            "file": "src/kitap/kitap.controller.ts",
+            "operation": "kitap.sil",
+            "sha256": "78b04cf25c888c907a79cbcc3c44e63a6616ca7c673a07601766866b92d1260a"
+          }
+        },
+        {
+          "authority": "source",
+          "claim_kind": "structure",
+          "confidence": "certain",
+          "contradicts": [],
+          "id": "e4",
+          "kind": "SOURCE_CODE",
+          "locator": {
+            "line_start": 38
+          },
+          "provider": {
+            "name": "sezgi",
+            "version": "0.1.0"
+          },
+          "shareable": true,
+          "subject": {
+            "file": "src/kitap/kitap.controller.ts",
+            "operation": "kitap.getir",
+            "sha256": "78b04cf25c888c907a79cbcc3c44e63a6616ca7c673a07601766866b92d1260a"
+          }
+        },
+        {
+          "authority": "source",
+          "claim_kind": "structure",
+          "confidence": "certain",
+          "contradicts": [],
+          "id": "e5",
+          "kind": "SOURCE_CODE",
+          "locator": {
+            "line_start": 26
+          },
+          "provider": {
+            "name": "sezgi",
+            "version": "0.1.0"
+          },
+          "shareable": true,
+          "subject": {
+            "file": "src/kitap/kitap.controller.ts",
+            "operation": "kitap.guncelle",
+            "sha256": "78b04cf25c888c907a79cbcc3c44e63a6616ca7c673a07601766866b92d1260a"
+          }
+        },
+        {
+          "authority": "source",
+          "claim_kind": "structure",
+          "confidence": "certain",
+          "contradicts": [],
+          "id": "e6",
+          "kind": "SOURCE_CODE",
+          "locator": {
+            "line_start": 38
+          },
+          "provider": {
+            "name": "sezgi",
+            "version": "0.1.0"
+          },
+          "shareable": true,
+          "subject": {
+            "file": "src/kitap/kitap.controller.ts",
+            "operation": "kitap.getir.api-v1-kitaplar-id-detay",
+            "sha256": "78b04cf25c888c907a79cbcc3c44e63a6616ca7c673a07601766866b92d1260a"
+          }
+        },
+        {
+          "authority": "source",
+          "claim_kind": "structure",
+          "confidence": "certain",
+          "contradicts": [],
+          "id": "e7",
+          "kind": "SOURCE_CODE",
+          "locator": {
+            "line_start": 50
+          },
+          "provider": {
+            "name": "sezgi",
+            "version": "0.1.0"
+          },
+          "shareable": true,
+          "subject": {
+            "file": "src/yorum/yorum.controller.ts",
+            "operation": "yorum.yaz",
+            "sha256": "01c8871f79d704d9e455a6f19aedf58e18e19b50e1bfcca0a8845b1d5b114f65"
+          }
+        },
+        {
+          "authority": "source",
+          "claim_kind": "structure",
+          "confidence": "certain",
+          "contradicts": [],
+          "id": "e8",
+          "kind": "SOURCE_CODE",
+          "locator": {
+            "line_start": 55
+          },
+          "provider": {
+            "name": "sezgi",
+            "version": "0.1.0"
+          },
+          "shareable": true,
+          "subject": {
+            "file": "src/yorum/yorum.controller.ts",
+            "operation": "yorum.toplu-sil",
+            "sha256": "01c8871f79d704d9e455a6f19aedf58e18e19b50e1bfcca0a8845b1d5b114f65"
+          }
+        }
+      ],
+      "signature": {
+        "alg": "ML-DSA-65",
+        "key_id": "benlik-ornek",
+        "public_key_url": "/.well-known/benlik-keys.json",
+        "value": "LUAsUhumd7r0TFdM5/m41RliGiZAiHBnQrv2UwAd3zq9f87ABT5bHg7AkAoAPO+ZK24Iznos6g7tJncGUgOJKKjTxGC4efzHBPdf9KH1bZO1TDKBZubD3mrFcvMtZ+hcbof6xByiSk9iaQti/zALGH0/V2KsUa7QvEShgTAr1ezJw7Rvj5PEqabAP/kCy2V3k47gkE96S77vJS8guXaaaagB/IPX8o6q+J4uPCXVotcf4rrhvkH9FcTvfIEIVLVfZSV8SBFC1d8Ie4SAuPRtPblJ+VYvK5jrIptARTY1qz2ltlDMxb0GTCVp6kUEDOGxhqZ4j33nrCDnYEJSTz1pSOQ4cT4ATeUW2GE4MmbvwC8pnie+T5mfZDF0g/llY+YzCk4YF7l/qzRGt5mGwCOfaP44RSfLa2QiLd3APZr3St6D1v6IFTKA2pJGZwBydyGndv5RRqlkzsQb/ho/OOSJiGibWRIafV1qdnplN5RSN7IAa8s4cfhyj/pwFTKjwYRv5GRDTOzgns9DocoAzfQ5DlC5x4bKAwUBHh1igHqogs9hNKiz4lR37rqs6vxZBzoj/Cw7HQCvIp9zcdIHA5PHlyWyROA/xCBwL+Vhh5VzC/gtPcxjg3BLYhUqRFlVvRnPDwMKzjHszuiRztjkLSAWTuQpBJgznCKNrKrsUeaTIRb3CYnrEyYBYM/OfprmnnHtNOJ3QU5zR6O5zc3faLQY0roNa2BEptVfV8e5e0ux8KVLBGXt0qz3HG3Sy2naP+MdVinJC/8Vk7p+6dbb++h2ztfcYPZZNBB50CyS8pcvqWlcqbmv8FpolM4IFynqiSSNnKp9h8AljOx8HLJInHCCXFNyEAhm97nkaYDiGQ7PYP59fcQL7j0EoNL5/9E1y9OGxgbo6eJSz52emoAn9qglEFJG/JEzoVCxd9oKrj0XxyWN0DV7yQmud1E0tY7OWy6y5n7SN3EBxC0wNO1gUXkIUSbttsgKlY4e2wxnVbAUmnH+g7XL1JqG/SR/UhwaqdGFE3b+6ZhDHzO/ZJRgGL1JZ1gKXdvKybGCp83pap/OCpEVr+UtRxe7tGGbW7avbs+ukAZ+Dbw+MAglbEtBwsWKPFOQCb65WrlLQInvgTLijPJZLGV79Np5q1fdiD24uC19+mjESeiHeQsEpKWp1WmjKysL4Vw6asOFeH5JSa5g9/YBU5RnRd7YW9jXrRWKUdBjp7BD1VtAnw4oFzzUAUpccaVk6gJYpu/llrQBZ1bKtIKmvo9niPQRZepty4G+LJ2nNEsK2L/W6DT+zpHswGrQIUl5oV9+k/aGYWJTOgmPHcogIW0iEgdwhhOzNPE8O9a+KFMAD9o6PSETa+4oChq5lqOSjRkXISIJ/KYDWxE52pDXa7yScBuqSaDmVh5xbwVxzO8/tZNSt6Urg/hHQ6Ry0pp5GDFq39DPoI+fGy1e7gRaQ1fR5lGaKyJaEGzme8Ij+SJPj97GsGyS3f3DiTfakOYfF2lo9DmmRUBofxgpB8PP4GZH6DT7rKTj59/ussapWvUenG+Tk2j35TdsMGQQVx7ErnlGvH4s96/dRV445W+U1qw11HNIGfgNd0c5zKiz6ipEEhi167JzyZUpfeMeg12AIjQnGS55SZ63WCWjIJuvmXIHugEJMnEtx11pV1oIJkj/dtq7w9icKvt0mtpmrU2KSmL7y19chkIs1jqBicgRMKFsPKxOApdsHLfvfmNwRh2oXAyuL2QmDSL4clWUIHOu7lZFQhZYOnn7zP+6B9M4s2DKTincSRYAqu/JEg7pXVvNwYB4Wk6TcO/p5lVfIpuII+aXUoJXi5Ch2Z2gwAbrT1OkgiD1/RfsDlghSZX5k+HQuRvGCdnu/FZScOQADKR8z+l3dQC5TDwfdMZDC7VesRLetMF08pO6uTIB06UXLGJzQzr5Dg29BrHwxzIrJnt+DLLSpQs/gwxw6g2NNOgtbFvoCzjaqniZcVkMi2WNC3ZTFehV+vGykDRnQi72feYPFQvkvstqM72gGyb0wqruJcAAvpisiOcvtaIWq+vcfxA10sWImTqPdG9+1kFD8HNN5TkMI4KvE6v10LKZN793TcTW8AXAR9xtYtQM+PblBKWrOF0qV9DXC4MW+rjqrEprPb4q7V4cdJorAK0qGMGsAs1whqfv2aPDH3qJG4HtcubphGLDdIzDF+mLnEYx6pFT46uLYHSj52zLTjW5XL0es7rU2W/RbuCemI/F7q0jM7gmihlfe89zgUjiY3faDgLKeUxEBUbwSa/a+HdED9RfDffESEuEkegzh5TcKsQXO4GtG8rHSfkh7wCZVf7hUPUF6vv4Op01oIs/clllr6I6oSeuAHpL+RCaweTNSSVe8YuPi1L6t7z0nLnYh27RktVPmmU5IL0NkD7zrLiVRjwA5nRI1dfajSv+T1Kg50S/GGW0jfBXwne4QoUHLwsQw3EcZjH/u2So+Df8FJlTeLmftRYb29ou7ByoTtifbUCaKtYkRMdOT+7hbgR9eeK+e94zvnB39T0jhJ2eITdQp6N5cZXorLcjryKNaQ/MbB1guEEhtuss+zm0CQ3bZswiiq1T9xHqddSdA5d7MNfXO5UAUb4HAhOQH2abrSazKlUZJiCRg6GawqAvSfIjL+Os13HKbz6FdQDG4dQWJeQ6Cbb+xlZOO81AvpiyNCz7fHI//oueqpB9kT/0aw0srp3dd+b65cnEhp8RL8/i1d8bomU31efY3JPlptnnJvShi4Ocw23tAjwVtPeYhAyw0DCVb6hIhic0RbIRNDF0nFZOAjMN9y/MdLyEWqFp7uBpHWVDkhpUMcIqNTRv9IzWq9bQz1tOeI8/fha3wbXoOLoiCfyHVuwKf+tXgUgCk6tKmhIcEVC7EtRaUTABJ+YRcf8SxkLiEnqHBRg9cBG2Z89DM1rmfQ3QjwGWVD44I/BMVragGG102Y+ghZky+wP+SDBkt+WP2w+lvvLmb1yfeQVuw8onFwNEPB/B+823/E0Vwq0Zf+FO4UWnDcheITznnqFoWZTN1Yu8mvL4Sv5yWHVEspmOvfQ0sMuFKt8wj3A+S/zEr9T8j2nCyZIzJQc7PdVY4g2ht10WsppFJFJOdlbT97K/SZv9pzhhLaeq3TenwF8jU3iSLHIFCFhwkgS+wH27ueszVXQe6b49tqZmcsd1tbyP2xf/a8b4QJhVwj3damUuPO6552Q5z614mA7i22vNeYHGz89J3ILa8gj+McgXOZ/GsAPEQkCdk/Dr8jhVCLFNvj1YYOBteKZQwU5XrayE0P1PIA1jPcAlxYXBYWiroSfi/0qTvQqRtpPDUM7wspqJsnlSSgF/y4aXUPXN+ZZqq7hfTG1FcEjPJ0klSQvQxQwSMu0jrrBaMr0EkZlRRC5ks1/krz4BTSGUDe2W+9CNMVJMNiMLnExMndr0XL52z18QzTdOQm+LOMMu8PAGcFK1oCenkuz+c6I1pEQzuZTBQQ/kBMWX1H0MgSlwSrLqYbq+MiS4o28XLAHJ3ixydtGCdkndJRKf7oAfvzY8mBSx814oN5q+Q+dp0ce1kzcOT774KrGxFicpYehIaqh5aNmuWdCOVLDygqiY8YLOM70PVVZF9E0DthR8lbApvqPwaKeTlaZI+a4W64+F8iG79b02/4nIgY8nvTQWAv/IrHcc1+fq26916Id4Qws/eBlViOgohoIY/Tef1whA78IWevOLwDFYTDOH9mrgtWpYrOSkHBh9+SGU7T0n6q0Lbjjjsxcc1Bl/684fdmBTQ6+685aDF3KOL2qi3A5c+IivHaCGaBq/hGoz5DOIlKlaXJQTVFLG4wDGJPoq0L0UzpbEsxGYtbVTNOHXxW3GWvTxUgPDd3zHDKBbJkU0TNOpHUEmSJC8BhyXoNnmQ6PrZjBqTeQhT2/7LyWd21xDa+1sdeJmAe+44KXzj5bFiUwhQVP8HT1NxPkuKhB2/1ypq/waqZVvypND4ZS5cU2XyO1FKejm7HSy6uW9f42i2eGN7wwIFgibfkxczaZArq2Rr6LW6sQAYJD8mcQPhxbPSM4z5noaLVBFfE/ONG0Ycvv58D3I7JK9nhgpiUxrlbNz9vcCnLLHU0SpwUHou0DoJ6midFmGS34MxzZC7kJE9zHgeThhjieqDmUkRY7S4/YFIclPObrtiWVE/DyOql3MLTM2gzzPaJ/b6iCI7tXSyANo+QVcc7QltkZ9tKzfKbX/b36HbX8MZaxu/tlj/Y1T1zr0DdyNW9TnH7ARQxGkyeJznW7vMAWSOfL6U+Ug/+YW+awLeR0FK9EbK8WG/rdDCC5ccEwaJK9f4wckS9NwKGfAZf0fog0sZ4Kgrevz/C8yOUBCUt73+Rt/hZ0MUFl2yM7U4Vde5CO84eMAAAAAAAAAAAAAAAAAAAAAAAAACBEVHSAk"
+      }
+    }
+  },
+  "beklenen": {
+    "valid": false,
+    "writable": [],
+    "imza": "verified",
+    "paket_imzasi": "invalid"
+  }
+}

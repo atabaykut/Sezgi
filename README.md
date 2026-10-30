@@ -62,7 +62,7 @@ For every operation (endpoint), Sezgi extracts:
 
 Every fact carries a confidence stamp: **certain** (read directly from the code), **observed** (seen at run time), **inferred** or **unknown**. Sezgi does not fill gaps; it reports them. The map stays on your computer, in the application's `.sezgi/` folder; building it uses no network and no language model.
 
-Sezgi also writes the application's **[Benlik Card](https://github.com/benlik-spec/benlik-spec/blob/main/SPEC.md)**: an open, signable description file that other tools can read too (`sezgi init --sign`).
+Sezgi also writes the application's **[Benlik Card](https://github.com/atabaykut/Sezgi/blob/main/benlik/SPEC.md)**: an open, signable description file that other tools can read too (`sezgi init --sign`).
 
 ## Supported languages
 

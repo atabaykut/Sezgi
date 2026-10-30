@@ -2,7 +2,7 @@
 
 *Sezgi: düşünmeden bilmek.*
 
-Sezgi bir uygulamaya benlik verir. Uygulamanın kodunu bir kez okur; endpoint'leri girdileri, doğrulama kuralları, yetki gereksinimleri ve dokunduğu veritabanı tablolarıyla birlikte çıkarır ve bu bilgiyi yapay zekâ ajanlarına MCP üzerinden sunar. Ajanlar kodu taramayı bırakır, Sezgi'ye sorar. Sezgi ayrıca uygulamanın **[Benlik Kartı](https://github.com/benlik-spec/benlik-spec/blob/main/README.tr.md)**'nı yazar (`--imzala` ile imzalanır).
+Sezgi bir uygulamaya benlik verir. Uygulamanın kodunu bir kez okur; endpoint'leri girdileri, doğrulama kuralları, yetki gereksinimleri ve dokunduğu veritabanı tablolarıyla birlikte çıkarır ve bu bilgiyi yapay zekâ ajanlarına MCP üzerinden sunar. Ajanlar kodu taramayı bırakır, Sezgi'ye sorar. Sezgi ayrıca uygulamanın **[Benlik Kartı](https://github.com/atabaykut/Sezgi/blob/main/benlik/README.tr.md)**'nı yazar (`--imzala` ile imzalanır).
 
 > **Durum: 0.1, deneysel.** TypeScript + NestJS, Python + FastAPI, Django (Django REST Framework dahil) ve Flask, JavaScript / TypeScript + Express, Fastify, Next.js, Java / Kotlin + Spring Boot, Kotlin + Ktor, Ruby on Rails, C# + ASP.NET Core, Go + net/http, Gin, Echo, Chi, Fiber, gorilla/mux ve PHP + Laravel (dil kalite seviyeleri aşağıda). Varsayılan yalnızca okuma: Sezgi uygulamanızı yalnızca isteğe bağlı canlı modda çağırır ve bu modda yalnızca test kopyası olarak bildirilen hedefe ya da, deneysel olarak, terminalde açılan gerçek veriye yazar (orada her adım, yalnızca yöneticinin kurabildiği sistem çapasıyla doğrulanan insan parolasını ister; aynı hesapta kabuk erişimi olan bir ajan parolayı bilmeden açamaz, onaylayamaz, kaydı yeniden imzalayamaz; parolayı öğrenen ya da yönetici yetkisiyle çalışan programa karşı korumaz: tehdit modeli SECURITY.md'de); bir de sizin yazıp onayladığınız tarayıcı senaryosu çağırır, o da yalnızca bu bilgisayardaki uygulamada çalışır ve onu değiştirebilir.
 
@@ -234,7 +234,7 @@ Komutların ve ana bayrakların İngilizce takma adları vardır (`key create`, 
 
 ## Benlik Kartı (Taslak 0.1.1)
 
-`benlik.json`, uygulamanın açık [Benlik Kartı biçimindeki](https://github.com/benlik-spec/benlik-spec) benlik beyanıdır: işlemler, girdiler, kurallar, roller, kimlik modeli ve veri defteri; her olgu damgalı. Taslak 0.1.1 şunları `x-` üyeleri olarak ekler (0.1 okuyucuları yok sayar):
+`benlik.json`, uygulamanın açık [Benlik Kartı biçimindeki](https://github.com/atabaykut/Sezgi/tree/main/benlik) benlik beyanıdır: işlemler, girdiler, kurallar, roller, kimlik modeli ve veri defteri; her olgu damgalı. Taslak 0.1.1 şunları `x-` üyeleri olarak ekler (0.1 okuyucuları yok sayar):
 - **Geçerlilik:** `x-issued_at` / `x-expires_at` (varsayılan 30 gün, `init --gecerlilik`). Süresi dolmuş kart `sezgi dogrula`'da başarısız olur; canlı mod `sezgi init` yenileyene kadar ona dayanarak yazmaz (okuma uyarıyla geçer). Bitiş zamanı olmayan ya da okunamayan kart da süresi dolmuş sayılır: `x-expires_at`'i silmek yazmayı açmaz.
 - **Tazelik:** `x-basis` işlemlerin dayandığı her kaynak dosyanın SHA-256 özetidir; bayatlık bundan hesaplanır, elle yazılmaz.
 - **Kanıt:** `x-evidence` (kanıt kaydı başına özet) ve `x-evidence_root` (Merkle kökü); kayıtların kendisi `benlik-evidence.json`'da, aynı anahtarla kendi bağlamında imzalı. Kart kanıtın değerini, yolunu ya da içeriğini taşımaz.

@@ -60,7 +60,7 @@ Sezgi her işlem (endpoint) için şunları çıkarır:
 
 Her bilginin bir güven damgası vardır: **kesin** (koddan doğrudan okundu), **gözlem** (çalışırken görüldü), **yorum** (çıkarım) ya da **bilinmiyor**. Sezgi boşlukları doldurmaz, bildirir. Harita sizin bilgisayarınızda, uygulamanın `.sezgi/` klasöründe durur; haritayı çıkarırken Sezgi ağa çıkmaz ve dil modeli kullanmaz.
 
-Sezgi ayrıca uygulamanın **[Benlik Kartı](https://github.com/benlik-spec/benlik-spec/blob/main/README.tr.md)**'nı yazar: başka araçların da okuyabileceği, imzalanabilen açık bir tanım dosyası (`sezgi init --imzala`).
+Sezgi ayrıca uygulamanın **[Benlik Kartı](https://github.com/atabaykut/Sezgi/blob/main/benlik/README.tr.md)**'nı yazar: başka araçların da okuyabileceği, imzalanabilen açık bir tanım dosyası (`sezgi init --imzala`).
 
 ## Desteklenen diller
 

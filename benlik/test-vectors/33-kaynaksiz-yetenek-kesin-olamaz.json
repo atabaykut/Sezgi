@@ -1,0 +1,139 @@
+{
+  "aciklama": "Kaynaksız kartta yetenek kaynak kodu olmadan certain olamaz ve insan onayından muaf tutulamaz: certain damgalı ya da requires_approval: false yetenek kartı geçersiz yapar.",
+  "kart": {
+    "benlik": "0.1.1",
+    "app": {
+      "id": "com.github.muellerma.coffee",
+      "name": "com.github.muellerma.coffee",
+      "version": "2.27",
+      "source_ref": "sha256:e802afd3c0fd2d13"
+    },
+    "generator": {
+      "name": "sezgi",
+      "version": "0.1.0",
+      "adapters": [
+        "kaynaksiz@1"
+      ],
+      "generated_at": "2026-10-20T00:00:00Z"
+    },
+    "operations": [],
+    "coverage": {
+      "operations_found": 0,
+      "operations_complete": 0,
+      "rules_by_stamp": {
+        "certain": 0,
+        "data": 0,
+        "approved": 0,
+        "inferred": 0,
+        "unknown": 0
+      }
+    },
+    "identity": {
+      "model": "user-session",
+      "write_requires_human": true,
+      "service_account_writes": false
+    },
+    "data_ledger": [
+      {
+        "class": "code_derived",
+        "stored": true,
+        "contents": "artifact identity, schema, evidence stamps",
+        "retention_days": null
+      },
+      {
+        "class": "operational_log",
+        "stored": false,
+        "retention_days": 0
+      },
+      {
+        "class": "customer_data",
+        "stored": false,
+        "retention_days": 0
+      }
+    ],
+    "x-sourceless": true,
+    "x-app_node": "app:android/com.github.muellerma.coffee",
+    "x-preview": {
+      "passes": false,
+      "coverage": "open",
+      "reason": "no source code (SOURCE_CODE/API_SCHEMA): binary, schema and provider evidence only; every write requires human approval"
+    },
+    "x-capabilities": [
+      {
+        "id": "cap:android.interactionservice",
+        "implemented_by": "mod:android/com.github.muellerma.coffee.InteractionService",
+        "kind": "android-service",
+        "stamp": "certain",
+        "requires_approval": true,
+        "coverage": "open"
+      },
+      {
+        "id": "cap:android.mainactivity",
+        "implemented_by": "screen:android/com.github.muellerma.coffee.activities.MainActivity",
+        "kind": "android-activity",
+        "stamp": "observed",
+        "requires_approval": false,
+        "coverage": "open"
+      }
+    ],
+    "x-screens": [
+      {
+        "id": "screen:android/com.github.muellerma.coffee.activities.CoffeeInvisibleActivity",
+        "kind": "activity",
+        "stamp": "observed",
+        "exported": false,
+        "launcher": false,
+        "requires_approval": true
+      },
+      {
+        "id": "screen:android/com.github.muellerma.coffee.activities.MainActivity",
+        "kind": "activity",
+        "stamp": "observed",
+        "exported": true,
+        "launcher": true,
+        "requires_approval": true
+      }
+    ],
+    "x-webmcp": [
+      {
+        "origin": "https://shop.example",
+        "status": "found",
+        "tools": [
+          {
+            "id": "cap:webmcp/https://shop.example#add_to_cart",
+            "name": "add_to_cart",
+            "kind": "imperative",
+            "inputs": [
+              {
+                "ad": "sku",
+                "tur": "string",
+                "zorunlu": true
+              },
+              {
+                "ad": "qty",
+                "tur": "integer",
+                "zorunlu": false
+              }
+            ],
+            "input_schema_sha256": null,
+            "read_only": false,
+            "consequential": true,
+            "stamp": "inferred",
+            "requires_approval": true
+          }
+        ],
+        "untrusted": true
+      }
+    ],
+    "signature": {
+      "alg": "none",
+      "key_id": "unsigned-dev",
+      "public_key_url": "/.well-known/benlik-keys.json",
+      "value": "UNSIGNED-DEV-BUILD"
+    }
+  },
+  "beklenen": {
+    "valid": false,
+    "writable": []
+  }
+}

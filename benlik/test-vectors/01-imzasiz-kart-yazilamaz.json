@@ -1,0 +1,242 @@
+{
+  "aciklama": "alg 'none' (imzasız geliştirme kartı): SPEC 8 gereği hiçbir işlem yazılabilir değildir; kart yine de şemaya uygundur.",
+  "kart": {
+    "benlik": "0.1",
+    "app": {
+      "id": "example.library",
+      "name": "Example Library",
+      "version": "2.4.0",
+      "source_ref": "9f2c1e7",
+      "description": {
+        "text": "Lets members search the catalogue and borrow books.",
+        "stamp": "approved"
+      }
+    },
+    "generator": {
+      "name": "handwritten",
+      "version": "0.1",
+      "adapters": [],
+      "generated_at": "2026-10-13T21:00:00Z"
+    },
+    "operations": [
+      {
+        "id": "books.search",
+        "name": {
+          "text": "Search books",
+          "stamp": "certain",
+          "sources": [
+            {
+              "file": "src/books/books.controller.ts",
+              "line_start": 22,
+              "kind": "code"
+            }
+          ]
+        },
+        "aliases": [
+          "kitap ara",
+          "find a book"
+        ],
+        "effect": "read",
+        "effect_stamp": "approved",
+        "entry": {
+          "protocol": "http",
+          "method": "POST",
+          "path": "/books/search"
+        },
+        "inputs": {
+          "query": {
+            "type": "string",
+            "required": true,
+            "min_length": 2,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/books/dto/search.dto.ts",
+                "line_start": 4,
+                "kind": "schema"
+              }
+            ]
+          },
+          "publishedAfter": {
+            "type": "date",
+            "required": false,
+            "format": "YYYY-MM-DD",
+            "stamp": "certain"
+          },
+          "limit": {
+            "type": "integer",
+            "required": false,
+            "min": 1,
+            "max": 50,
+            "stamp": "certain"
+          }
+        },
+        "requires_approval": false,
+        "data": {
+          "reads": [
+            "Book"
+          ],
+          "writes": [],
+          "stamp": "inferred"
+        },
+        "stamp": "certain"
+      },
+      {
+        "id": "loans.create",
+        "name": {
+          "text": "Borrow a book",
+          "stamp": "certain",
+          "sources": [
+            {
+              "file": "web/src/pages/borrow.tsx",
+              "line_start": 88,
+              "kind": "ui_text"
+            }
+          ]
+        },
+        "aliases": [
+          "ödünç al",
+          "borrow"
+        ],
+        "does": {
+          "text": "Creates a loan for the signed-in member.",
+          "stamp": "approved"
+        },
+        "does_not": {
+          "text": "Does not charge fees.",
+          "stamp": "approved"
+        },
+        "effect": "write",
+        "effect_stamp": "inferred",
+        "entry": {
+          "protocol": "http",
+          "method": "POST",
+          "path": "/loans"
+        },
+        "inputs": {
+          "bookId": {
+            "type": "string",
+            "required": true,
+            "format": "uuid",
+            "stamp": "certain",
+            "description": "Taken from books.search results."
+          }
+        },
+        "preconditions": [
+          {
+            "text": "bookId comes from books.search.",
+            "stamp": "certain"
+          }
+        ],
+        "rules": [
+          {
+            "text": "A member may hold at most 5 books.",
+            "rejects_with": "422",
+            "stamp": "data",
+            "sources": [
+              {
+                "file": "settings.max_loans",
+                "kind": "config_table"
+              }
+            ]
+          },
+          {
+            "text": "The same member cannot borrow the same book twice.",
+            "rejects_with": "409",
+            "stamp": "certain"
+          }
+        ],
+        "roles": [
+          "member"
+        ],
+        "side_effects": [
+          {
+            "text": "Book becomes unavailable to others.",
+            "reversible": true,
+            "stamp": "certain"
+          },
+          {
+            "text": "Confirmation e-mail is sent to the member.",
+            "reversible": false,
+            "stamp": "certain"
+          }
+        ],
+        "errors": {
+          "409": "Already borrowed, do not retry.",
+          "422": "Rule violation, see body."
+        },
+        "requires_approval": true,
+        "data": {
+          "reads": [
+            "Book",
+            "Settings"
+          ],
+          "writes": [
+            "Loan"
+          ],
+          "stamp": "inferred"
+        },
+        "stamp": "data",
+        "stale": false,
+        "x-example-note": "Extension members start with x- and are ignored by consumers that do not understand them."
+      }
+    ],
+    "coverage": {
+      "operations_found": 2,
+      "operations_complete": 2,
+      "rules_by_stamp": {
+        "certain": 1,
+        "data": 1,
+        "approved": 0,
+        "inferred": 0,
+        "unknown": 0
+      },
+      "skipped_files": 0,
+      "partially_parsed_files": 0
+    },
+    "identity": {
+      "model": "oidc-token-exchange",
+      "issuer": "https://login.example.com",
+      "write_requires_human": true,
+      "service_account_writes": false
+    },
+    "data_ledger": [
+      {
+        "class": "code_derived",
+        "stored": true,
+        "contents": "map, cards, stamps",
+        "retention_days": null
+      },
+      {
+        "class": "operational_log",
+        "stored": true,
+        "contents": "human, agent, operation, time, result code",
+        "retention_days": 30,
+        "erase_command": "<generator command that erases the log>"
+      },
+      {
+        "class": "customer_data",
+        "stored": false,
+        "retention_days": 0
+      }
+    ],
+    "changes": {
+      "previous_source_ref": "77ab0d3",
+      "added": [
+        "loans.create"
+      ],
+      "removed": [],
+      "breaking": []
+    },
+    "signature": {
+      "alg": "none",
+      "key_id": "example",
+      "public_key_url": "/.well-known/benlik-keys.json",
+      "value": "UNSIGNED-EXAMPLE"
+    }
+  },
+  "beklenen": {
+    "valid": true,
+    "writable": []
+  }
+}

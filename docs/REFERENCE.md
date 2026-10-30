@@ -2,7 +2,7 @@
 
 *Sezgi is Turkish for intuition: knowing without thinking.*
 
-Sezgi gives an application a self. It reads the application's code once, extracts its endpoints with their inputs, validation rules and auth requirements, and serves that knowledge to AI agents over MCP. Agents stop scanning code and start asking. Sezgi also writes a **[Benlik Card](https://github.com/benlik-spec/benlik-spec/blob/main/SPEC.md)** (signable with `--imzala`): the application's machine-readable self-description.
+Sezgi gives an application a self. It reads the application's code once, extracts its endpoints with their inputs, validation rules and auth requirements, and serves that knowledge to AI agents over MCP. Agents stop scanning code and start asking. Sezgi also writes a **[Benlik Card](https://github.com/atabaykut/Sezgi/blob/main/benlik/SPEC.md)** (signable with `--imzala`): the application's machine-readable self-description.
 
 > **Status: 0.1, experimental.** TypeScript + NestJS, Python + FastAPI, Django (with Django REST Framework) and Flask, JavaScript / TypeScript + Express, Fastify, Next.js, Java / Kotlin + Spring Boot, Kotlin + Ktor, Ruby on Rails, C# + ASP.NET Core, Go + net/http, Gin, Echo, Chi, Fiber, gorilla/mux and PHP + Laravel (see language quality levels below). Read-only by default: Sezgi calls your application only in the opt-in live mode, which writes only to a declared test copy or, experimentally, to real data opened in a terminal (every step there needs the human's password, checked against a system anchor that only an administrator can set up, so an agent with shell access under the same account cannot open, approve or re-sign it without the password; it does not stop a program that learns the password or runs as administrator: see the threat model in SECURITY.md), or through a browser scenario you write and approve, which runs only against an app on this computer and may change it.
 
@@ -203,7 +203,7 @@ Database table links against an independent type-checker referee: 603/603 links 
 
 ## The Benlik Card (Draft 0.1.1)
 
-`benlik.json` is the app's self-description in the open [Benlik Card format](https://github.com/benlik-spec/benlik-spec): operations, inputs, rules, roles, identity model and data ledger, every fact with a stamp. Draft 0.1.1 adds, as `x-` members that 0.1 readers ignore:
+`benlik.json` is the app's self-description in the open [Benlik Card format](https://github.com/atabaykut/Sezgi/tree/main/benlik): operations, inputs, rules, roles, identity model and data ledger, every fact with a stamp. Draft 0.1.1 adds, as `x-` members that 0.1 readers ignore:
 - **Validity:** `x-issued_at` / `x-expires_at` (default 30 days, `init --gecerlilik`). An expired card fails `sezgi dogrula`, and live mode does not write on it (reads go through with a warning) until `sezgi init` renews it. A card without an end time, or one that cannot be read, counts as expired: removing `x-expires_at` does not open writes.
 - **Freshness:** `x-basis` holds the SHA-256 of every source file the operations rely on; staleness is computed from it, never written by hand.
 - **Evidence:** `x-evidence` (one digest per evidence record) and `x-evidence_root` (their Merkle root); the records themselves are in `benlik-evidence.json`, signed with the same key in its own context. The card carries no values, paths or contents of the evidence.

@@ -1,0 +1,427 @@
+{
+  "aciklama": "x-dna dolaylı yazma (data_effect.indirect) ve iki yollu koşul (branches) taşır: kart geçerlidir, yazılabilirlik değişmez.",
+  "kart": {
+    "benlik": "0.1.1",
+    "app": {
+      "id": "example.library",
+      "name": "Example Library",
+      "version": "2.4.0",
+      "source_ref": "9f2c1e7",
+      "description": {
+        "text": "Lets members search the catalogue and borrow books.",
+        "stamp": "approved"
+      }
+    },
+    "generator": {
+      "name": "handwritten",
+      "version": "0.1",
+      "adapters": [],
+      "generated_at": "2026-10-13T21:00:00Z"
+    },
+    "operations": [
+      {
+        "id": "books.search",
+        "name": {
+          "text": "Search books",
+          "stamp": "certain",
+          "sources": [
+            {
+              "file": "src/books/books.controller.ts",
+              "line_start": 22,
+              "kind": "code"
+            }
+          ]
+        },
+        "aliases": [
+          "kitap ara",
+          "find a book"
+        ],
+        "effect": "read",
+        "effect_stamp": "approved",
+        "entry": {
+          "protocol": "http",
+          "method": "POST",
+          "path": "/books/search"
+        },
+        "inputs": {
+          "query": {
+            "type": "string",
+            "required": true,
+            "min_length": 2,
+            "stamp": "certain",
+            "sources": [
+              {
+                "file": "src/books/dto/search.dto.ts",
+                "line_start": 4,
+                "kind": "schema"
+              }
+            ]
+          },
+          "publishedAfter": {
+            "type": "date",
+            "required": false,
+            "format": "YYYY-MM-DD",
+            "stamp": "certain"
+          },
+          "limit": {
+            "type": "integer",
+            "required": false,
+            "min": 1,
+            "max": 50,
+            "stamp": "certain"
+          }
+        },
+        "requires_approval": false,
+        "data": {
+          "reads": [
+            "Book"
+          ],
+          "writes": [],
+          "stamp": "inferred"
+        },
+        "stamp": "certain",
+        "x-dna": {
+          "auth": {
+            "required": "no",
+            "stamp": "certain"
+          },
+          "failure_modes": [],
+          "reversibility": {
+            "status": "unknown",
+            "stamp": "inferred"
+          },
+          "risk": {
+            "class": "read",
+            "basis": "method"
+          },
+          "requires_approval": false,
+          "coverage": {
+            "auth": "closed",
+            "preconditions": "open",
+            "failure_modes": "open"
+          },
+          "evidence_refs": [
+            "e1"
+          ]
+        }
+      },
+      {
+        "id": "loans.create",
+        "name": {
+          "text": "Borrow a book",
+          "stamp": "certain",
+          "sources": [
+            {
+              "file": "web/src/pages/borrow.tsx",
+              "line_start": 88,
+              "kind": "ui_text"
+            }
+          ]
+        },
+        "aliases": [
+          "ödünç al",
+          "borrow"
+        ],
+        "does": {
+          "text": "Creates a loan for the signed-in member.",
+          "stamp": "approved"
+        },
+        "does_not": {
+          "text": "Does not charge fees.",
+          "stamp": "approved"
+        },
+        "effect": "write",
+        "effect_stamp": "inferred",
+        "entry": {
+          "protocol": "http",
+          "method": "POST",
+          "path": "/loans"
+        },
+        "inputs": {
+          "bookId": {
+            "type": "string",
+            "required": true,
+            "format": "uuid",
+            "stamp": "certain",
+            "description": "Taken from books.search results."
+          }
+        },
+        "preconditions": [
+          {
+            "text": "bookId comes from books.search.",
+            "stamp": "certain"
+          }
+        ],
+        "rules": [
+          {
+            "text": "A member may hold at most 5 books.",
+            "rejects_with": "422",
+            "stamp": "data",
+            "sources": [
+              {
+                "file": "settings.max_loans",
+                "kind": "config_table"
+              }
+            ]
+          },
+          {
+            "text": "The same member cannot borrow the same book twice.",
+            "rejects_with": "409",
+            "stamp": "certain"
+          }
+        ],
+        "roles": [
+          "member"
+        ],
+        "side_effects": [
+          {
+            "text": "Book becomes unavailable to others.",
+            "reversible": true,
+            "stamp": "certain"
+          },
+          {
+            "text": "Confirmation e-mail is sent to the member.",
+            "reversible": false,
+            "stamp": "certain"
+          }
+        ],
+        "errors": {
+          "409": "Already borrowed, do not retry.",
+          "422": "Rule violation, see body."
+        },
+        "requires_approval": true,
+        "data": {
+          "reads": [
+            "Book",
+            "Settings"
+          ],
+          "writes": [
+            "Loan"
+          ],
+          "stamp": "inferred"
+        },
+        "stamp": "certain",
+        "x-example-note": "Extension members start with x- and are ignored by consumers that do not understand them.",
+        "x-dna": {
+          "auth": {
+            "required": "yes",
+            "stamp": "certain"
+          },
+          "failure_modes": [
+            {
+              "condition": "A member may hold at most 5 books.",
+              "result": "rejected",
+              "stamp": "certain"
+            },
+            {
+              "condition": "The same member cannot borrow the same book twice.",
+              "result": "rejected",
+              "stamp": "certain"
+            }
+          ],
+          "reversibility": {
+            "status": "reversible",
+            "stamp": "inferred"
+          },
+          "risk": {
+            "class": "write",
+            "basis": "method"
+          },
+          "requires_approval": true,
+          "coverage": {
+            "auth": "closed",
+            "preconditions": "open",
+            "failure_modes": "open"
+          },
+          "evidence_refs": [
+            "e2"
+          ],
+          "data_effect": {
+            "reads": [],
+            "writes": [],
+            "stamp": "inferred",
+            "indirect": [
+              {
+                "table": "LoanEvent",
+                "reason": "Loan deleted: database cascade",
+                "stamp": "inferred",
+                "sources": [
+                  {
+                    "file": "prisma/schema.prisma",
+                    "line_start": 31,
+                    "kind": "schema"
+                  }
+                ]
+              }
+            ]
+          },
+          "branches": [
+            {
+              "condition": "dto.express",
+              "when_true": "LoanKind.Express",
+              "when_false": "LoanKind.Standard",
+              "stamp": "inferred",
+              "sources": [
+                {
+                  "file": "src/loans/loans.service.ts",
+                  "line_start": 40,
+                  "kind": "code"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "coverage": {
+      "operations_found": 2,
+      "operations_complete": 2,
+      "rules_by_stamp": {
+        "certain": 1,
+        "data": 1,
+        "approved": 0,
+        "inferred": 0,
+        "unknown": 0
+      },
+      "skipped_files": 0,
+      "partially_parsed_files": 0
+    },
+    "identity": {
+      "model": "oidc-token-exchange",
+      "issuer": "https://login.example.com",
+      "write_requires_human": true,
+      "service_account_writes": false
+    },
+    "data_ledger": [
+      {
+        "class": "code_derived",
+        "stored": true,
+        "contents": "map, cards, stamps",
+        "retention_days": null
+      },
+      {
+        "class": "operational_log",
+        "stored": true,
+        "contents": "human, agent, operation, time, result code",
+        "retention_days": 30,
+        "erase_command": "<generator command that erases the log>"
+      },
+      {
+        "class": "customer_data",
+        "stored": false,
+        "retention_days": 0
+      }
+    ],
+    "changes": {
+      "previous_source_ref": "77ab0d3",
+      "added": [
+        "loans.create"
+      ],
+      "removed": [],
+      "breaking": []
+    },
+    "x-issued_at": "2026-10-15T00:00:00Z",
+    "x-expires_at": "2026-11-14T00:00:00Z",
+    "x-basis": {
+      "src/books/books.controller.ts": "873e7cd5dfcbdd4ab3e655e3315d93ef55f81697d28c1a035176b45ecb53058f",
+      "src/books/dto/search.dto.ts": "a30e57c79ccd0cb3d14b181b3fc71336612558da576da09acb44784176f97b5e",
+      "web/src/pages/borrow.tsx": "9b011bae4a7586bf3a0ca35a79a01d0a4f561a08e0416785f19710d9630f4137",
+      "settings.max_loans": "68e33f2c825aaf8fc4957c0c41edf93be0c333979564e8d80c0e5d2b28dee483"
+    },
+    "x-evidence": [
+      {
+        "id": "e1",
+        "kind": "SOURCE_CODE",
+        "claim_kind": "structure",
+        "confidence": "certain",
+        "authority": "source",
+        "shareable": true,
+        "sha256": "9a37e0eae7bb689fc776633432ee0b4163b11b006002965aa432feca72760334"
+      },
+      {
+        "id": "e2",
+        "kind": "SOURCE_CODE",
+        "claim_kind": "structure",
+        "confidence": "certain",
+        "authority": "source",
+        "shareable": true,
+        "sha256": "d11640706a3aa2f2347bba60e302467a6bd27d62c7187c69c290ca91e985deda"
+      }
+    ],
+    "x-evidence_root": "cfbf36e632a96e376ab50d69d0314af7c96c26ec8d27867046939f36212cd8f6",
+    "x-evidence_bundle": "benlik-evidence.json",
+    "x-revision": "sha256:e387ba6f54e7cfe6f305ca3e06f4a7f418393b9834c575fc595811d088e10801",
+    "signature": {
+      "alg": "ML-DSA-65",
+      "key_id": "example",
+      "public_key_url": "/.well-known/benlik-keys.json",
+      "value": "AAAA"
+    }
+  },
+  "girdi": {
+    "simdi": "2026-10-20T00:00:00Z",
+    "guncel_ozetler": {
+      "src/books/books.controller.ts": "873e7cd5dfcbdd4ab3e655e3315d93ef55f81697d28c1a035176b45ecb53058f",
+      "src/books/dto/search.dto.ts": "a30e57c79ccd0cb3d14b181b3fc71336612558da576da09acb44784176f97b5e",
+      "web/src/pages/borrow.tsx": "9b011bae4a7586bf3a0ca35a79a01d0a4f561a08e0416785f19710d9630f4137",
+      "settings.max_loans": "68e33f2c825aaf8fc4957c0c41edf93be0c333979564e8d80c0e5d2b28dee483"
+    },
+    "kanit_paketi": {
+      "benlik_evidence": "0.1.1",
+      "app_id": "example.library",
+      "card_revision": "sha256:e387ba6f54e7cfe6f305ca3e06f4a7f418393b9834c575fc595811d088e10801",
+      "records": [
+        {
+          "id": "e1",
+          "kind": "SOURCE_CODE",
+          "claim_kind": "structure",
+          "subject": {
+            "operation": "books.search",
+            "file": "src/books/books.controller.ts",
+            "sha256": "873e7cd5dfcbdd4ab3e655e3315d93ef55f81697d28c1a035176b45ecb53058f"
+          },
+          "locator": {
+            "line_start": 22
+          },
+          "provider": {
+            "name": "handwritten",
+            "version": "0.1"
+          },
+          "confidence": "certain",
+          "authority": "source",
+          "shareable": true,
+          "contradicts": []
+        },
+        {
+          "id": "e2",
+          "kind": "SOURCE_CODE",
+          "claim_kind": "structure",
+          "subject": {
+            "operation": "loans.create",
+            "file": "web/src/pages/borrow.tsx",
+            "sha256": "9b011bae4a7586bf3a0ca35a79a01d0a4f561a08e0416785f19710d9630f4137"
+          },
+          "locator": {
+            "line_start": 88
+          },
+          "provider": {
+            "name": "handwritten",
+            "version": "0.1"
+          },
+          "confidence": "certain",
+          "authority": "source",
+          "shareable": true,
+          "contradicts": []
+        }
+      ]
+    }
+  },
+  "beklenen": {
+    "valid": true,
+    "writable": [
+      "loans.create"
+    ],
+    "bayat": [],
+    "sunulmayan": []
+  }
+}
