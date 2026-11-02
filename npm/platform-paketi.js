@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// Hazır derlenmiş Sezgi ikilisinden platform paketi klasörü üretir (@sezgi/cli-<os>-<cpu>). Yayınlamaz.
+// Hazır derlenmiş Sezgi ikilisinden platform paketi klasörü üretir (sezgi-cli-<os>-<cpu>). Yayınlamaz.
 // Kullanım: node platform-paketi.js <os-cpu> <ikili-yolu> <çıktı-klasörü>
 //   ör. node platform-paketi.js win32-x64 ../../sezgi/target/release/sezgi.exe dist/cli-win32-x64
 // Sürüm ana paketin sürümüdür: ana paket ile platform paketleri her zaman aynı sürümle çıkar.

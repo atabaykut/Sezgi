@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-// Sezgi başlatıcısı: npm, bu işletim sistemine uyan hazır derlenmiş paketi (@sezgi/cli-<os>-<cpu>) isteğe bağlı
+// Sezgi başlatıcısı: npm, bu işletim sistemine uyan hazır derlenmiş paketi (sezgi-cli-<os>-<cpu>) isteğe bağlı
 // bağımlılık olarak kurar. Bu dosya yalnızca o ikiliyi bulup aynı argümanlarla çalıştırır; kendisi hiçbir iş yapmaz.
 const { spawnSync } = require('child_process');
 const fs = require('fs');
