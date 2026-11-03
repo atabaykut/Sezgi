@@ -361,8 +361,13 @@ impl Durum {
     /// açılmış adresler ve saatlik sınır. Proje kimliği de girer: imzalı kayıt başka bir projeye taşınamaz.
     fn hedef_imza_verisi(&self) -> Value {
         let a = self.ayar();
-        json!({ "proje": self.proje(), "url": a["hedef"]["url"], "test_kopyasi": a["hedef"]["test_kopyasi"] == true,
-            "gercek_veri": a["hedef"]["gercek_veri"] == true, "gercek_adresler": a["gercek_adresler"], "saatlik_yazma": a["saatlik_yazma"] })
+        let mut v = json!({ "proje": self.proje(), "url": a["hedef"]["url"], "test_kopyasi": a["hedef"]["test_kopyasi"] == true,
+            "gercek_veri": a["hedef"]["gercek_veri"] == true, "gercek_adresler": a["gercek_adresler"], "saatlik_yazma": a["saatlik_yazma"] });
+        // Hedef bildirildiğindeki kart kimliği de imzanın parçası (önceki sürümün kayıtlarında yok; imzaları geçerli kalır)
+        if !a["hedef"]["kart"].is_null() {
+            v["kart"] = a["hedef"]["kart"].clone();
+        }
+        v
     }
     /// Hedef kaydını insanın anahtarıyla imzalar (insan parolasını yazdıktan sonra; kayıt yazıldıktan sonra çağrılır)
     fn hedef_imzala(&self, a: &crate::insan::Anahtar) -> Result<(), String> {
@@ -1127,6 +1132,56 @@ fn risk(yontem: &str) -> &'static str {
     }
 }
 
+/// Kapının riski: yöntemden; ama okuma yöntemiyle (GET) yazan işlem okuma sayılmaz, yazmadır (okuma modunda ve okuma
+/// izniyle gitmez): onay gerekçesi, dışarıya yazma ya da silme haritada görülüyorsa; tablo yazımı ise ancak işlemin
+/// adı bir eylem söylüyorsa (`/routine/:id/copy`, `/queue/job/:id/execute`, `/logout`). Ortak ara katmandan gelen
+/// tablo yazımı her okumayı yazma yapmasın diye
+fn kapi_riski(k: &Value) -> &'static str {
+    let r = risk(k["yontem"].as_str().unwrap_or("GET"));
+    let dolu = |v: &Value| v.as_array().is_some_and(|a| !a.is_empty());
+    let yazar = (dolu(&k["veri"]["yazar"]) && eylem_adli(k))
+        || dolu(&k["veri"]["silinen"])
+        || !k["etki_onayi"].is_null()
+        || k["dis"].as_array().into_iter().flatten().any(|d| d["yazma"] == true);
+    if r == "oku" && yazar {
+        "yaz"
+    } else {
+        r
+    }
+}
+
+/// İşlemin adı (yolun son sabit parçası ya da fonksiyonu) bir eylem söylüyor mu
+fn eylem_adli(k: &Value) -> bool {
+    const EYLEM: [&str; 22] = [
+        "copy",
+        "clone",
+        "duplicate",
+        "execute",
+        "run",
+        "trigger",
+        "logout",
+        "signout",
+        "reset",
+        "delete",
+        "remove",
+        "create",
+        "add",
+        "send",
+        "sync",
+        "import",
+        "approve",
+        "cancel",
+        "kopyala",
+        "sil",
+        "olustur",
+        "gonder",
+    ];
+    let ad = |x: &str| -> String { x.chars().filter(|c| c.is_alphanumeric()).flat_map(char::to_lowercase).collect() };
+    let parca = k["yol"].as_str().unwrap_or("").rsplit('/').find(|p| !p.is_empty() && !p.starts_with([':', '{', '<'])).map(ad).unwrap_or_default();
+    let fonk = ad(k["fonksiyon"].as_str().unwrap_or(""));
+    EYLEM.iter().any(|e| parca == *e || fonk.starts_with(e))
+}
+
 fn desen_uyar(desen: &str, id: &str) -> bool {
     match desen.strip_suffix('*') {
         Some(on) => id.starts_with(on),
@@ -1158,7 +1213,7 @@ pub fn statik_onay(k: &Value) -> Option<String> {
 /// Statik kısım, insanın doğrulanmış rolleriyle: rol isteyen kesin yazma, ancak insanın doğrulanmış rollerinden biri
 /// kapının rollerinden biriyse onaydan çıkar (kart bu bilgiyi bilmez; orada onay ister)
 fn statik_onay_rollu(k: &Value, roller: Option<&[String]>) -> Option<String> {
-    match risk(k["yontem"].as_str().unwrap_or("GET")) {
+    match kapi_riski(k) {
         "oku" => None,
         "yikici" => Some(t!("yıkıcı işlem", "destructive operation").into()),
         // Dış sisteme yazan ya da geri alınamaz yazma (haritada `etki_onayi`): rol ve damga ne olursa olsun onay
@@ -1396,6 +1451,43 @@ fn imza_guveni(kart: &Value, anahtarlar: &Value, sabit_sart: bool) -> Result<(),
     }
 }
 
+/// Kartın kimliği: uygulama kimliği ve (kart imzalıysa) imzalayan açık anahtar. Hedef bildirilirken hedef kaydına
+/// yazılır; çapa varsa insanın imzasıyla korunur
+fn kart_kimligi(harita: &Path) -> Value {
+    let oku_j = |ad: &str| crate::guvenli::oku_harita(&harita.join(ad)).and_then(|m| serde_json::from_str::<Value>(&m).ok());
+    let Some(kart) = oku_j("benlik.json") else { return Value::Null };
+    let anahtar = if kart_imzali(harita) { oku_j("benlik-keys.json").and_then(|a| imza::imzalayan(&kart, &a)) } else { None };
+    json!({ "app_id": kart["app"]["id"], "anahtar": anahtar })
+}
+
+/// Bugünkü kart, hedef bildirildiğindeki kartla aynı kimliği taşımalı: uygulama kimliği aynı ve o zaman imzalıysa aynı
+/// anahtarla imzalı. Sabitleme ve "daha önce görülen anahtar" kartın kendi `app.id`'sine bağlıdır; kartın kimliğini
+/// değiştirerek bu güvenceyi atlamak hedef kaydıyla yakalanır
+fn kart_kimligi_denetle(harita: &Path) -> Result<(), String> {
+    let Some(d) = Durum::bul(harita) else { return Ok(()) };
+    let bag = d.ayar()["hedef"]["kart"].clone();
+    if !bag.is_object() {
+        return Ok(());
+    }
+    let simdi = kart_kimligi(harita);
+    if simdi["app_id"] != bag["app_id"] {
+        return Err(tf!(
+            "kartın uygulama kimliği hedef bildirildiğindekinden farklı ({} → {}): yazılmaz. Bilerek değiştirdiyseniz hedefi yeniden bildirin: sezgi hedef <adres>",
+            "the card's application id differs from when the target was declared ({} → {}): not written. If you changed it on purpose, declare the target again: sezgi target <address>",
+            bag["app_id"].as_str().unwrap_or("?"),
+            simdi["app_id"].as_str().unwrap_or("?")
+        ));
+    }
+    if bag["anahtar"].is_string() && simdi["anahtar"] != bag["anahtar"] {
+        return Err(t!(
+            "kart, hedef bildirildiğinde imzalayan anahtarla imzalı değil (imzasız ya da başka anahtar): yazılmaz. Anahtarı bilerek değiştirdiyseniz hedefi yeniden bildirin: sezgi hedef <adres>",
+            "the card is not signed with the key that signed it when the target was declared (unsigned or another key): not written. If you changed the key on purpose, declare the target again: sezgi target <address>"
+        )
+        .into());
+    }
+    Ok(())
+}
+
 /// Harita ile kartın bağı (`x-map_digest`). Canlı modun onay kararı (`etki_onayi`, `dis_etki`, kurallar, damgalar)
 /// haritadan okunur: harita kart yazıldıktan sonra değiştiyse ya da kart bu bağı taşımıyorsa yazma yapılmaz. Kart
 /// imzalıysa imza ve anahtarın güveni de denetlenir (bağ imzayla korunur); uygulama için daha önce bir anahtar
@@ -1431,6 +1523,7 @@ fn harita_bagi_denetle(harita: &Path, k: Option<&Value>) -> Result<(), String> {
         )
         .into());
     }
+    kart_kimligi_denetle(harita)?;
     if let Some(k) = k {
         crate::guvenli::json_temiz(&mut disk);
         if !disk["endpointler"].as_array().into_iter().flatten().any(|e| e == k) {
@@ -1499,7 +1592,7 @@ fn onizleme_gecti(karar: OnizlemeKarari) -> bool {
 /// (yıkıcı ya da kanıtı kesin olmayan işlem) + kanıt deposunda işlemin bir önermesine çelişen kanıt var + önizleme
 /// kapalı dünyada geçmedi + token `onay: hepsi`.
 pub fn politika(harita: &Path, k: &Value, onizleme: &str, karar: OnizlemeKarari, token: &Value, roller: Option<&[String]>) -> Option<String> {
-    if risk(k["yontem"].as_str().unwrap_or("GET")) == "oku" {
+    if kapi_riski(k) == "oku" {
         return None;
     }
     statik_onay_rollu(k, roller)
@@ -1780,7 +1873,7 @@ pub fn cagir(h: &Harita, harita: &Path, a: &Value, token: &str) -> (String, bool
         Err(e) => return red(e),
     };
     let id = islem_id(k);
-    let r = risk(k["yontem"].as_str().unwrap_or("GET"));
+    let r = kapi_riski(k);
     let mod_ = d.mod_();
     if mod_ == "gozlem" {
         return red(t!(
@@ -2354,7 +2447,7 @@ pub fn hedef_komutu(args: &[String]) {
     } else {
         None
     };
-    let mut kayit = json!({ "url": url, "test_kopyasi": test });
+    let mut kayit = json!({ "url": url, "test_kopyasi": test, "kart": kart_kimligi(&h) });
     if gercek {
         kayit["gercek_veri"] = json!(true);
         kayit["acilis"] = json!(crate::simdi());
@@ -2606,12 +2699,12 @@ pub fn token_dogrula(harita: &Path, acik: &str) -> Result<Value, String> {
 
 /// Token bu kapıyı çağırabiliyor mu (kapının riskine göre: GET oku, DELETE yıkıcı, diğerleri yaz)
 pub fn kapi_izinli(token: &Value, k: &Value) -> bool {
-    izin_var(token, &islem_id(k), risk(k["yontem"].as_str().unwrap_or("GET")))
+    izin_var(token, &islem_id(k), kapi_riski(k))
 }
 
 /// Kapının işlem kimliği ve risk seviyesi (Ayna izin ekranı için)
 pub fn islem_bilgisi(k: &Value) -> (String, &'static str) {
-    (islem_id(k), risk(k["yontem"].as_str().unwrap_or("GET")))
+    (islem_id(k), kapi_riski(k))
 }
 
 /// Token'ı bir yapay zekâ aracına bağlamanın yolları (başlık, satır)
@@ -3479,11 +3572,40 @@ impl InsanOnayi {
     }
 }
 
+/// Bekleyen kaydın kapısı, yöntemi, işlemi ve riski bugünkü haritadan yeniden kurulur. Kuyruk ve plan dosyaları ajanın
+/// erişebildiği düz metindir; hangi kapının uygulanacağı (risk, gerçek veri kuralları) kayıttaki alanlara bırakılmaz.
+/// Kayıttaki yöntem ya da işlem haritadaki kapıyla uyuşmuyorsa onaylanmaz
+fn haritaya_bagla(harita: &Path, v: &Value) -> Result<Value, String> {
+    let degisti = || -> String {
+        t!(
+            "bekleyen kaydın yöntemi ya da işlemi haritadaki kapıyla uyuşmuyor (kayıt değiştirilmiş olabilir); gönderilmedi",
+            "the pending record's method or operation does not match the operation in the map (the record may have been altered); not sent"
+        )
+        .into()
+    };
+    let h = Harita::yukle(harita)?;
+    let islem = v["islem"].as_str().unwrap_or("");
+    let kapi = h.bul_secimli(v["kapi"].as_str().unwrap_or(""), Some(islem)).ok_or(t!(
+        "işlem haritada artık yok (kod değişti; sezgi init ile harita yenilenir)",
+        "the operation is no longer in the map (the code changed; sezgi init refreshes the map)"
+    ))?;
+    let yontem = kapi["yontem"].as_str().unwrap_or("");
+    let kayit_yontemi = v["yontem"].as_str().unwrap_or("");
+    let kimlik_yontemi = v["kapi"].as_str().unwrap_or("").split_once(' ').map(|x| x.0).unwrap_or("");
+    if yontem.is_empty() || !yontem.eq_ignore_ascii_case(kayit_yontemi) || !yontem.eq_ignore_ascii_case(kimlik_yontemi) || islem_id(kapi) != islem {
+        return Err(degisti());
+    }
+    let mut v = v.clone();
+    v["risk"] = json!(kapi_riski(kapi));
+    Ok(v)
+}
+
 /// Bekleyen isteğin (onay kuyruğu kaydı ya da plan adımı) insan onayını alır. Test kopyasında: `--ozet` verildiyse
 /// içerik özetine bağlanır, yoksa terminalde "evet". Gerçek veride (hedefin bugünkü durumu): `--ozet` reddedilir,
 /// terminal şarttır; yıkıcıda insan yöntemi ve yolu aynen yazar, diğerlerinde açık "evet". Dönen: (onay, özet)
 /// `komut`: onay komutu (ör. `sezgi onay ver <id>`), `goster`: gövdeyi ve özeti gösteren komut
 pub fn onay_al(harita: &Path, v: &Value, ozet_arg: Option<&str>, icerik: &str, soru: &str, komut: &str, goster: &str) -> Result<(InsanOnayi, String), String> {
+    let v = &haritaya_bagla(harita, v)?;
     // Kuyruğa gerçek veride alınmış istek, hedef sonradan değişse de gerçek verinin kurallarıyla onaylanır
     let gercek = (Durum::yukle(harita)?.gercek_veri() || v["gercek_veri"] == true) && v["risk"] != "oku";
     if gercek {
@@ -3564,6 +3686,7 @@ pub fn onay_al(harita: &Path, v: &Value, ozet_arg: Option<&str>, icerik: &str, s
 /// üretilmiş, kart imzalı, harita tazeliği kesin denetlenmiş, önizleme bütün kuralları denetlemiş ve saatlik sınır
 /// dolmamış olmalı. `Err`: hiçbir şey gönderilmedi
 fn onayli_ilet(h: &Path, d: &Durum, v: &Value, govde: Option<&[u8]>, onay: &InsanOnayi) -> Result<Iletilen, String> {
+    let v = &haritaya_bagla(h, v)?;
     let token = d.token_ozetle(v["token_ozet"].as_str().unwrap_or("")).map_err(|e| tf!("onaylanamaz: {e}", "cannot be approved: {e}"))?;
     let (islem, risk_) = (v["islem"].as_str().unwrap_or(""), v["risk"].as_str().unwrap_or(""));
     if !izin_var(&token, islem, risk_) {
@@ -3732,7 +3855,7 @@ pub fn plan_adimi_hazirla(h: &Harita, harita: &Path, a: &Value, token: &str) -> 
     }
     let d = Durum::yukle(harita)?;
     let id = islem_id(k);
-    let r = risk(k["yontem"].as_str().unwrap_or("GET"));
+    let r = kapi_riski(k);
     let token = d.token_bul(token)?;
     if !izin_var(&token, &id, r) {
         return Err(tf!("token '{}' bu işlemi açmıyor: {id} ({r})", "token '{}' does not allow this operation: {id} ({r})", token["ad"].as_str().unwrap_or("")));

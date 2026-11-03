@@ -83,10 +83,10 @@ static KAVRAMLAR: &[Kavram] = &[
     eylem("reset", &["reset", "forgot", "recover", "recovery"], &["sifirla", "unut"], "sıfırla", "reset", &["POST", "PUT"]),
     eylem("restore", &["restore", "undelete", "untrash", "undo"], &["kurtar", "geriyukle", "geri"], "geri yükle", "restore", YAZ),
     eylem("archive", &["archive"], &["arsivle"], "arşivle", "archive", YAZ),
-    eylem("approve", &["approve", "accept", "confirm", "verify"], &["onayla", "dogrula"], "onayla", "approve", YAZ),
+    eylem("approve", &["approve", "accept", "confirm", "verify"], &["onayla", "onay", "dogrula", "konfirme"], "onayla", "approve", YAZ),
     eylem("reject", &["reject", "deny", "decline"], &["reddet"], "reddet", "reject", YAZ),
     eylem("pay", &["pay", "purchase", "buy"], &["ode", "satinal"], "öde", "pay", YAZ),
-    eylem("cancel", &["cancel", "revoke", "abort"], &["iptal"], "iptal et", "cancel", &["POST", "PUT", "PATCH", "DELETE"]),
+    eylem("cancel", &["cancel", "revoke", "abort", "void"], &["iptal"], "iptal et", "cancel", &["POST", "PUT", "PATCH", "DELETE"]),
     eylem("refund", &["refund", "chargeback", "reimburse"], &["iade", "geriode"], "iade et", "refund", YAZ),
     eylem("play", &["play", "stream", "listen", "scrobble"], &["cal", "oynat", "dinle"], "çal", "play", &["GET", "POST"]),
     eylem("send", &["send", "notify", "mail"], &["gonder", "yolla"], "gönder", "send", &["POST"]),
@@ -111,7 +111,11 @@ static KAVRAMLAR: &[Kavram] = &[
     isim("product", &["product", "goods", "sku"], &["urun"], "ürün", "product"),
     isim("item", &["item"], &["oge", "kalem", "madde"], "öğe", "item"),
     isim("cart", &["cart", "basket"], &["sepet"], "sepet", "cart"),
-    isim("payment", &["payment", "paypal", "stripe", "checkout"], &["odeme"], "ödeme", "payment"),
+    isim("payment", &["payment", "paypal", "stripe", "checkout"], &["odeme", "tahsilat"], "ödeme", "payment"),
+    // Tahsilat bir alacağın toplanmasıdır (collection); kodda genel "koleksiyon" anlamında da geçer, okunur adı odur
+    isim("collection", &["collection"], &["koleksiyon", "tahsilat"], "koleksiyon", "collection"),
+    // Satış ve MICE: müşteriye verilen fiyat teklifi
+    isim("quote", &["quote", "offer", "proposal", "estimate"], &["teklif"], "teklif", "quote"),
     isim("invoice", &["invoice", "bill"], &["fatura"], "fatura", "invoice"),
     isim("receipt", &["receipt"], &["makbuz", "fis", "dekont"], "makbuz", "receipt"),
     isim("transaction", &["transaction", "entry"], &["islem", "hareket"], "işlem", "transaction"),
@@ -542,6 +546,13 @@ pub fn puan(k: &Value, s: &Sorgu, alanlar: &[String]) -> f64 {
         }
         if s.eylemler.contains(&y.eylem.as_str()) {
             p += 1.0;
+        }
+        // Yolun son sabit parçası tek başına isteğin eylemiyse (`/quotes/:id/approve`) uç o eylemin kendisidir
+        let son_parca = k["yol"].as_str().unwrap_or("").rsplit('/').find(|x| !x.is_empty() && !x.starts_with([':', '{']));
+        if let Some([w]) = son_parca.map(kelimeler).as_deref() {
+            if eylem_kavrami(w).is_some_and(|e| s.eylemler.contains(&e.id)) {
+                p += 1.5;
+            }
         }
     }
     if p > 0.0 && !s.yontemler.is_empty() {

@@ -91,3 +91,36 @@ fn gorev_cumlelere_ayrilir() {
     assert!(cok_adimli("sipariş oluştur ve öde"));
     assert!(!cok_adimli("kullanıcı sil"));
 }
+
+/// Gezi, MICE ve satış alanının Türkçe terimleri kodun İngilizce adlarını bulur; çekim ekleri tolere edilir; isteğin
+/// fiiline HTTP yöntemi ve yol sonundaki eylemiyle uyan uç öne çıkar
+#[test]
+fn gezi_ve_satis_terimleri_turkce_aranir() {
+    let mut rapor = kapi("GET", "/api/reports/sales/teklif-donusum", "getApiReportsSalesTeklifdonusum");
+    rapor["ozet"] = json!("TEKLİF DÖNÜŞÜM RAPORU");
+    let kapilar = vec![
+        rapor,
+        kapi("GET", "/api/quotes/:id", "getApiQuotesId"),
+        kapi("POST", "/api/quotes", "postApiQuotes"),
+        kapi("POST", "/api/quotes/:id/approve-remaining", "postApiQuotesIdApproveremaining"),
+        kapi("POST", "/api/quotes/:id/approve", "postApiQuotesIdApprove"),
+        kapi("GET", "/api/bookings", "listBookings"),
+        kapi("DELETE", "/api/bookings/:id", "deleteBooking"),
+        kapi("POST", "/api/bookings/:id/cancel", "cancelBooking"),
+        kapi("POST", "/api/invoices/:id/void", "voidInvoice"),
+        kapi("GET", "/api/collections", "listCollections"),
+        kapi("GET", "/api/groups/:id", "getGroup"),
+        kapi("POST", "/api/payments/:id/refund", "refundPayment"),
+    ];
+    let ilk = |istek: &str| ara_kimlikleri(&kapilar, istek, 3).first().cloned().unwrap_or_default();
+    for istek in ["teklif onayla", "teklifi onayla", "teklif onaylama", "onaylanan teklif", "quote approve"] {
+        assert_eq!(ilk(istek), "POST /api/quotes/:id/approve", "{istek}: {:?}", ara_kimlikleri(&kapilar, istek, 3));
+    }
+    assert_eq!(ilk("rezervasyon iptal"), "POST /api/bookings/:id/cancel");
+    assert_eq!(ilk("fatura iptal"), "POST /api/invoices/:id/void");
+    assert_eq!(ilk("tahsilat listele"), "GET /api/collections");
+    assert_eq!(ilk("grup"), "GET /api/groups/:id");
+    assert_eq!(ilk("ödeme iadesi"), "POST /api/payments/:id/refund");
+    // Uygulamada karşılığı olmayan varlık yine bulunamaz
+    assert!(ara_kimlikleri(&kapilar, "otel iptal", 3).is_empty());
+}

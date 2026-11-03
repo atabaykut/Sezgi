@@ -23,6 +23,10 @@ Bağladıktan sonra asistanınıza şunları sorabilirsiniz:
 - "Kullanıcıyı silersem hangi tablolar etkilenir, geri alınabilir mi?"
 - "Fatura modülünde giriş gerektirmeyen işlem var mı?"
 
+## Nereye gidiyor
+
+Sezgi'nin hedefi evrensel bir yazılım zekâsı: yapay zekânın her yazılımı bir kez okuyup gerçekten tanıması ve içinde güvenle iş yapması. Bu hedef **17 temel soruyla** ölçülür (uygulama nedir, neden var, kim neyi yapabilir, bir işlem hangi tablolara ve sistemlere dokunur, geri alınabilir mi, hangi ekrandan başlar…). Bugünkü Sezgi, hiç görmediği uygulamalarda bunların 2'sini güvenilir, 14'ünü kısmen cevaplıyor. Hedef, sorular ve her birinin dürüst durumu: [docs/VIZYON.md](docs/VIZYON.md).
+
 ## 3 adımda başlayın
 
 Node.js 20 ya da sonrası gerekir.

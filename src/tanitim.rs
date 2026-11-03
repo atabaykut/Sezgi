@@ -598,6 +598,7 @@ fn giris_adi(g: &str) -> &str {
         "gerekli" => t!("giriş gerekli", "login required"),
         "herkese_acik" => t!("girişsiz", "public"),
         "istege_bagli" => t!("giriş isteğe bağlı", "login optional"),
+        "bilinmiyor" => t!("giriş bilinmiyor", "login unknown"),
         x => x,
     }
 }

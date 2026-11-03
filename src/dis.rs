@@ -3017,7 +3017,11 @@ struct GeriAlma {
 fn silme_ucu<'k>(k: &crate::adaptor::Kapi, kapilar: &'k [crate::adaptor::Kapi]) -> Option<&'k crate::adaptor::Kapi> {
     let p = |y: &str| y.trim_end_matches('/').to_string();
     let yol = p(&k.yol);
-    let silme = kapilar.iter().filter(|d| d.yontem == "DELETE" && d.ana);
+    // Adı silme söyleyen işlem kayıt oluşturmaz; aynı görünümün DELETE'i de onun tersi değildir
+    if silme_amacli(k) {
+        return None;
+    }
+    let silme = kapilar.iter().filter(|d| d.yontem == "DELETE" && d.ana && !ayni_gorunum(k, d));
     silme
         .clone()
         .find(|d| p(&d.yol).strip_prefix(&yol).is_some_and(|r| r.starts_with('/') && r[1..].split('/').count() == 1 && parametre_mi(&r[1..])))
@@ -3438,6 +3442,18 @@ struct Gecmis<'a> {
 /// aynı yolda DELETE (`POST /x/:id/flag` ↔ `DELETE /x/:id/flag`) ya da yolun altında geri alma eylemi (`/undo`,
 /// `/cancel`, `/revert`, `/geri-al`, `/iptal`). Aynı yoldaki DELETE yalnızca eklemenin / işaretlemenin tersidir ve
 /// koleksiyonun kendisinde sayılmaz: güncellemenin (`PUT /people`, `PATCH /users/me`) tersi silme değildir
+/// İki kapı aynı görünüm mü: aynı işleyici ya da yöntemleri HTTP yöntemi adlı aynı sınıf (Django `DeleteView`'ın
+/// `post`/`delete`'i, Rails/Laravel kaynak denetleyicisi değil). Bir görünüm kendi tersi olamaz
+fn ayni_gorunum(k: &crate::adaptor::Kapi, t: &crate::adaptor::Kapi) -> bool {
+    const YONTEM: [&str; 6] = ["get", "post", "put", "patch", "delete", "head"];
+    let yontem_adi = |f: &str| YONTEM.contains(&f.to_ascii_lowercase().as_str());
+    // Sınıf görünümü (Python: Django / Flask `MethodView`) aynı adreste: yöntem sınıfın karışımından (mixin) gelebilir,
+    // o zaman tanım başka dosyadadır. Dosya tabanlı rotalarda (Next.js `route.ts`) yöntem adlı fonksiyonlar ayrı işleyicidir
+    let ayni_islev = t.dosya == k.dosya && t.fonksiyon == k.fonksiyon;
+    let sinif_gorunumu = !k.kontrolcu.is_empty() && k.dosya.ends_with(".py") && yontem_adi(&k.fonksiyon) && yontem_adi(&t.fonksiyon);
+    t.kontrolcu == k.kontrolcu && (ayni_islev || (sinif_gorunumu && t.yol.trim_end_matches('/') == k.yol.trim_end_matches('/')))
+}
+
 fn ters_yazma<'k>(k: &crate::adaptor::Kapi, kapilar: &'k [crate::adaptor::Kapi]) -> Option<&'k crate::adaptor::Kapi> {
     let yol = k.yol.trim_end_matches('/');
     let (on, son) = yol.rsplit_once('/')?;
@@ -3453,7 +3469,7 @@ fn ters_yazma<'k>(k: &crate::adaptor::Kapi, kapilar: &'k [crate::adaptor::Kapi])
         karsilik.push("unvote".into());
     }
     kapilar.iter().find(|t| {
-        if t.id == k.id || t.yontem == "GET" || !t.ana {
+        if t.id == k.id || t.yontem == "GET" || !t.ana || ayni_gorunum(k, t) {
             return false;
         }
         let ty = t.yol.trim_end_matches('/');
@@ -3699,8 +3715,8 @@ fn silme_amacli(k: &crate::adaptor::Kapi) -> bool {
     SILME.iter().any(|s| parca == *s || fonk.starts_with(s))
 }
 
-/// Onaysız gidemeyecek yazmanın gerekçesi: dış sisteme yazan, geri alınamaz ya da silen / yumuşak silen / kimlik bilgisi
-/// değiştiren ama geri alınabilirliği kanıtlanmamış işlem. Okuma ve DELETE (zaten her seferinde onay ister) için None
+/// Onaysız gidemeyecek yazmanın gerekçesi: dış sisteme yazan, geri alınamaz ya da silen / yumuşak silen / adı silme
+/// söyleyen / kimlik bilgisi değiştiren ama geri alınabilirliği kanıtlanmamış işlem. Okuma ve DELETE (zaten her seferinde onay ister) için None
 fn onay_gerekcesi(k: &crate::adaptor::Kapi, v: &Value, g: &GeriAlma) -> Option<String> {
     if matches!(k.yontem.as_str(), "GET" | "HEAD" | "OPTIONS") {
         return None;
@@ -3717,6 +3733,9 @@ fn onay_gerekcesi(k: &crate::adaptor::Kapi, v: &Value, g: &GeriAlma) -> Option<S
     let silen = !v["yumusak_silme"].is_null() || v["silinen"].as_array().is_some_and(|a| !a.is_empty()) || v["dolayli_yazar"].as_array().is_some_and(|a| !a.is_empty());
     if silen && g.karar != "evet" {
         return Some(format!("işlem kayıt siliyor ve geri alınabilirliği kanıtlanmadı (geri alma: {})", g.karar));
+    }
+    if silme_amacli(k) && g.karar != "evet" {
+        return Some(format!("işlemin adı silme söylüyor ve geri alınabilirliği kanıtlanmadı (geri alma: {})", g.karar));
     }
     if kimlik_bilgisi_amacli(k) && g.karar != "evet" {
         return Some("işlem kimlik bilgisi değiştiriyor (parola, token, anahtar ya da iki adımlı doğrulama) ve geri alınabilirliği kanıtlanmadı".into());
@@ -3769,7 +3788,8 @@ pub fn geri_metni(v: &Value, en: bool) -> String {
 
 /// Haritaya Türkçe yazılan geri alma ve onay gerekçesinin (`geri_alma_gerekce`, `etki_onayi`) İngilizcesindeki kalıplar.
 /// Uzun kalıp önce: biri ötekini içerebilir. Kalıplar arasındaki parçalar koddan gelen adlardır, çevrilmez
-const GEREKCE_KALIPLARI: [(&str, &str); 43] = [
+const GEREKCE_KALIPLARI: [(&str, &str); 44] = [
+    ("işlemin adı silme söylüyor ve geri alınabilirliği kanıtlanmadı", "the operation's name says delete and its reversibility is not proven"),
     (
         "işlem kimlik bilgisi değiştiriyor (parola, token, anahtar ya da iki adımlı doğrulama) ve geri alınabilirliği kanıtlanmadı",
         "the operation changes credentials (password, token, key or two-factor authentication) and its reversibility is not proven",

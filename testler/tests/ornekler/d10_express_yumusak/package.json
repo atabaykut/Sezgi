@@ -1,0 +1,1 @@
+{ "name": "express-temel-ornek", "private": true, "dependencies": { "express": "4.21.0", "zod": "3.23.8", "better-sqlite3": "11.0.0" } }

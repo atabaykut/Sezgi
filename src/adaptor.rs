@@ -819,6 +819,34 @@ impl<'a> Motor<'a> {
         cagrilar.iter().filter(|c| !c.kosullu && c.ad != ad).find_map(|c| self.meta_yazar(&c.ad, &c.argumanlar, d2, derinlik + 1))
     }
 
+    /// Dekoratör, argümanını üstveri olarak yazan bir yetki işareti mi: tanımı (3 adıma kadar) `SetMetadata(ANAHTAR, x)`
+    /// çağırıyor, x sabit değil (dekoratörün kendi argümanı) ve dekoratörün ya da anahtarın adı izin / rol / kapsam
+    /// söylüyor (`@HasPermission(permissions.x)` → `SetMetadata(HAS_PERMISSION_KEY, permission)`). Argümanları rol
+    /// gibi okunur
+    fn yetki_metasi(&self, ad: &str, dosya: &'a Dosya, derinlik: usize) -> bool {
+        let yetki_adi = |a: &str| {
+            let a = a.to_ascii_lowercase();
+            ["permission", "role", "scope", "right", "abilit", "polic", "access", "claim"].iter().any(|s| a.contains(s))
+        };
+        if derinlik >= 3 || ad.contains('.') || ad == "SetMetadata" {
+            return false;
+        }
+        let Some((d2, cagrilar)) = self.tanim_bul(ad, dosya) else { return false };
+        cagrilar.iter().filter(|c| !c.kosullu && c.ad != ad).any(|c| {
+            if c.ad == "SetMetadata" {
+                return match c.argumanlar.as_slice() {
+                    [k, v] => {
+                        let v = v.trim();
+                        let sabit = matches!(v, "true" | "false") || v.starts_with(['\'', '"', '`']) || v.parse::<f64>().is_ok();
+                        !sabit && (yetki_adi(ad) || yetki_adi(k))
+                    }
+                    _ => false,
+                };
+            }
+            self.yetki_metasi(&c.ad, d2, derinlik + 1)
+        })
+    }
+
     /// Bileşik dekoratörler açılmış dekoratör listesi: projedeki bir dekoratörün tanımı koşulsuz olarak guard, rol ya da
     /// üstveri dekoratörü uyguluyorsa (`applyDecorators(SetMetadata(..), UseGuards(..))` ya da doğrudan `UseGuards(..)`,
     /// iç içe 3 adıma kadar) onlar da listeye eklenir. NestJS applyDecorators'a verilen her dekoratörü uygular; koşullu
@@ -2042,7 +2070,7 @@ impl<'a> Motor<'a> {
                 // (rol, çözüldü mü): sabit / enum değeri bulunamayan rol (ör. sayı değerli enum) kesin değildir
                 let rol_al = |ds: &[Dekorator]| -> Vec<(String, bool)> {
                     ds.iter()
-                        .filter(|x| self.rol_desen.is_match(&x.ad))
+                        .filter(|x| self.rol_desen.is_match(&x.ad) || self.yetki_metasi(&x.ad, d, 0))
                         .flat_map(|x| x.argumanlar.iter().flat_map(|a| dizi_ogeleri(a).unwrap_or_else(|| vec![a.clone()])))
                         .map(|a| {
                             let cozuldu = self.deger_cozulur(&a, Some(d));
@@ -2269,6 +2297,19 @@ impl<'a> Motor<'a> {
         let bilgi = json!({ "genel_onek": onek, "genel_guardlar": genel_ozet, "ana_uygulama": ana_kok, "surum_secimi": self.surum_secimi(), "denetlenemeyen": denetlenemeyen, "islem_kimlikleri": islem_kimlikleri, "dna": dna_haritasi, "kaskadlar": self.typeorm_kaskadlari(), "moduller": self.modul_grafi(), "olaylar": self.olaylar() });
         (kapilar, bilgi)
     }
+}
+
+/// Yorum satırı (işaretleri atılmış) yalnızca ayraç ve noktalamadan mı oluşuyor (`=====`, `-----`, `*****`): özet değildir
+pub fn ayrac_satiri_mi(s: &str) -> bool {
+    !s.chars().any(char::is_alphanumeric)
+}
+
+/// İşlemin üstündeki yorum bloğundan özet: ayraç satırları atlanır, ilk anlamlı satırın baştaki bölüm numarası atılır
+/// ("2. TEKLİF RAPORU" -> "TEKLİF RAPORU"). Anlamlı satır yoksa None (özet addan kurulur)
+pub fn yorum_ozeti<'s>(satirlar: impl IntoIterator<Item = &'s str>) -> Option<String> {
+    let ilk = satirlar.into_iter().map(str::trim).find(|l| !l.starts_with('@') && !ayrac_satiri_mi(l))?;
+    let numara = crate::kural::derle(r"^\d+(?:\.\d+)*[.)]\s+");
+    Some(numara.replace(ilk, "").trim().to_string())
 }
 
 pub fn alan_tipi(tip: &Option<String>, kurallar: &[String]) -> &'static str {

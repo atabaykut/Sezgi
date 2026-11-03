@@ -1,0 +1,31 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Kitap {
+  id     String  @id
+  baslik String
+  Yorum  Yorum[]
+}
+
+model Yorum {
+  id      String @id
+  kitapId String
+  Kitap   Kitap  @relation(fields: [kitapId], references: [id])
+}
+
+model Etiket {
+  id String @id
+}
+
+model Gunluk {
+  id String @id
+}
+
+// İstemciye @prisma/client ile gelir; değerler üye adlarıdır
+enum KitapDurumu {
+  TASLAK
+  YAYINDA // yorum değer değildir
+  @@map("kitap_durumu")
+}

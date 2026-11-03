@@ -159,7 +159,7 @@ fn guven_yaz(ad: &str, v: &Value) -> Result<(), String> {
 }
 
 /// Kartı imzalayan anahtarın açık anahtar metni (dogrula'nın bulduğu key_id ile)
-fn imzalayan(kart: &Value, anahtarlar: &Value) -> Option<String> {
+pub(crate) fn imzalayan(kart: &Value, anahtarlar: &Value) -> Option<String> {
     let kimlik = kart["signature"]["key_id"].as_str()?;
     anahtarlar["keys"].as_array()?.iter().find(|k| k["key_id"].as_str() == Some(kimlik))?["public_key"].as_str().map(String::from)
 }

@@ -47,6 +47,8 @@ pub struct Fonksiyon {
     pub donus: Option<String>,
     /// Gövdenin metni (en fazla 64 KiB): veri bağları (ORM çağrıları) buradan okunur
     pub govde_metni: String,
+    /// Gövde metninin ilk satırının kaynaktaki sütunu (metin ilk deyimden başlar; diğer satırlar girintisini taşır)
+    pub govde_sutunu: usize,
     /// Dönüş tipi bildirimi (`-> User | None`)
     pub donus_tipi: Option<String>,
     /// İçinde tanımlanan fonksiyonlar (fabrika: `def kur(): router = APIRouter(); @router.get(...) def x(): ...`)
@@ -199,6 +201,7 @@ fn fonksiyon(n: Node, k: &[u8], dekoratorler: Vec<Cagri>) -> Option<Fonksiyon> {
         kosullu_tanim: false,
         ic_iceaktarmalar: vec![],
         govde_metni: n.child_by_field_name("body").map(|b| metin(b, k).chars().take(64 * 1024).collect()).unwrap_or_default(),
+        govde_sutunu: n.child_by_field_name("body").map(|b| b.start_position().column).unwrap_or(0),
         dna: n.child_by_field_name("body").map(|b| crate::dna::py_govde(b, k)).unwrap_or_default(),
     };
     if let Some(g) = n.child_by_field_name("body") {

@@ -152,16 +152,23 @@ fn isleyici(n: Node, k: &[u8], ad: Option<String>) -> Isleyici {
     Isleyici { ad, govde, istek, dna }
 }
 
-/// Bir ifadenin hemen üstündeki yorum (rota özeti)
+/// Bir ifadenin hemen üstündeki yorum bloğu (rota özeti). Her `//` satırı ayrı bir yorum düğümüdür: aralıksız art arda
+/// gelenler tek blok sayılır; ayraç satırları (`// =====`) özet değildir
 fn ust_yorum(n: Node, k: &[u8]) -> Option<String> {
-    let onceki = n.prev_named_sibling().filter(|p| p.kind() == "comment" && p.end_position().row + 1 >= n.start_position().row)?;
-    let t = metin(onceki, k);
-    let satirlar: Vec<String> = t
-        .lines()
+    let mut blok = vec![];
+    let mut alt = n;
+    while let Some(p) = alt.prev_named_sibling().filter(|p| p.kind() == "comment" && p.end_position().row + 1 >= alt.start_position().row) {
+        blok.push(metin(p, k));
+        alt = p;
+    }
+    blok.reverse();
+    let satirlar: Vec<String> = blok
+        .iter()
+        .flat_map(|t| t.lines())
         .map(|l| l.trim().trim_start_matches("/**").trim_start_matches("/*").trim_end_matches("*/").trim_start_matches("//").trim_start_matches('*').trim().to_string())
-        .filter(|l| !l.is_empty() && !l.starts_with('@'))
+        .filter(|l| !l.is_empty())
         .collect();
-    satirlar.first().map(|s| guvenli::temiz(s).chars().take(200).collect())
+    crate::adaptor::yorum_ozeti(satirlar.iter().map(String::as_str)).map(|s| guvenli::temiz(&s).chars().take(200).collect())
 }
 
 /// Ara katman argümanları (dizi açılır)

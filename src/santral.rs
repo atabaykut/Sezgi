@@ -9,9 +9,11 @@
 //!   değişiklik planı kaydeder, yürütmez (`plan`: insan `sezgi plan goster` / `sezgi plan onayla` ile adım adım onaylar).
 //! - `sezgi santral baglar`: otomatik çapraz bağlar. Bir uygulamanın ya da istemcinin kodu başka bir uygulamanın
 //!   kapısını çağırıyorsa bulunur; böylece hangi ekran dosyasının hangi kapıyı çağırdığı da bilinir (Kapı ③'ün
-//!   "ne bilinir" kısmı). Adres birebir tutuyorsa (yol parametresi yerine değişken dahil) bağ kesin; genel önek istemcinin
-//!   taban adresinde kalıyor ya da sabit bir değer parametreye denk geliyorsa yorum. Kodu aranamayan uygulama
-//!   "aranmadı" olarak, aranıp bağ bulunamayan "arandı, 0 bağ" olarak ayrı bildirilir.
+//!   "ne bilinir" kısmı). İstemci örneğinin taban adresi (axios `baseURL`) yola eklenir. Adres, yöntem ve taban adres
+//!   birebir tutuyorsa (yol parametresi yerine değişken dahil) bağ kesin; genel önek istemcinin çözülmemiş taban
+//!   adresinde kalıyor, taban ortamdan geliyor ya da sabit bir değer parametreye denk geliyorsa yorum. Kaynağın kendi
+//!   uygulamasına uyan çağrı başka uygulamaya bağlanmaz; tek parçalı catch-all rota (`/{x:path}`, `/:kod`) hedef
+//!   sayılmaz. Kodu aranamayan uygulama "aranmadı" olarak, aranıp bağ bulunamayan "arandı, 0 bağ" olarak ayrı bildirilir.
 use regex::Regex;
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
@@ -314,6 +316,22 @@ fn kaynak_dosyalari(kok: &Path) -> Vec<PathBuf> {
 /// Hedef uygulamanın bir kapısı: (yöntem, yol, yol parçaları, genel öneksiz parçalar)
 type HedefKapi = (String, String, Vec<String>, Vec<String>);
 
+/// Tek parçalı sınırsız yol parametresinden oluşan rota (`/{x:path}`, `/*`, `/:kod`): her tek parçalı adrese uyar,
+/// bir çağrının onu hedeflediğini göstermez; çapraz bağ hedefi sayılmaz (kaynağın kendi uygulamasında ise çağrıyı
+/// karşılayan rota olarak sayılır)
+fn catch_all_mi(tam: &[String]) -> bool {
+    matches!(tam, [p] if degisken_mi(p) || p.starts_with('*'))
+}
+
+/// Çağrı (yol parçaları, yöntem) kapılardan birine uyuyor mu (genel öneksiz biçim dahil); `catch_all`: tek parçalı
+/// catch-all rotalar da sayılır
+fn uyan_var(kapilar: &[HedefKapi], ap: &[String], yontem: Option<&String>, catch_all: bool) -> bool {
+    kapilar
+        .iter()
+        .filter(|(y, _, tam, _)| yontem.is_none_or(|m| m == y) && (catch_all || !catch_all_mi(tam)))
+        .any(|(_, _, tam, oneksiz)| eslesme(ap, tam).is_some() || (!oneksiz.is_empty() && eslesme(ap, oneksiz).is_some()))
+}
+
 pub fn baglar_hesapla(liste: &[Value]) -> Value {
     // Çağrının ilk argümanı olan dizgi: f(" ... "), f(' ... '), f(` ... `), f(f" ... ")
     let dizgi = Regex::new(r#"([A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*)\s*\(\s*[fbrFBR]?(?:"([^"\n]*)"|'([^'\n]*)'|`([^`\n]*)`)"#).unwrap();
@@ -349,9 +367,16 @@ pub fn baglar_hesapla(liste: &[Value]) -> Value {
             continue;
         };
         let mut sayac: BTreeMap<String, usize> = BTreeMap::new();
-        // İstemci çağrıları: (dosya, satır, yol, yöntem). JS/TS dosyaları ön yüz adaptörüyle (web.rs: ayrıştırıcı,
-        // sabit ve içe aktarma çözümlemesi, üretilmiş istemci / axios / fetch / RTK Query) okunur; diğer diller satır desenleriyle.
-        let mut cagrilar: Vec<(String, usize, String, Option<String>)> = crate::web::istemci_cagrilari(&kok).into_iter().map(|c| (c.dosya, c.satir, c.sablon, c.yontem)).collect();
+        // Kaynağın ait olduğu uygulama: kendisi (haritası varsa) ya da kaynağı içinde bulunduğu üye (deposundaki istemci)
+        let sahip: Option<&(String, Vec<HedefKapi>)> = hedefler.iter().find(|(h, _)| *h == ad).or_else(|| {
+            let ust = liste.iter().filter(|u2| u2["ad"] != ad.as_str()).find(|u2| u2["kaynak"].as_str().is_some_and(|k2| kok.starts_with(k2)))?;
+            hedefler.iter().find(|(h, _)| ust["ad"] == h.as_str())
+        });
+        // İstemci çağrıları: (dosya, satır, yol, yöntem, taban adres kesin mi). JS/TS dosyaları ön yüz adaptörüyle (web.rs:
+        // ayrıştırıcı, sabit ve içe aktarma çözümlemesi, istemci örneğinin taban adresi, üretilmiş istemci / axios / fetch /
+        // RTK Query) okunur; diğer diller satır desenleriyle.
+        let mut cagrilar: Vec<(String, usize, String, Option<String>, bool)> =
+            crate::web::istemci_cagrilari(&kok).into_iter().map(|c| (c.dosya, c.satir, c.sablon, c.yontem, c.taban_kesin)).collect();
         for p in kaynak_dosyalari(&kok) {
             let Some(metin) = crate::guvenli::oku(&p) else { continue };
             for (i, satir) in metin.lines().enumerate() {
@@ -372,19 +397,28 @@ pub fn baglar_hesapla(liste: &[Value]) -> Value {
                         .map(|m| m[1].to_uppercase())
                         .or_else(|| yontem_re.captures(&cagri_ac).map(|m| m[1].to_uppercase()))
                         .or_else(|| (cagri == "fetch" || cagri.ends_with(".fetch")).then(|| "GET".to_string()));
-                    cagrilar.push((p.strip_prefix(&kok).unwrap_or(&p).display().to_string().replace('\\', "/"), i + 1, yol, yontem));
+                    cagrilar.push((p.strip_prefix(&kok).unwrap_or(&p).display().to_string().replace('\\', "/"), i + 1, yol, yontem, true));
                 }
             }
         }
-        for (dosya, satir, yol, yontem) in cagrilar {
+        for (dosya, satir, yol, yontem, taban_kesin) in cagrilar {
             let ap = parcalar(&yol);
             if ap.iter().all(|x| degisken_mi(x)) {
                 continue;
             }
-            for (hedef, kapilar) in hedefler.iter().filter(|(h, _)| *h != ad) {
+            // Çağrı kaynağın kendi uygulamasının bir kapısına uyuyorsa o uygulamanındır: kendisiyse başka uygulamaya
+            // bağlanmaz, kaynağı içeren üyeyse yalnızca ona bağlanır. Yalnızca kendi catch-all rotasına uyan çağrı
+            // başka uygulamaya bağlanabilir ama kesin değildir (kendi rotası da karşılayabilir)
+            let kendi = sahip.filter(|(_, k)| uyan_var(k, &ap, yontem.as_ref(), false));
+            if kendi.is_some_and(|(h, _)| *h == ad) {
+                continue;
+            }
+            let kendi_catch_all = sahip.is_some_and(|(_, k)| uyan_var(k, &ap, yontem.as_ref(), true));
+            let taban_kesin = taban_kesin && !kendi_catch_all;
+            for (hedef, kapilar) in hedefler.iter().filter(|(h, _)| *h != ad && kendi.is_none_or(|(s, _)| s == h)) {
                 let mut adaylar: Vec<(&String, &String, bool)> = vec![];
                 for (y, kyol, tam, oneksiz) in kapilar {
-                    if yontem.as_ref().is_some_and(|m| m != y) {
+                    if yontem.as_ref().is_some_and(|m| m != y) || catch_all_mi(tam) {
                         continue;
                     }
                     if let Some(b) = eslesme(&ap, tam) {
@@ -393,10 +427,11 @@ pub fn baglar_hesapla(liste: &[Value]) -> Value {
                         adaylar.push((y, kyol, false));
                     }
                 }
-                // Yöntem bilinmiyor ve adres birden fazla yönteme denk geliyorsa hepsi tahmindir
+                // Yöntem bilinmiyor ve adres birden fazla yönteme denk geliyorsa hepsi tahmindir; taban adres kodda kesin
+                // değilse (ortamdan gelen, çözülemeyen) bağ da tahmindir
                 let tek = adaylar.len() == 1;
                 for (y, kyol, birebir) in adaylar {
-                    let damga = if birebir && (yontem.is_some() || tek) { "kesin" } else { "yorum" };
+                    let damga = if birebir && taban_kesin && (yontem.is_some() || tek) { "kesin" } else { "yorum" };
                     *sayac.entry(hedef.clone()).or_default() += 1;
                     baglar.push(json!({
                         "kaynak": ad,
@@ -448,7 +483,7 @@ fn dis_cagri_baglari(liste: &[Value], hedefler: &[(String, Vec<HedefKapi>)], bag
                 let yontem = c["yontem"].as_str();
                 let mut eslesen: Vec<(String, bool)> = kapilar
                     .iter()
-                    .filter(|(y, ..)| yontem.is_none_or(|m| m == y))
+                    .filter(|(y, _, tam, _)| yontem.is_none_or(|m| m == y) && !catch_all_mi(tam))
                     .filter_map(|(y, kyol, tam, oneksiz)| {
                         let b = eslesme(&ap, tam).or_else(|| (!oneksiz.is_empty() && eslesme(&ap, oneksiz).is_some()).then_some(false))?;
                         Some((format!("{hedef}: {y} {kyol}"), b))

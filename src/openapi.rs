@@ -273,7 +273,8 @@ pub fn uret(kapilar: &[Kapi], uygulama: &str, surum: &str, ozet: &Value) -> Valu
         }
         islem["security"] = match k.giris.as_str() {
             "herkese_acik" => json!([]),
-            "istege_bagli" => json!([{}, { "bearerAuth": [] }]),
+            // Giriş kararı bilinmiyorsa zorunlu da açık da yazılmaz
+            "istege_bagli" | "bilinmiyor" => json!([{}, { "bearerAuth": [] }]),
             _ => json!([{ "bearerAuth": [] }]),
         };
         if !k.roller.is_empty() {

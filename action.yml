@@ -19,7 +19,7 @@ inputs:
     default: "true"
   sezgi-surumu:
     description: npm'den çalıştırılacak sezgi sürümü
-    default: "0.1.0"
+    default: "0.1.1"
   sezgi:
     description: Kurulu sezgi ikilisinin yolu (verilirse npm kullanılmaz)
     default: ""

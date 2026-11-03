@@ -7,8 +7,9 @@
 //! - **Giriş:** bağımlılıklar (`Depends` / `Security`, `Annotated[..., Depends(f)]`, router ve uygulama düzeyindeki
 //!   `dependencies=[...]`) tanımlarından izlenir. Zincir bir güvenlik şemasına (OAuth2PasswordBearer, HTTPBearer,
 //!   APIKeyHeader...) ulaşırsa giriş gerekir (`auto_error=False` ise isteğe bağlı) ve karar kesindir. Hiç güvenlik şeması
-//!   bulunamazsa uç açık sayılır ama bu çıkarımdır (ara katman yazılımı kimlik isteyebilir); izlenemeyen bir bağımlılık
-//!   varsa ayrıca "tanınmayan guard" olarak bildirilir.
+//!   bulunamazsa uç açık sayılır ama bu çıkarımdır; izlenemeyen bir bağımlılık varsa ayrıca "tanınmayan guard" olarak
+//!   bildirilir. Uygulama düzeyi ara katman (`@app.middleware("http")`, `app.add_middleware(...)`) bir kimlik bilgisine
+//!   bakıp 401 / 403 döndürüyorsa kapsadığı uçlar giriş ister (çıkarım); kapsamı çözülemeyen uçta giriş "bilinmiyor".
 //! - **Girdiler:** Pydantic / SQLModel sınıfı tipli parametre gövdedir; yol şablonundaki ad yol parametresidir;
 //!   kalan basit tipli parametreler sorgudur. Pydantic alanları her zaman doğrular: varsayılanı olmayan alan zorunludur
 //!   (kesin); `Field(...)` sınırları kurallara çevrilir.
@@ -1289,6 +1290,8 @@ pub fn kapilar(kok: &Path, dosyalar: &[Dosya]) -> (Vec<Kapi>, Value) {
     // Rota kaynağı olduğu görülen ama okunamayan yerler: (modül, satır, alıcı, neden). Haritada bu rotalar yoktur;
     // rapor, doktor, Ayna ve kart kapsamı "kısmen" der
     let mut okunamayan: Vec<(usize, usize, String, String)> = vec![];
+    // Uygulama düzeyi ara katmanlar: (uygulama düğümü, ara katman)
+    let mut ara_katmanlar: Vec<(Dugum, AraKatman)> = vec![];
     for (di, d) in dosyalar.iter().enumerate() {
         for f in &d.fonksiyonlar {
             for dek in &f.dekoratorler {
@@ -1297,6 +1300,20 @@ pub fn kapilar(kok: &Path, dosyalar: &[Dosya]) -> (Vec<Kapi>, Value) {
                     vec![yontem.to_uppercase()]
                 } else if yontem == "api_route" {
                     yontem_listesi(dek)
+                } else if yontem == "middleware" {
+                    // @app.middleware("http"): fonksiyonun ilk parametresi istektir
+                    let http = dek.argumanlar.first().and_then(|a| metin_sabiti(a)).as_deref() == Some("http");
+                    let uygulama =
+                        kapsam_zinciri(d, f).iter().map(|k| (di, format!("{k}().{alici}"))).find(|a| uygulamalar.iter().any(|(u, x, _)| *u == a.0 && *x == a.1)).or_else(
+                            || match b.ifade(di, alici) {
+                                Some(Yer::Ad(adi, aad)) if uygulamalar.iter().any(|(u, x, _)| *u == adi && *x == aad) => Some((adi, aad)),
+                                _ => None,
+                            },
+                        );
+                    if let (true, Some(u), Some(p)) = (http, uygulama, f.parametreler.first()) {
+                        ara_katmanlar.extend(b.ara_katman(di, f.ad.clone(), f, &p.ad).map(|a| (u, a)));
+                    }
+                    continue;
                 } else {
                     // Router ya da uygulama örneğinin tanınmayan rota dekoratörü (`@router.route(...)`); yaşam döngüsü,
                     // websocket ve hata işleyicisi HTTP işlemi değildir
@@ -1355,6 +1372,30 @@ pub fn kapilar(kok: &Path, dosyalar: &[Dosya]) -> (Vec<Kapi>, Value) {
                 continue;
             };
             kayitlar.push((di, alici, yontem_listesi(c), c.clone(), fdi, f, vec![]));
+        }
+    }
+    // app.add_middleware(S): sınıfın `dispatch` yöntemi (BaseHTTPMiddleware), istek ikinci parametresidir
+    for (di, d) in dosyalar.iter().enumerate() {
+        let mut cagrilar: Vec<(Option<&Fonksiyon>, &Cagri)> = d.cagrilar.iter().map(|c| (None, c)).collect();
+        for f in &d.fonksiyonlar {
+            cagrilar.extend(f.ic_cagrilar.iter().map(|c| (Some(f), c)));
+        }
+        for (f, c) in cagrilar {
+            let Some(alici) = c.ad.strip_suffix(".add_middleware") else { continue };
+            let Some(u) = alici_bul(di, f, alici).filter(|u| uygulamalar.iter().any(|(x, a, _)| *x == u.0 && *a == u.1)) else { continue };
+            let Some((sdi, s)) = c.argumanlar.first().and_then(|a| b.ifade(di, a.trim())).and_then(|y| b.sinif(&y)) else { continue };
+            let Some(m) = s.metotlar.iter().find(|m| m.ad == "dispatch") else { continue };
+            if let Some(p) = m.parametreler.iter().find(|p| p.ad != "self") {
+                ara_katmanlar.extend(b.ara_katman(sdi, s.ad.clone(), m, &p.ad).map(|a| (u.clone(), a)));
+            }
+        }
+    }
+    // Ara katmanı olan her uygulamanın ulaştığı router'lar (ana uygulamanınki zaten hesaplı)
+    let mut ara_erisim: HashMap<Dugum, Erisim> = HashMap::new();
+    for (u, _) in &ara_katmanlar {
+        if !ara_erisim.contains_key(u) {
+            let e = if *u == ana_kok { erisim.clone() } else { ulas(u.clone(), vec![]) };
+            ara_erisim.insert(u.clone(), e);
         }
     }
     // En az bir rotası okunan router ve uygulama örnekleri
@@ -1655,7 +1696,13 @@ pub fn kapilar(kok: &Path, dosyalar: &[Dosya]) -> (Vec<Kapi>, Value) {
                 let mut roller: Vec<String> = bag.iter().flat_map(|(bdi, h)| b.roller(*bdi, h)).collect();
                 roller.sort();
                 roller.dedup();
+                // Bu router'a ulaşan uygulamaların ara katmanları
+                let ara: Vec<&AraKatman> = ara_katmanlar.iter().filter(|(u, _)| ara_erisim.get(u).is_some_and(|e| e.contains_key(&anahtar))).map(|(_, a)| a).collect();
                 for yontem in &yontemler {
+                    let sonuclar: Vec<(&str, AraSonuc)> = ara.iter().map(|a| (a.ad.as_str(), a.sonuc(&b, yontem, &tam))).collect();
+                    let (giris, kanit, ara_guardlari) = ara_katman_karari(giris, kanit, &sonuclar);
+                    let mut guardlar = guardlar.clone();
+                    guardlar.extend(ara_guardlari);
                     if kosullu {
                         kosullu_kapilar.push(format!("{yontem} {sezgi_yolu}"));
                     }
@@ -1710,7 +1757,7 @@ pub fn kapilar(kok: &Path, dosyalar: &[Dosya]) -> (Vec<Kapi>, Value) {
                         dosya: guvenli::goreli(kok, &d.yol),
                         satir: f.satir,
                         giris: giris.into(),
-                        guardlar: guardlar.clone(),
+                        guardlar,
                         roller: roller.clone(),
                         roller_kaniti: (!roller.is_empty()).then(|| "varsayim".into()),
                         ozet: ozet.clone(),
@@ -1747,12 +1794,612 @@ pub fn kapilar(kok: &Path, dosyalar: &[Dosya]) -> (Vec<Kapi>, Value) {
     okunamayan_rotalar.sort();
     okunamayan_rotalar.dedup();
     let ana = (ana_kok.0 != usize::MAX).then(|| format!("{}:{}", dosyalar[ana_kok.0].modul, ana_kok.1));
+    // Ana uygulamanın kimlik denetleyen ara katmanları (gösterim: kapsamı her işlemin kendi kararındadır)
+    let genel_guardlar: Vec<String> = ara_katmanlar.iter().filter(|(u, _)| *u == ana_kok).map(|(_, a)| format!("{} (ara katman)", a.ad)).collect();
     (
         kapilar,
-        json!({ "genel_onek": "", "genel_guardlar": [], "ana_uygulama": ana, "kosullu_kapilar": kosullu_kapilar, "denetlenemeyen": denetlenemeyen,
+        json!({ "genel_onek": "", "genel_guardlar": genel_guardlar, "ana_uygulama": ana, "kosullu_kapilar": kosullu_kapilar, "denetlenemeyen": denetlenemeyen,
         "dna": dna_haritasi, "kaskadlar": kaskadlar(kok, dosyalar),
         "routerlar": router_grafi(kok, dosyalar, &icerme, &routerlar, &uygulamalar), "kapi_routerlari": kapi_routerlari,
         "veri_modelleri": tablo_modelleri(kok, dosyalar), "okunamayan_rotalar": okunamayan_rotalar,
         "islem_kimlikleri": islem_kimlikleri.into_iter().filter_map(|(a, k)| k.map(|k| (a, k))).collect::<BTreeMap<_, _>>() }),
     )
+}
+
+// ---- Uygulama düzeyi ara katman ----
+//
+// `@app.middleware("http")` fonksiyonu ya da `app.add_middleware(S)` ile eklenen sınıfın `dispatch` yöntemi her
+// isteği işleyiciden önce görür. Gövdesi bir kimlik bilgisine (anahtar, belirteç, oturum taşıyan başlık, çerez ya da
+// sorgu) bakıp 401 / 403 döndürüyorsa kapsadığı işlemler girişsiz değildir. Kapsam gövdenin koşullarından okunur:
+// yöntem koşulu (`request.method not in (...)`), yol istisnaları (`startswith`, sabit küme, tek `return`lük yardımcı
+// fonksiyon) ve başka bir korumaya devir. Çözülemeyen koşul kapsamı "bilinmiyor" yapar; karar hiçbir zaman kesin değildir.
+
+/// Ara katmanın bir işleme etkisi
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum AraSonuc {
+    /// İstek kimlik denetiminden geçmeden işleyiciye ulaşmaz: giriş gerekli (tahmin)
+    Gerekli,
+    /// Denetim bu işleme uygulanmaz
+    Degil,
+    /// Kapsam (yöntem koşulu, yol istisnası, başka korumaya devir) çözülemedi
+    Bilinmiyor,
+}
+
+/// Koşulun üç değerli sonucu; `Kimlik`: sonuç isteğin kimlik bilgisine bağlı
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum Deger {
+    Dogru,
+    Yanlis,
+    Kimlik,
+    Belirsiz,
+}
+
+impl Deger {
+    fn degil(self) -> Deger {
+        match self {
+            Deger::Dogru => Deger::Yanlis,
+            Deger::Yanlis => Deger::Dogru,
+            x => x,
+        }
+    }
+    fn ve(self, o: Deger) -> Deger {
+        use Deger::*;
+        match (self, o) {
+            (Yanlis, _) | (_, Yanlis) => Yanlis,
+            (Belirsiz, _) | (_, Belirsiz) => Belirsiz,
+            (Kimlik, _) | (_, Kimlik) => Kimlik,
+            _ => Dogru,
+        }
+    }
+    fn veya(self, o: Deger) -> Deger {
+        use Deger::*;
+        match (self, o) {
+            (Dogru, _) | (_, Dogru) => Dogru,
+            (Belirsiz, _) | (_, Belirsiz) => Belirsiz,
+            (Kimlik, _) | (_, Kimlik) => Kimlik,
+            _ => Yanlis,
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum OlayTuru {
+    /// 401 / 403 döndürür ya da fırlatır
+    Red,
+    /// İsteği işleyiciye geçirir (`await call_next(request)`)
+    Gecis,
+    /// İsteği başka bir korumaya devreder (`return await koruma(request, call_next)`)
+    Devir,
+}
+
+/// Gövdeden okunan olay ve gerçekleştiği koşullar (dıştan içe, hepsi doğruysa). `BELIRSIZ_KOSUL`: çözülemeyen koşul
+/// (except bloğu, döngü); `False`: hiç çalışmayan gövde (iç fonksiyon)
+struct AraOlay {
+    kosullar: Vec<String>,
+    tur: OlayTuru,
+}
+
+const BELIRSIZ_KOSUL: &str = "<?>";
+/// Başlık, çerez ya da sorgu adında geçtiğinde değeri kimlik bilgisi sayılan parçalar
+const KIMLIK_ADLARI: [&str; 11] = ["auth", "token", "key", "secret", "session", "signature", "jwt", "bearer", "cookie", "credential", "password"];
+const RED_ISARETLERI: [&str; 6] = ["401", "403", "UNAUTHORIZED", "FORBIDDEN", "Unauthorized", "Forbidden"];
+
+/// Bir uygulama düzeyi ara katman: adı, modülü, istek parametresinin adı, olayları ve gövdedeki yerel takma adlar
+pub(crate) struct AraKatman {
+    ad: String,
+    di: usize,
+    istek: String,
+    olaylar: Vec<AraOlay>,
+    /// `yol = request.url.path`
+    yol_adlari: Vec<String>,
+    /// `yontem = request.method`
+    yontem_adlari: Vec<String>,
+    /// `belirtec = request.headers.get("Authorization")`
+    kimlik_adlari: Vec<String>,
+}
+
+/// Koşul değerlendirme bağlamı: ifadenin modülü ve isteğe bağlanan adlar (yardımcı fonksiyona girildiğinde parametreler)
+struct AraBaglam<'k> {
+    di: usize,
+    istek: &'k str,
+    yol_adlari: Vec<String>,
+    yontem_adlari: Vec<String>,
+    kimlik_adlari: Vec<String>,
+}
+
+/// Gövde metninin mantıksal satırları: (girinti, metin). Parantez içinde ve `\` ile süren satırlar birleşir, yorumlar
+/// atılır, üçlü tırnaklı dizgiler (belge dizgisi) boş dizgi olur. `sutun`: ilk satırın kaynaktaki sütunu
+fn mantiksal_satirlar(govde: &str, sutun: usize) -> Vec<(usize, String)> {
+    // Windows satır sonu atılır: aksi hâlde `\` ile süren satırın sonu `\r` olur ve devam görülmez
+    let c: Vec<char> = govde.chars().filter(|c| *c != '\r').collect();
+    let mut out = vec![];
+    let mut cur = String::new();
+    let (mut girinti, mut derinlik, mut i) = (sutun, 0usize, 0usize);
+    let (mut satir_basi, mut devam) = (false, false);
+    while i < c.len() {
+        if satir_basi {
+            let mut n = 0;
+            while i < c.len() && (c[i] == ' ' || c[i] == '\t') {
+                n += if c[i] == '\t' { 8 } else { 1 };
+                i += 1;
+            }
+            satir_basi = false;
+            if !devam {
+                girinti = n;
+            }
+            continue;
+        }
+        let ch = c[i];
+        match ch {
+            '#' => {
+                while i < c.len() && c[i] != '\n' {
+                    i += 1;
+                }
+                continue;
+            }
+            '"' | '\'' => {
+                let uclu = i + 2 < c.len() && c[i + 1] == ch && c[i + 2] == ch;
+                let bas = i;
+                i += if uclu { 3 } else { 1 };
+                while i < c.len() {
+                    if c[i] == '\\' {
+                        i += 2;
+                        continue;
+                    }
+                    if uclu && i + 2 < c.len() && c[i] == ch && c[i + 1] == ch && c[i + 2] == ch {
+                        i += 3;
+                        break;
+                    }
+                    if !uclu && (c[i] == ch || c[i] == '\n') {
+                        i += usize::from(c[i] == ch);
+                        break;
+                    }
+                    i += 1;
+                }
+                if uclu {
+                    cur.push_str("\"\"");
+                } else {
+                    cur.extend(&c[bas..i.min(c.len())]);
+                }
+                continue;
+            }
+            '(' | '[' | '{' => derinlik += 1,
+            ')' | ']' | '}' => derinlik = derinlik.saturating_sub(1),
+            '\\' if c.get(i + 1) == Some(&'\n') => {
+                cur.push(' ');
+                i += 2;
+                (satir_basi, devam) = (true, true);
+                continue;
+            }
+            '\n' => {
+                i += 1;
+                satir_basi = true;
+                if derinlik > 0 {
+                    cur.push(' ');
+                    devam = true;
+                    continue;
+                }
+                if !cur.trim().is_empty() {
+                    out.push((girinti, cur.trim().to_string()));
+                }
+                cur.clear();
+                devam = false;
+                continue;
+            }
+            _ => {}
+        }
+        cur.push(ch);
+        i += 1;
+    }
+    if !cur.trim().is_empty() {
+        out.push((girinti, cur.trim().to_string()));
+    }
+    out
+}
+
+/// İfadenin, parantez ve dizgi dışında sözcük olarak geçen anahtar sözcükten (`or`, `and`) bölünmüş parçaları
+fn sozcukle_bol<'s>(s: &'s str, sozcuk: &str) -> Vec<&'s str> {
+    let b = s.as_bytes();
+    let (mut v, mut bas, mut derinlik, mut dizgi) = (vec![], 0usize, 0i32, None::<u8>);
+    let mut i = 0;
+    while i < b.len() {
+        let ch = b[i];
+        match dizgi {
+            Some(q) => {
+                if ch == b'\\' {
+                    i += 1;
+                } else if ch == q {
+                    dizgi = None;
+                }
+            }
+            None => match ch {
+                b'"' | b'\'' => dizgi = Some(ch),
+                b'(' | b'[' | b'{' => derinlik += 1,
+                b')' | b']' | b'}' => derinlik -= 1,
+                _ if derinlik == 0
+                    && s[i..].starts_with(sozcuk)
+                    && i > 0
+                    && (b[i - 1].is_ascii_whitespace() || b[i - 1] == b')')
+                    && s[i + sozcuk.len()..].starts_with([' ', '(']) =>
+                {
+                    v.push(s[bas..i].trim());
+                    bas = i + sozcuk.len();
+                    i = bas;
+                    continue;
+                }
+                _ => {}
+            },
+        }
+        i += 1;
+    }
+    v.push(s[bas..].trim());
+    v
+}
+
+/// Dıştaki parantez bütün ifadeyi sarıyorsa atılır: "(a or b)" -> "a or b"
+fn dis_parantez(s: &str) -> &str {
+    let s = s.trim();
+    if !s.starts_with('(') || !s.ends_with(')') {
+        return s;
+    }
+    let mut derinlik = 0;
+    for (i, ch) in s.char_indices() {
+        match ch {
+            '(' => derinlik += 1,
+            ')' => {
+                derinlik -= 1;
+                if derinlik == 0 && i + 1 < s.len() {
+                    return s;
+                }
+            }
+            _ => {}
+        }
+    }
+    dis_parantez(&s[1..s.len() - 1])
+}
+
+/// Blok başlığındaki, parantez ve dizgi dışındaki ilk `:` konumu
+fn ust_duzey_iki_nokta(s: &str) -> Option<usize> {
+    let (mut derinlik, mut dizgi) = (0i32, None::<char>);
+    for (i, ch) in s.char_indices() {
+        match dizgi {
+            Some(q) if ch == q => dizgi = None,
+            Some(_) => {}
+            None => match ch {
+                '"' | '\'' => dizgi = Some(ch),
+                '(' | '[' | '{' => derinlik += 1,
+                ')' | ']' | '}' => derinlik -= 1,
+                ':' if derinlik == 0 => return Some(i),
+                _ => {}
+            },
+        }
+    }
+    None
+}
+
+/// Yol şablonu (`/a/{b}/{c:path}`) bir metinle başlıyor mu: sabit önek yetiyorsa kesin; parametre öneke karışıyorsa belirsiz
+fn yol_baslar(sablon: &str, onek: &str) -> Deger {
+    match sablon.find('{') {
+        None if sablon.starts_with(onek) => Deger::Dogru,
+        None => Deger::Yanlis,
+        Some(i) if sablon[..i].starts_with(onek) => Deger::Dogru,
+        Some(i) if onek.starts_with(&sablon[..i]) => Deger::Belirsiz,
+        Some(_) => Deger::Yanlis,
+    }
+}
+
+/// Yol şablonu bir metne eşit mi: parametreli şablon metne uyabiliyorsa belirsiz
+fn yol_esit(sablon: &str, yol: &str) -> Deger {
+    if !sablon.contains('{') {
+        return if sablon == yol { Deger::Dogru } else { Deger::Yanlis };
+    }
+    let desen: String = sablon
+        .split('/')
+        .map(|p| match p.strip_prefix('{').and_then(|x| x.strip_suffix('}')) {
+            Some(x) if x.ends_with(":path") => ".+".to_string(),
+            Some(_) => "[^/]+".to_string(),
+            None => regex::escape(p),
+        })
+        .collect::<Vec<_>>()
+        .join("/");
+    match regex::Regex::new(&format!("^{desen}$")) {
+        Ok(r) if !r.is_match(yol) => Deger::Yanlis,
+        _ => Deger::Belirsiz,
+    }
+}
+
+impl AraBaglam<'_> {
+    fn yol_ifadesi(&self, s: &str) -> bool {
+        let s = s.trim();
+        (!self.istek.is_empty() && s == format!("{}.url.path", self.istek)) || self.yol_adlari.iter().any(|a| a == s)
+    }
+    fn yontem_ifadesi(&self, s: &str) -> bool {
+        let s = s.trim();
+        let s = s.strip_suffix(".upper()").unwrap_or(s);
+        (!self.istek.is_empty() && s == format!("{}.method", self.istek)) || self.yontem_adlari.iter().any(|a| a == s)
+    }
+}
+
+impl<'a> Baglam<'a> {
+    /// Metin listesi: dizgi, demet / liste / küme sabiti (`frozenset({...})` dahil) ya da bunlardan birine çözülen ad
+    fn metinler(&self, di: usize, s: &str, derinlik: usize) -> Option<Vec<String>> {
+        let s = s.trim();
+        if let Some(m) = metin_sabiti(s) {
+            return Some(vec![m]);
+        }
+        let ic = ["frozenset(", "set(", "tuple(", "list("].iter().find_map(|o| s.strip_prefix(o).and_then(|x| x.strip_suffix(')'))).unwrap_or(s).trim();
+        if let Some(g) = ic.strip_prefix(['(', '[', '{']).and_then(|x| x.strip_suffix([')', ']', '}'])) {
+            return ust_duzey_bol(g).iter().filter(|x| !x.trim().is_empty()).map(|x| metin_sabiti(x)).collect();
+        }
+        if derinlik > 4 || s.is_empty() || !s.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '.') {
+            return None;
+        }
+        let y = self.ifade(di, s)?;
+        let Yer::Ad(adi, _) = &y else { return None };
+        let (metin, _) = self.atama(&y)?;
+        self.metinler(*adi, metin, derinlik + 1)
+    }
+
+    /// Uygulama düzeyi ara katmanın olayları; kimlik bilgisine bakıp reddetmiyorsa None
+    pub(crate) fn ara_katman(&self, di: usize, ad: String, f: &Fonksiyon, istek: &str) -> Option<AraKatman> {
+        let mut a = AraKatman { ad, di, istek: istek.to_string(), olaylar: vec![], yol_adlari: vec![], yontem_adlari: vec![], kimlik_adlari: vec![] };
+        // Açık bloklar: (girinti, koşullar); aynı girintideki if zincirinin koşulları (elif / else öncekileri olumsuzlar)
+        let mut yigin: Vec<(usize, Vec<String>)> = vec![];
+        let mut zincir: HashMap<usize, Vec<String>> = HashMap::new();
+        let mut satirlar = mantiksal_satirlar(&f.govde_metni, f.govde_sutunu);
+        let mut i = 0;
+        while i < satirlar.len() {
+            let (g, metin) = satirlar[i].clone();
+            i += 1;
+            while yigin.last().is_some_and(|(bg, _)| *bg >= g) {
+                yigin.pop();
+            }
+            zincir.retain(|zg, _| *zg <= g);
+            let ilk = metin.split([' ', ':', '(']).next().unwrap_or("");
+            if !matches!(ilk, "elif" | "else") {
+                zincir.remove(&g);
+            }
+            // Blok başlığı: koşulu ve aynı satırdaki gövdesi (`if x: return y`)
+            let baslik = |onek: &str| -> Option<(String, String)> {
+                let kalan = metin.strip_prefix(onek)?;
+                let son = ust_duzey_iki_nokta(kalan)?;
+                Some((kalan[..son].trim().to_string(), kalan[son + 1..].trim().to_string()))
+            };
+            let blok: Option<(Vec<String>, String)> = if let Some((k, govde)) = baslik("if ") {
+                zincir.insert(g, vec![k.clone()]);
+                Some((vec![k], govde))
+            } else if let Some((k, govde)) = baslik("elif ") {
+                let onceki = zincir.get(&g).cloned();
+                let mut v: Vec<String> = onceki.iter().flatten().map(|p| format!("not ({p})")).collect();
+                if onceki.is_none() {
+                    v.push(BELIRSIZ_KOSUL.into());
+                }
+                v.push(k.clone());
+                zincir.entry(g).or_default().push(k);
+                Some((v, govde))
+            } else if let Some((_, govde)) = baslik("else") {
+                let v = match zincir.remove(&g) {
+                    Some(onceki) => onceki.iter().map(|p| format!("not ({p})")).collect(),
+                    // try / for / while bloğunun else'i
+                    None => vec![BELIRSIZ_KOSUL.into()],
+                };
+                Some((v, govde))
+            } else if let Some((_, govde)) = ["try", "finally", "with ", "async with "].iter().find_map(|o| baslik(o)) {
+                Some((vec![], govde))
+            } else if let Some((_, govde)) = ["except", "for ", "async for ", "while ", "match ", "case "].iter().find_map(|o| baslik(o)) {
+                Some((vec![BELIRSIZ_KOSUL.into()], govde))
+            } else if ["def ", "async def ", "class "].iter().any(|o| metin.starts_with(o)) {
+                // İç fonksiyon ve sınıf gövdesi ara katmanın akışında çalışmaz
+                Some((vec!["False".into()], String::new()))
+            } else {
+                None
+            };
+            if let Some((kosullar, govde)) = blok {
+                yigin.push((g, kosullar));
+                if !govde.is_empty() {
+                    satirlar.insert(i, (g + 1, govde));
+                }
+                continue;
+            }
+            let kosullar: Vec<String> = yigin.iter().flat_map(|(_, k)| k.clone()).collect();
+            if let Some(x) = metin.strip_prefix("return ").or_else(|| metin.strip_prefix("raise ")) {
+                let x = x.trim().trim_start_matches("await ").trim();
+                let tur = if RED_ISARETLERI.iter().any(|r| x.contains(r)) {
+                    Some(OlayTuru::Red)
+                } else if metin.starts_with("raise") {
+                    None
+                } else if x.starts_with("call_next(") {
+                    Some(OlayTuru::Gecis)
+                } else if x.contains("call_next") {
+                    Some(OlayTuru::Devir)
+                } else {
+                    None
+                };
+                if let Some(tur) = tur {
+                    a.olaylar.push(AraOlay { kosullar, tur });
+                }
+                continue;
+            }
+            // Atama: yerel takma adlar ve işleyiciye geçiş (`yanit = await call_next(request)`)
+            let Some((sol, sag)) = metin.split_once('=').filter(|(s, d)| !s.contains(['(', '[', '!', '<', '>', '=']) && !d.starts_with('=')) else { continue };
+            let sol = sol.split(':').next().unwrap_or("").trim().to_string();
+            let sag = sag.trim().trim_start_matches("await ").trim();
+            if sag.starts_with("call_next(") {
+                a.olaylar.push(AraOlay { kosullar, tur: OlayTuru::Gecis });
+                continue;
+            }
+            if sol.is_empty() || !sol.chars().all(|c| c.is_alphanumeric() || c == '_') {
+                continue;
+            }
+            let bg = a.baglam();
+            if bg.yol_ifadesi(sag) {
+                a.yol_adlari.push(sol);
+            } else if bg.yontem_ifadesi(sag) {
+                a.yontem_adlari.push(sol);
+            } else if self.kimlik_iceriyor(&bg, sag) {
+                a.kimlik_adlari.push(sol);
+            }
+        }
+        let bg = a.baglam();
+        let denetim = a.olaylar.iter().any(|o| o.tur == OlayTuru::Red && o.kosullar.iter().any(|k| self.kimlik_iceriyor(&bg, k)));
+        denetim.then_some(a)
+    }
+
+    /// İfadede bir kimlik bilgisi okunuyor mu: başlık, çerez ya da sorgu (adı anahtar / belirteç / oturum taşıyan) ya da
+    /// böyle okunmuş bir yerel ad
+    fn kimlik_iceriyor(&self, bg: &AraBaglam, s: &str) -> bool {
+        if bg.kimlik_adlari.iter().any(|a| crate::kural::derle(&format!(r"\b{}\b", regex::escape(a))).is_match(s)) {
+            return true;
+        }
+        if bg.istek.is_empty() {
+            return false;
+        }
+        let okuma = crate::kural::derle(&format!(r"\b{}\.(headers|cookies|query_params)\s*(?:\.get\(\s*([^,)]+)|\[\s*([^\]]+)\])", regex::escape(bg.istek)));
+        let kimlik = okuma.captures_iter(s).any(|c| {
+            let anahtar = c.get(2).or(c.get(3)).map(|m| m.as_str().trim()).unwrap_or("");
+            let ad = metin_sabiti(anahtar).or_else(|| self.deger(bg.di, anahtar, 0)).unwrap_or_else(|| anahtar.to_string()).to_ascii_lowercase();
+            KIMLIK_ADLARI.iter().any(|k| ad.contains(k))
+        });
+        kimlik
+    }
+
+    /// Koşul ifadesinin bir işlem (yöntem, FastAPI yol şablonu) için değeri
+    fn kosul_degeri(&self, bg: &AraBaglam, s: &str, yontem: &str, sablon: &str, derinlik: usize) -> Deger {
+        let s = dis_parantez(s);
+        if s == BELIRSIZ_KOSUL || derinlik > 4 {
+            return Deger::Belirsiz;
+        }
+        let parcalar = sozcukle_bol(s, "or");
+        if parcalar.len() > 1 {
+            return parcalar.iter().map(|p| self.kosul_degeri(bg, p, yontem, sablon, derinlik)).fold(Deger::Yanlis, Deger::veya);
+        }
+        let parcalar = sozcukle_bol(s, "and");
+        if parcalar.len() > 1 {
+            return parcalar.iter().map(|p| self.kosul_degeri(bg, p, yontem, sablon, derinlik)).fold(Deger::Dogru, Deger::ve);
+        }
+        if let Some(x) = s.strip_prefix("not ").or_else(|| s.strip_prefix("not(").map(|_| &s[3..])) {
+            return self.kosul_degeri(bg, x, yontem, sablon, derinlik).degil();
+        }
+        match s {
+            "True" => return Deger::Dogru,
+            "False" => return Deger::Yanlis,
+            _ => {}
+        }
+        if self.kimlik_iceriyor(bg, s) {
+            return Deger::Kimlik;
+        }
+        // Karşılaştırma ve üyelik: yöntem ya da yol
+        if let Some(c) = crate::kural::derle(r"^(.+?)\s+(not\s+in|in|==|!=)\s+(.+)$").captures(s) {
+            let (sol, sag) = (c[1].trim(), c[3].trim());
+            let isl = c[2].split_whitespace().collect::<Vec<_>>().join(" ");
+            let liste = if isl.ends_with("in") { self.metinler(bg.di, sag, 0) } else { metin_sabiti(sag).map(|m| vec![m]) };
+            let Some(liste) = liste else { return Deger::Belirsiz };
+            let d = if bg.yontem_ifadesi(sol) {
+                if liste.iter().any(|m| m.eq_ignore_ascii_case(yontem)) {
+                    Deger::Dogru
+                } else {
+                    Deger::Yanlis
+                }
+            } else if bg.yol_ifadesi(sol) {
+                liste.iter().map(|m| yol_esit(sablon, m)).fold(Deger::Yanlis, Deger::veya)
+            } else {
+                return Deger::Belirsiz;
+            };
+            return if isl == "not in" || isl == "!=" { d.degil() } else { d };
+        }
+        if let Some(c) = crate::kural::derle(r"^(.+?)\.startswith\((.+)\)$").captures(s) {
+            if !bg.yol_ifadesi(&c[1]) {
+                return Deger::Belirsiz;
+            }
+            let ilk = ust_duzey_bol(&c[2]).into_iter().next().unwrap_or_default();
+            return match self.metinler(bg.di, &ilk, 0) {
+                Some(l) => l.iter().map(|o| yol_baslar(sablon, o)).fold(Deger::Yanlis, Deger::veya),
+                None => Deger::Belirsiz,
+            };
+        }
+        // Tek `return`lük proje fonksiyonu: argümanlar parametrelere bağlanır, dönüş ifadesi değerlendirilir
+        if let Some(c) = crate::kural::derle(r"^([A-Za-z_][\w.]*)\((.*)\)$").captures(s) {
+            let Some((fdi, f)) = self.ifade(bg.di, &c[1]).and_then(|y| self.fonksiyon(&y)) else { return Deger::Belirsiz };
+            let satirlar = mantiksal_satirlar(&f.govde_metni, f.govde_sutunu);
+            let deyimler: Vec<&String> = satirlar.iter().map(|(_, m)| m).filter(|m| m.as_str() != "\"\"").collect();
+            let [donus] = deyimler.as_slice() else { return Deger::Belirsiz };
+            let Some(ifade) = donus.strip_prefix("return ") else { return Deger::Belirsiz };
+            let mut istek_adi = String::new();
+            let (mut yol_adlari, mut yontem_adlari) = (vec![], vec![]);
+            for (p, arg) in f.parametreler.iter().zip(ust_duzey_bol(&c[2])) {
+                let arg = arg.trim();
+                if arg == bg.istek {
+                    istek_adi = p.ad.clone();
+                } else if bg.yol_ifadesi(arg) {
+                    yol_adlari.push(p.ad.clone());
+                } else if bg.yontem_ifadesi(arg) {
+                    yontem_adlari.push(p.ad.clone());
+                }
+            }
+            let ic = AraBaglam { di: fdi, istek: &istek_adi, yol_adlari, yontem_adlari, kimlik_adlari: vec![] };
+            return self.kosul_degeri(&ic, ifade, yontem, sablon, derinlik + 1);
+        }
+        Deger::Belirsiz
+    }
+}
+
+impl AraKatman {
+    fn baglam(&self) -> AraBaglam<'_> {
+        AraBaglam { di: self.di, istek: &self.istek, yol_adlari: self.yol_adlari.clone(), yontem_adlari: self.yontem_adlari.clone(), kimlik_adlari: self.kimlik_adlari.clone() }
+    }
+
+    /// Ara katmanın bir işleme etkisi. Olaylar program sırasıyla gezilir: koşulu doğru olan ilk geçiş ya da devir isteği
+    /// denetimden önce bırakır; koşulu kimlik bilgisine bağlı red denetimin kendisidir. Koşulu belirsiz bir geçiş ya da
+    /// devirden sonra gelen denetim kesinleşemez
+    fn sonuc(&self, b: &Baglam, yontem: &str, sablon: &str) -> AraSonuc {
+        let bg = self.baglam();
+        let (mut belirsiz_gecis, mut belirsiz_devir) = (false, false);
+        for o in &self.olaylar {
+            let d = o.kosullar.iter().fold(Deger::Dogru, |a, k| a.ve(b.kosul_degeri(&bg, k, yontem, sablon, 0)));
+            match (o.tur, d) {
+                (OlayTuru::Red, Deger::Kimlik) => return if belirsiz_gecis || belirsiz_devir { AraSonuc::Bilinmiyor } else { AraSonuc::Gerekli },
+                (OlayTuru::Red, Deger::Belirsiz) if o.kosullar.iter().any(|k| b.kimlik_iceriyor(&bg, k)) => return AraSonuc::Bilinmiyor,
+                (OlayTuru::Red, _) | (_, Deger::Yanlis) => {}
+                (OlayTuru::Gecis, Deger::Dogru) => return if belirsiz_devir { AraSonuc::Bilinmiyor } else { AraSonuc::Degil },
+                (OlayTuru::Devir, Deger::Dogru) => return AraSonuc::Bilinmiyor,
+                (OlayTuru::Gecis, _) => belirsiz_gecis = true,
+                (OlayTuru::Devir, _) => belirsiz_devir = true,
+            }
+        }
+        if belirsiz_devir {
+            AraSonuc::Bilinmiyor
+        } else {
+            AraSonuc::Degil
+        }
+    }
+}
+
+/// Bağımlılık zincirinin kararına ara katmanların etkisi: (giriş, kanıt, eklenecek guard adları). Kesin karar
+/// değişmez. Kimlik denetimi kapsıyorsa giriş gerekli (tahmin); kapsam çözülemiyorsa girişsiz ya da isteğe bağlı karar
+/// "bilinmiyor" olur
+fn ara_katman_karari(giris: &'static str, kanit: &'static str, sonuclar: &[(&str, AraSonuc)]) -> (&'static str, &'static str, Vec<String>) {
+    let adlar = |s: AraSonuc| -> Vec<String> { sonuclar.iter().filter(|(_, x)| *x == s).map(|(a, _)| format!("{a} (ara katman)")).collect() };
+    if kanit == "kesin" {
+        return (giris, kanit, vec![]);
+    }
+    let gerekli = adlar(AraSonuc::Gerekli);
+    if !gerekli.is_empty() {
+        return ("gerekli", if kanit == "varsayim_bilinmeyen_guard" { kanit } else { "varsayim" }, gerekli);
+    }
+    let bilinmiyor = adlar(AraSonuc::Bilinmiyor);
+    if !bilinmiyor.is_empty() && giris != "gerekli" {
+        return ("bilinmiyor", "varsayim_bilinmeyen_guard", bilinmiyor);
+    }
+    (giris, kanit, vec![])
+}
+
+/// Fonksiyonun tanımlandığı fabrikalar, içten dışa (Python kapanışı: ad önce en içteki fonksiyonda aranır)
+fn kapsam_zinciri(d: &Dosya, f: &Fonksiyon) -> Vec<String> {
+    let mut kapsamlar = vec![];
+    let mut k = f.kapsam.clone();
+    while let Some(ad) = k.filter(|_| kapsamlar.len() < 16) {
+        k = d.fonksiyonlar.iter().find(|g| g.ad == ad).and_then(|g| g.kapsam.clone());
+        kapsamlar.push(ad);
+    }
+    kapsamlar
 }

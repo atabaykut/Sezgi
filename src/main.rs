@@ -1024,7 +1024,10 @@ fn init(args: &[String], onbellek: &mut Onbellek, ayrintili: bool) -> Option<Ini
     let olaylar = dna::olaylari_tamamla(&uygulama_bilgi);
     // Dış etki (giden HTTP, kuyruk, e-posta, ödeme / bulut SDK'ları), geri alınabilirlik ve servis içi ön koşullar:
     // dilden bağımsız tarama, ön yüz klasörü hariç; bulgular davranış özetine işlenir, onay gerekçeleri kapılara yazılır
-    let dis_tarama = dis::tara(&kok, on_yuz.as_deref());
+    // Tam yığın uygulamada (Next.js, Nuxt...) ön yüz kökün kendisidir: o zaman hiçbir şey dışarıda bırakılmaz
+    let kok_kanonik = std::fs::canonicalize(&kok).unwrap_or_else(|_| kok.clone());
+    let dis_haric = on_yuz.as_deref().filter(|o| std::fs::canonicalize(o).unwrap_or_else(|_| o.to_path_buf()) != kok_kanonik);
+    let dis_tarama = dis::tara(&kok, dis_haric);
     let (mut dis_ozeti, mut etki_onaylari) = dis::isle(&dis_tarama, &kapilar, &mut dna_haritasi, &olaylar, &cagri_erisimi, &mut okunan);
     // Çağrı grafiğiyle izlenen dış etki: sınıflandırılan kütüphane çağrıları ve polimorfik adaylarda satır desenleriyle
     // bulunanlar eklenir; zincirde sınıflandırılamayan çağrı varsa yazma işlemi onaysız gidemez (dış etki bilinmiyor)
@@ -1228,6 +1231,10 @@ fn init(args: &[String], onbellek: &mut Onbellek, ayrintili: bool) -> Option<Ini
     tp!("  Okundu       {} dosya · {} satır{kardes}", "  Read         {} {f} · {} {l}{kardes}", dosya_sayisi, satir; f = crate::dil::cogul(dosya_sayisi, "file", "files"), l = crate::dil::cogul(satir, "line", "lines"));
     let mut islem =
         tf!("{} · {girisli} giriş ister · {acik} girişsiz", "{} · {girisli} {g} login · {acik} without login", kapilar.len(); g = crate::dil::cogul(girisli, "needs", "need"));
+    let bilinmeyen = kapilar.iter().filter(|k| k.giris == "bilinmiyor").count();
+    if bilinmeyen > 0 {
+        islem.push_str(&tf!(" · {bilinmeyen} giriş bilinmiyor", " · {bilinmeyen} login unknown"));
+    }
     if rol > 0 {
         islem.push_str(&tf!(" · {rol} rol kısıtlı", " · {rol} role-restricted"));
     }

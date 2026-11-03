@@ -435,8 +435,11 @@ fn sinif_coz(x: Node, k: &[u8], kapsam: &[String], d: &mut Dosya) {
         let mut yorum: Vec<String> = vec![];
         let mut son_yorum_satiri = 0usize;
         for c in cocuklar(g) {
+            // Ayraç satırları (`# =====`) özet değildir; ilk anlamlı satırın bölüm numarası atılır
             let ust_yorum = |yorum: &mut Vec<String>, son: usize, c: Node| -> Option<String> {
-                let y = (son + 1 == satir(c) && !yorum.is_empty()).then(|| yorum.join(" "));
+                let anlamli: Vec<&str> = yorum.iter().map(String::as_str).filter(|l| !crate::adaptor::ayrac_satiri_mi(l)).collect();
+                let ilk = crate::adaptor::yorum_ozeti(anlamli.first().copied()).filter(|_| son + 1 == satir(c));
+                let y = ilk.map(|ilk| std::iter::once(ilk.as_str()).chain(anlamli[1..].iter().copied()).collect::<Vec<_>>().join(" "));
                 yorum.clear();
                 y
             };

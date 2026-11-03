@@ -210,6 +210,26 @@ fn yumusak_yazma(alan: &str, deger: &str) -> bool {
     YUMUSAK_ALAN.contains(&alan) && (d.contains("Date") || d.contains("now") || d == "true" || d == "True" || d.contains("datetime"))
 }
 
+/// Ham SQL metni yumuşak silme mi: `UPDATE t SET <alan> = <değer>`; alan silinme / iptal / arşiv zamanı ya da etkinlik
+/// bayrağı (`is_active = 0`, `active = false`, `deleted_at = NOW()`, `cancelled_at = ...`). Silme işleminde kaydı
+/// silmeyip işaretleyen yazmadır
+pub(crate) fn sql_yumusak(sql: &str) -> bool {
+    let s = sql.to_ascii_lowercase();
+    let Some(set) = s.find("update ").and_then(|u| s[u..].find(" set ").map(|i| u + i + 5)) else { return false };
+    let atamalar = s[set..].split(" where ").next().unwrap_or("");
+    atamalar.split(',').any(|a| {
+        let Some((alan, deger)) = a.split_once('=') else { return false };
+        let alan = alan.trim().trim_matches(|c| c == '"' || c == '`').rsplit('.').next().unwrap_or("").to_string();
+        let deger = deger.trim();
+        let zaman =
+            ["deleted_at", "trashed_at", "cancelled_at", "canceled_at", "archived_at", "deactivated_at", "removed_at"].contains(&alan.as_str()) && !deger.starts_with("null");
+        let bayrak = ["is_active", "active", "isactive", "enabled", "is_enabled"].contains(&alan.as_str()) && (deger.starts_with('0') || deger.starts_with("false"));
+        let silindi =
+            ["is_deleted", "deleted", "isdeleted", "is_trashed", "is_archived", "archived"].contains(&alan.as_str()) && (deger.starts_with('1') || deger.starts_with("true"));
+        zaman || bayrak || silindi
+    })
+}
+
 /// Düğümün adlı çocuklarını yığına kaynak sırasıyla alınacak biçimde ekler (ara liste ayırmadan)
 fn yigina_ekle<'t>(yigin: &mut Vec<Node<'t>>, n: Node<'t>) {
     let bas = yigin.len();
@@ -339,6 +359,10 @@ pub fn ts_govde_ile(govde: Node, k: &[u8], ziyaret: &mut dyn FnMut(Node)) -> Gov
                 if yumusak_yazma(&alan, &deger) {
                     d.yumusak = Some(n.start_position().row + 1);
                 }
+            }
+            // Ham SQL: `db.query('UPDATE users SET is_active = 0 WHERE id = ?')`
+            "string" | "template_string" if d.yumusak.is_none() && sql_yumusak(&metin(n, k)) => {
+                d.yumusak = Some(n.start_position().row + 1);
             }
             _ => {}
         }

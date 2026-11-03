@@ -3683,6 +3683,17 @@ impl<'a> Kurulum<'a> {
                 None
             };
             self.dis_bilgisi(fi, c, hedef.as_ref().map(|h| h.0.as_slice()), &mut yer);
+            // Alıcılı çağrı ne projede bir fonksiyona ne bir dış modüle bağlandı ve adı yan etki söylüyor
+            // (`email.send_confirmation()`, `client.publish()`): kütüphaneye gidiyor olabilir; sınıflandırılmış sayılmaz
+            if hedef.is_none()
+                && !c.dinamik
+                && yer.adaylar.is_empty()
+                && yer.modul.is_none()
+                && c.alici.first().is_some_and(|a| a != "this" && !a.starts_with('<') && !yanit_nesnesi(a))
+                && etki_adi(&c.ad)
+            {
+                yer.belirsiz = true;
+            }
             if let Some((hedefler, g, cozum)) = hedef {
                 yer.hedef = hedefler.first().copied();
                 for h in hedefler {
@@ -4136,6 +4147,18 @@ impl<'a> Kurulum<'a> {
         }
         self.ada_gore_adaylar(di, &c.ad, yer);
     }
+}
+
+/// Yöntem adı dışarıya etki söylüyor mu: ilk sözcüğü gönderme / bildirme / yayımlama / kuyruğa alma / ödeme / yükleme
+fn etki_adi(ad: &str) -> bool {
+    let ilk: String = ad.trim_start_matches('_').chars().take_while(|c| c.is_ascii_alphanumeric() && !c.is_ascii_uppercase()).collect();
+    let ilk = if ilk.is_empty() { ad.chars().take_while(|c| c.is_ascii_alphabetic()).collect::<String>().to_ascii_lowercase() } else { ilk };
+    matches!(ilk.as_str(), "send" | "notify" | "publish" | "dispatch" | "enqueue" | "email" | "mail" | "charge" | "upload" | "webhook" | "sms" | "broadcast" | "deliver")
+}
+
+/// HTTP yanıt nesnesi (`res.send`, `reply.send`): yanıt yazmak dış etki değildir
+fn yanit_nesnesi(alici: &str) -> bool {
+    matches!(alici, "res" | "response" | "reply" | "resp" | "ctx" | "c" | "w" | "rw")
 }
 
 impl Grafik {

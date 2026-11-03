@@ -63,6 +63,8 @@ struct HamCagri {
     taniyici: &'static str,
     /// Çağrının dosyadaki bayt konumu (satır içi olay işleyicisinin içindeki çağrılar için)
     bayt: usize,
+    /// Çağrının yapıldığı istemci örneği (`api.get(...)`'te `api`): örneğin taban adresi yola eklenir
+    alici: Option<String>,
 }
 
 /// Olay özniteliğiyle kurulan UI eylemi (ya da ekran yüklemesi)
@@ -120,6 +122,10 @@ pub(crate) struct Dosya {
     yeniden: HashMap<String, (String, String)>,
     varsayilan: Option<String>,
     sabitler: HashMap<String, Vec<Parca>>,
+    /// `const X = process.env.Y || '/varsayılan'`: ortam değişkeninin kodda yazılı varsayılanı (çalışan değer farklı olabilir)
+    ortam_sabitleri: HashMap<String, Vec<Parca>>,
+    /// İstemci örnekleri: `const api = axios.create({ baseURL })` -> (taban adres, kodda kesin mi)
+    istemciler: HashMap<String, (Vec<Parca>, bool)>,
     /// Fonksiyon adı (sınıf metodu "Sinif.metot") -> gövdesindeki başvurular
     fonksiyonlar: HashMap<String, Vec<String>>,
     /// Kanca bağı: `const m = useMutation(...)`, `const [f] = useXMutation()` -> başvurular
@@ -190,6 +196,19 @@ fn nesne_degeri<'t>(n: Node<'t>, k: &[u8], anahtar: &str) -> Option<Node<'t>> {
         let ad = c.child_by_field_name("key").map(|a| metin(a, k).trim_matches(['\'', '"']).to_string());
         (c.kind() == "pair" && ad.as_deref() == Some(anahtar)).then(|| c.child_by_field_name("value")).flatten()
     })
+}
+
+/// `process.env.X || '/api'`, `import.meta.env.X ?? '/api'`: ortam değişkeninin kodda yazılı varsayılanı
+fn ortam_varsayilani(n: Node, k: &[u8]) -> Option<Vec<Parca>> {
+    let n = if n.kind() == "parenthesized_expression" { n.named_child(0)? } else { n };
+    if n.kind() != "binary_expression" || !matches!(n.child_by_field_name("operator").map(|o| metin(o, k)).as_deref(), Some("||" | "??")) {
+        return None;
+    }
+    let sol = metin(n.child_by_field_name("left")?, k);
+    if !sol.contains("process.env") && !sol.contains("import.meta.env") {
+        return None;
+    }
+    yol_parcalari(n.child_by_field_name("right")?, k)
 }
 
 /// İfadeden yol parçaları: metin, şablon, ad, `a + b`
@@ -1533,6 +1552,19 @@ fn gez(n: Node, k: &[u8], d: &mut Dosya, sinif: Option<&str>, sahip: Option<&str
                     ("identifier", "call_expression") => {
                         let a = metin(ad, k);
                         let kanca = deger.child_by_field_name("function").and_then(|f| noktali_ad(f, k)).unwrap_or_default();
+                        // axios örneği: `const api = axios.create({ baseURL })`; taban adres örneğin çağrılarının yoluna eklenir.
+                        // Ortamdan gelen taban (`env || '/api'`) ya da çözülemeyen ifade kodda kesin değildir
+                        if kanca == "axios.create" {
+                            let taban = deger.child_by_field_name("arguments").and_then(|x| x.named_child(0)).and_then(|o| nesne_degeri(o, k, "baseURL"));
+                            let t = match taban {
+                                None => (vec![], true),
+                                Some(v) => match ortam_varsayilani(v, k) {
+                                    Some(p) => (p, false),
+                                    None => yol_parcalari(v, k).map(|p| (p, true)).unwrap_or_else(|| (vec![Parca::Bilinmeyen(String::new())], false)),
+                                },
+                            };
+                            d.istemciler.insert(a.clone(), t);
+                        }
                         // Tembel bileşen: `const Ayarlar = lazy(() => import("./Ayarlar"))` içe aktarma gibi
                         if matches!(kanca.as_str(), "lazy" | "React.lazy" | "defineAsyncComponent" | "loadable" | "clientOnly") {
                             if let Some(b) = tembel_modul(deger, k) {
@@ -1586,6 +1618,9 @@ fn gez(n: Node, k: &[u8], d: &mut Dosya, sinif: Option<&str>, sahip: Option<&str
                             }
                         }
                     }
+                    ("identifier", _) if ust_duzey && ortam_varsayilani(deger, k).is_some() => {
+                        d.ortam_sabitleri.insert(metin(ad, k), ortam_varsayilani(deger, k).unwrap_or_default());
+                    }
                     ("identifier", _) if ust_duzey => {
                         if let Some(y) = yol_parcalari(deger, k) {
                             d.sabitler.insert(metin(ad, k), y);
@@ -1604,7 +1639,7 @@ fn gez(n: Node, k: &[u8], d: &mut Dosya, sinif: Option<&str>, sahip: Option<&str
                 if v.kind() == "call_expression" {
                     if let Some((yontem, yol)) = rtk_ucu(v, k) {
                         let ad = metin(a, k).trim_matches(['\'', '"']).to_string();
-                        d.cagrilar.push(HamCagri { sahip: Some(ad), yontem, yontem_kesin: true, yol, satir: satir(v), taniyici: "rtk-query", bayt: v.start_byte() });
+                        d.cagrilar.push(HamCagri { sahip: Some(ad), yontem, yontem_kesin: true, yol, satir: satir(v), taniyici: "rtk-query", bayt: v.start_byte(), alici: None });
                         return;
                     }
                 }
@@ -1616,7 +1651,8 @@ fn gez(n: Node, k: &[u8], d: &mut Dosya, sinif: Option<&str>, sahip: Option<&str
                 // Angular HttpClient (`this.http.get(...)`): dosya HttpClient'ı içe aktarıyor
                 let taniyici = if taniyici == "axios" && d.iceri.get("HttpClient").is_some_and(|(m, _)| m == "@angular/common/http") { "angular-http" } else { taniyici };
                 let yol = sinifla_yol(yol, sinif.as_deref());
-                d.cagrilar.push(HamCagri { sahip: sahip.clone(), yontem, yontem_kesin: kesin, yol, satir: satir(n), taniyici, bayt: n.start_byte() });
+                let alici = ad.rsplit_once('.').map(|(a, _)| a.to_string()).filter(|_| taniyici == "axios");
+                d.cagrilar.push(HamCagri { sahip: sahip.clone(), yontem, yontem_kesin: kesin, yol, satir: satir(n), taniyici, bayt: n.start_byte(), alici });
             }
             if let Some((hedef, tur)) = rota_cagrisi(n, k, d) {
                 d.rota_cagrilari.push(RotaCagrisi { sahip: sahip.clone(), bayt: n.start_byte(), hedef, tur });
@@ -2142,6 +2178,8 @@ impl Proje {
             || d.baglamalar.contains_key(bas)
             || d.sabitler.contains_key(bas)
             || d.sabitler.contains_key(ad)
+            || d.ortam_sabitleri.contains_key(bas)
+            || d.istemciler.contains_key(bas)
             || d.iceri.contains_key(bas)
             || rtk_kancasi(ad).is_some_and(|u| d.cagrilar.iter().any(|c| c.sahip.as_deref() == Some(&u)));
         if tanimli {
@@ -2164,6 +2202,13 @@ impl Proje {
             return Some(self.coz_yol(di, p, derinlik + 1));
         }
         // İçe aktarılmış sabit ya da alanı (`environment.apiUrl`)
+        let (h, asil) = self.ice_aktarilan(di, ad, derinlik)?;
+        self.sabit(h, &asil, derinlik + 1)
+    }
+
+    /// İçe aktarılmış adın tanımlandığı dosya ve oradaki adı
+    fn ice_aktarilan(&self, di: usize, ad: &str, derinlik: usize) -> Option<(usize, String)> {
+        let d = &self.dosyalar[di];
         let bas = ad.split('.').next().unwrap_or(ad);
         let kalan = &ad[bas.len()..];
         let (b, asil) = d.iceri.get(bas)?;
@@ -2173,8 +2218,52 @@ impl Proje {
             "*" => kalan.trim_start_matches('.').to_string(),
             a => format!("{a}{kalan}"),
         };
-        let (h, asil) = self.disari(h, &hedef, derinlik + 1)?;
-        self.sabit(h, &asil, derinlik + 1)
+        self.disari(h, &hedef, derinlik + 1)
+    }
+
+    /// Taban adres olarak kullanılan adın değeri ve kodda kesin olup olmadığı: sabit kesin, ortam değişkeninin
+    /// varsayılanı (`env || '/api'`) değil
+    fn taban_degeri(&self, di: usize, ad: &str, derinlik: usize) -> Option<(Vec<Parca>, bool)> {
+        if derinlik > EN_DERIN {
+            return None;
+        }
+        if let Some(p) = self.dosyalar[di].ortam_sabitleri.get(ad) {
+            return Some((self.coz_yol(di, p, derinlik + 1), false));
+        }
+        if let Some(p) = self.dosyalar[di].sabitler.get(ad) {
+            return Some((self.coz_yol(di, p, derinlik + 1), true));
+        }
+        let (h, asil) = self.ice_aktarilan(di, ad, derinlik)?;
+        self.taban_degeri(h, &asil, derinlik + 1)
+    }
+
+    /// Adı bir istemci örneğiyse (yerel ya da içe aktarılmış) taban adresi ve kodda kesin olup olmadığı
+    fn istemci_tabani(&self, di: usize, ad: &str, derinlik: usize) -> Option<(Vec<Parca>, bool)> {
+        if derinlik > EN_DERIN {
+            return None;
+        }
+        let Some((p, kesin)) = self.dosyalar[di].istemciler.get(ad) else {
+            let (h, asil) = self.ice_aktarilan(di, ad, derinlik)?;
+            return self.istemci_tabani(h, &asil, derinlik + 1);
+        };
+        let mut kesin = *kesin;
+        let mut v = vec![];
+        for x in p {
+            match x {
+                Parca::Ad(a) => match self.taban_degeri(di, a, 0) {
+                    Some((q, k)) => {
+                        kesin &= k;
+                        v.extend(q);
+                    }
+                    None => {
+                        kesin = false;
+                        v.push(Parca::Bilinmeyen(a.clone()));
+                    }
+                },
+                y => v.push(y.clone()),
+            }
+        }
+        Some((v, kesin))
     }
 
     fn coz_yol(&self, di: usize, p: &[Parca], derinlik: usize) -> Vec<Parca> {
@@ -2259,8 +2348,10 @@ impl Proje {
         }
     }
 
-    /// Çağrının çözülmüş yolu; Angular HttpClient'ın göreli adresi (`'api/heroes'`) uygulama köküne görelidir
-    fn cagri_yolu(&self, di: usize, c: &HamCagri) -> Vec<Parca> {
+    /// Çağrının çözülmüş yolu ve taban adresinin kodda kesin olup olmadığı. Angular HttpClient'ın göreli adresi
+    /// (`'api/heroes'`) uygulama köküne görelidir. İstemci örneğinin taban adresi (axios `baseURL`) göreli yolun başına
+    /// eklenir; mutlak adres tabanı kullanmaz. Çözülemeyen bir taban (`${API}/x`, ortamdan gelen değer) yolu tahmin yapar
+    fn cagri_yolu(&self, di: usize, c: &HamCagri) -> (Vec<Parca>, bool) {
         let mut y = self.coz_yol(di, &c.yol, 0);
         if c.taniyici == "angular-http" {
             if let Some(Parca::Metin(m)) = y.first_mut() {
@@ -2269,7 +2360,24 @@ impl Proje {
                 }
             }
         }
-        y
+        let mut taban_kesin = !matches!(y.first(), Some(Parca::Ad(_) | Parca::Bilinmeyen(_)));
+        let mutlak = matches!(y.first(), Some(Parca::Metin(m)) if m.contains("://"));
+        if let Some((mut taban, kesin)) = c.alici.as_deref().filter(|_| !mutlak).and_then(|a| self.istemci_tabani(di, a, 0)) {
+            if let Some(Parca::Metin(ilk)) = y.first_mut() {
+                if !ilk.starts_with('/') {
+                    ilk.insert(0, '/');
+                }
+            }
+            if let Some(Parca::Metin(son)) = taban.last_mut() {
+                while son.ends_with('/') {
+                    son.pop();
+                }
+            }
+            taban.extend(y);
+            y = taban;
+            taban_kesin = kesin;
+        }
+        (y, taban_kesin)
     }
 
     /// Dosyanın yerel komşuları (ulaşılabilirlik için): içe aktarmalar ve şablon bağları
@@ -2336,6 +2444,8 @@ pub struct Cagri {
     pub satir: usize,
     pub yontem: Option<String>,
     pub sablon: String,
+    /// Taban adres kodda kesin mi (sabit ya da yok); ortamdan gelen ya da çözülemeyen tabanla yol bir tahmindir
+    pub taban_kesin: bool,
 }
 
 /// Bir klasördeki JS/TS istemci çağrıları (santral bağları)
@@ -2344,8 +2454,9 @@ pub fn istemci_cagrilari(kok: &Path) -> Vec<Cagri> {
     let mut v = vec![];
     for (di, d) in p.dosyalar.iter().enumerate() {
         for c in &d.cagrilar {
-            if let Some((s, _)) = sablon(&p.cagri_yolu(di, c)) {
-                v.push(Cagri { dosya: d.goreli.clone(), satir: c.satir, yontem: c.yontem_kesin.then(|| c.yontem.clone()), sablon: s });
+            let (yol, taban_kesin) = p.cagri_yolu(di, c);
+            if let Some((s, _)) = sablon(&yol) {
+                v.push(Cagri { dosya: d.goreli.clone(), satir: c.satir, yontem: c.yontem_kesin.then(|| c.yontem.clone()), sablon: s, taban_kesin });
             }
         }
     }
@@ -2380,7 +2491,8 @@ fn baglar_kur(p: &Proje, ucler: &[Uc], genel_onek: &str) -> Value {
     let (mut eslesen, mut eslesmeyen) = (0usize, 0usize);
     for (di, d) in p.dosyalar.iter().enumerate() {
         for (i, c) in d.cagrilar.iter().enumerate() {
-            let Some((s, tam)) = sablon(&p.cagri_yolu(di, c)) else { continue };
+            let (yol, taban_kesin) = p.cagri_yolu(di, c);
+            let Some((s, tam)) = sablon(&yol) else { continue };
             let mut id = match &c.sahip {
                 Some(a) => format!("client:{a}"),
                 None => format!("client:{}:{}", d.goreli, c.satir),
@@ -2413,7 +2525,7 @@ fn baglar_kur(p: &Proje, ucler: &[Uc], genel_onek: &str) -> Value {
             // Birebir eşleşen varsa onlar; şablonun parametresi değerle eşleştiyse tahmin
             let birebir: Vec<&(&Uc, bool)> = adaylar.iter().filter(|(_, b)| *b).collect();
             let secilen: Option<&(&Uc, bool)> = if birebir.len() == 1 { birebir.first().copied() } else { adaylar.first() };
-            let kesin = c.yontem_kesin && tam && birebir.len() == 1 && adaylar.len() == 1;
+            let kesin = c.yontem_kesin && tam && taban_kesin && birebir.len() == 1 && adaylar.len() == 1;
             if secilen.is_some() {
                 eslesen += 1;
             } else {

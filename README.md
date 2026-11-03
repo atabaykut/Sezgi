@@ -23,6 +23,10 @@ Once connected, you can ask your assistant things like:
 - "If I delete a user, which tables are affected, and can it be undone?"
 - "Is there any operation in the billing module that does not require login?"
 
+## Where it is going
+
+Sezgi's goal is a universal software intelligence: an AI that reads any software once, truly understands it, and works in it safely. Measured against **17 founding questions** (what the app is, why it exists, who may do what, which tables and other systems an operation touches, whether it can be undone, which screen starts it…), today's Sezgi answers 2 reliably and 14 partly on never-seen apps. The goal, the questions and an honest status for each: [docs/VISION.md](docs/VISION.md).
+
 ## Get started in 3 steps
 
 Requires Node.js 20 or later.

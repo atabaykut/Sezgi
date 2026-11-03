@@ -317,3 +317,75 @@ fn yardimci_fonksiyonla_baglama_ve_auto_error_false() {
     assert_eq!(vitrin["giris"], "istege_bagli", "{vitrin}");
     assert_ne!(vitrin["giris_kaniti"], "kesin", "{vitrin}");
 }
+
+fn ornek_haritasi(ornek: &str) -> serde_json::Value {
+    let cikti = std::env::temp_dir().join(format!("sezgi-fastapi-{ornek}-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&cikti);
+    let kok = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests").join("ornekler").join(ornek);
+    let c = Command::new(env!("CARGO_BIN_EXE_sezgi")).args(["init", kok.to_str().unwrap(), "--cikti", cikti.to_str().unwrap()]).output().unwrap();
+    assert!(c.status.success(), "{}", String::from_utf8_lossy(&c.stderr));
+    let h = serde_json::from_str(&std::fs::read_to_string(cikti.join("kapilar.json")).unwrap()).unwrap();
+    let _ = std::fs::remove_dir_all(&cikti);
+    h
+}
+
+/// Uygulama düzeyi ara katman (`@app.middleware("http")`, `app.add_middleware(...)`) bir kimlik başlığına ya da
+/// çerezine bakıp 401 / 403 döndürüyorsa kapsadığı işlemler girişsiz sayılmaz. Yöntem koşulu ve yol istisnaları
+/// çözülebiliyorsa uygulanır; çözülemeyen kapsam "bilinmiyor"dur. Hiçbiri kesin değildir.
+#[test]
+fn uygulama_duzeyi_ara_katman_girisi() {
+    let h = ornek_haritasi("fastapi-ara-katman");
+    let giris = |id: &str| {
+        let e = uc(&h, id);
+        assert_ne!(e["giris_kaniti"], "kesin", "ara katman kararı tanımdan kanıtlanmaz: {e}");
+        e["giris"].as_str().unwrap().to_string()
+    };
+    // GET dışındaki yöntemler arayüz anahtarı ister
+    assert_eq!(giris("POST /api/kayitlar"), "gerekli");
+    assert_eq!(giris("DELETE /api/kayitlar/:kayit_id"), "gerekli");
+    assert!(uc(&h, "POST /api/kayitlar")["guardlar"].as_array().unwrap().iter().any(|g| g.as_str().unwrap().contains("_yerel_koruma")), "{}", uc(&h, "POST /api/kayitlar"));
+    // Yöntem koşulu: GET ara katmanın anahtar denetiminden geçmez
+    assert_eq!(giris("GET /api/kayitlar"), "herkese_acik");
+    // Yol istisnaları: önek (startswith), sabit küme ve önek demeti, yardımcı fonksiyonun içinden
+    assert_eq!(giris("POST /v1/sohbet"), "herkese_acik");
+    assert_eq!(giris("POST /hooks/odeme"), "herkese_acik");
+    assert_eq!(giris("POST /rutin/webhook/:rutin_id"), "herkese_acik");
+    // Başka bir korumaya devredilen önek ve istisnaya girip girmediği yol parametresine bağlı uçlar: bilinmiyor
+    assert_eq!(giris("POST /web/giris"), "bilinmiyor");
+    assert_eq!(giris("POST /:alan/yukle"), "bilinmiyor");
+    assert_eq!(giris("GET /:dosya"), "bilinmiyor");
+
+    // Sınıf ara katmanı: bütün yöntemler, sabit kümedeki yollar hariç
+    let h = ornek_haritasi("fastapi-ara-katman-sinif");
+    for (id, beklenen) in [("GET /saglik", "herkese_acik"), ("POST /oturum/ac", "herkese_acik"), ("GET /siparisler", "gerekli"), ("POST /siparisler", "gerekli")] {
+        let e = uc(&h, id);
+        assert_eq!(e["giris"], beklenen, "{e}");
+        assert_ne!(e["giris_kaniti"], "kesin", "{e}");
+    }
+    assert!(uc(&h, "POST /siparisler")["guardlar"].as_array().unwrap().iter().any(|g| g.as_str().unwrap().contains("BelirtecAraKatmani")));
+
+    // Windows satır sonları: `\` ile süren koşul satırı CRLF ile de birleşir
+    let kaynak = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests").join("ornekler").join("fastapi-ara-katman");
+    let crlf = std::env::temp_dir().join(format!("sezgi-fastapi-crlf-{}", std::process::id()));
+    let cikti = crlf.with_extension("cikti");
+    let _ = std::fs::remove_dir_all(&crlf);
+    for g in ["pyproject.toml", "panel/__init__.py", "panel/oturum.py", "panel/sunucu.py"] {
+        let hedef = crlf.join(g);
+        std::fs::create_dir_all(hedef.parent().unwrap()).unwrap();
+        std::fs::write(&hedef, std::fs::read_to_string(kaynak.join(g)).unwrap().replace("\r\n", "\n").replace('\n', "\r\n")).unwrap();
+    }
+    let c = Command::new(env!("CARGO_BIN_EXE_sezgi")).args(["init", crlf.to_str().unwrap(), "--cikti", cikti.to_str().unwrap()]).output().unwrap();
+    assert!(c.status.success(), "{}", String::from_utf8_lossy(&c.stderr));
+    let h: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(cikti.join("kapilar.json")).unwrap()).unwrap();
+    let _ = (std::fs::remove_dir_all(&crlf), std::fs::remove_dir_all(&cikti));
+    assert_eq!(uc(&h, "POST /api/kayitlar")["giris"], "gerekli", "CRLF: {}", uc(&h, "POST /api/kayitlar"));
+    assert_eq!(uc(&h, "POST /v1/sohbet")["giris"], "herkese_acik");
+
+    // Kapsamı çözülemeyen koşul (proje fonksiyonu ortamdan okuyor): giriş kararı bilinmiyor, girişsiz değil
+    let h = ornek_haritasi("fastapi-ara-katman-belirsiz");
+    for id in ["GET /notlar", "POST /notlar"] {
+        let e = uc(&h, id);
+        assert_eq!(e["giris"], "bilinmiyor", "{e}");
+        assert_ne!(e["giris_kaniti"], "kesin", "{e}");
+    }
+}

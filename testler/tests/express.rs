@@ -153,3 +153,20 @@ fn joi_yardimci_ve_istege_bagli_parametre() {
     assert_eq!(alan(cikis, "govde", "kip")["zorunlu"], false, "yalnızca `if (req.body.kip)` ile denetlenen alan isteğe bağlı");
     assert_eq!(uc(&h, "GET /paylasim/dosya/:id")["satir"], uc(&h, "GET /paylasim/dosya/:id/:ad")["satir"], "aynı rota, iki adres");
 }
+
+/// Özet, işlemin üstündeki yorum bloğunun ilk anlamlı satırıdır: yalnızca ayraç karakterlerinden (`=`, `-`, `*`, `#`,
+/// `/`, `_`) oluşan satırlar ve baştaki bölüm numarası atılır; anlamlı satır yoksa özet yoktur (MCP "addan" der)
+#[test]
+fn yorum_ayraclari_ozet_sayilmaz() {
+    let h = harita("express-ayrac");
+    assert_eq!(uc(&h, "GET /api/raporlar/donusum")["ozet"], "TEKLİF DÖNÜŞÜM RAPORU");
+    assert_eq!(uc(&h, "GET /api/raporlar/satis")["ozet"], "Satış özeti");
+    assert_eq!(uc(&h, "GET /api/raporlar/tek")["ozet"], "Tek satırlık özet");
+    let bos = uc(&h, "POST /api/raporlar/:id/onayla");
+    assert!(bos["ozet"].is_null() || !bos["ozet"].as_str().unwrap().contains("---"), "{bos}");
+    // Rails: denetleyici eyleminin üstündeki `#` yorumları aynı kuralla
+    let h = harita("rails-ayrac");
+    assert_eq!(uc(&h, "GET /raporlar/donusum")["ozet"], "Teklif dönüşüm raporu");
+    let bos = uc(&h, "GET /raporlar/bos");
+    assert!(bos["ozet"].as_str().is_none_or(|o| o.chars().any(char::is_alphanumeric)), "{bos}");
+}

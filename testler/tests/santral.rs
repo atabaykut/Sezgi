@@ -166,3 +166,35 @@ fn santralde_islem_araclari_uye_onekli() {
     let _ = p.kill();
     let _ = p.wait();
 }
+
+/// İstemcinin taban adresi (axios `baseURL`: sabit ya da `env || 'varsayılan'`) yola eklenir; uygulamanın kendi
+/// deposundaki istemci başka uygulamaya bağlanmaz; tek parçalı sınırsız yol parametresinden oluşan rota (`/{x:path}`,
+/// `/:kod`) çapraz bağ hedefi değildir; ortamdan gelen taban adresle kurulan bağ en fazla yorumdur
+#[test]
+fn taban_adres_ve_catch_all() {
+    let kok = std::env::temp_dir().join(format!("sezgi-santral-taban-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&kok);
+    let ev = kok.join("ev");
+    std::fs::create_dir_all(ev.join("ayar")).unwrap();
+    let o = Ortam { kok, ev };
+    for (uyg, ad) in [("santral-mice", "mice"), ("santral-diger", "diger")] {
+        let cikti = o.kok.join(ad);
+        o.ok(&["init", ornek(uyg).to_str().unwrap(), "--cikti", cikti.to_str().unwrap()]);
+        o.ok(&["santral", "ekle", cikti.to_str().unwrap(), "--ad", ad, "--kaynak", ornek(uyg).to_str().unwrap()]);
+    }
+    o.ok(&["santral", "ekle", "--istemci", ornek("santral-panel").to_str().unwrap(), "--ad", "panel"]);
+    let j: serde_json::Value = serde_json::from_str(&o.ok(&["santral", "baglar", "--json"])).unwrap();
+    let baglar = j["baglar"].as_array().unwrap();
+    // Kendi istemcisi (/mice/api tabanı) başka uygulamanın /auth/logout ve /titles uçlarına bağlanmaz
+    assert!(!baglar.iter().any(|b| b["kaynak"] == "mice" && b["kapi"].as_str().unwrap().starts_with("diger:")), "{j}");
+    // Catch-all ve tek parçalı parametre rotası hedef değildir
+    assert!(!baglar.iter().any(|b| b["kapi"].as_str().unwrap().ends_with("/:fname") || b["kapi"].as_str().unwrap().ends_with("/:kod")), "{j}");
+    // Kendi catch-all rotasının da karşılayabildiği çağrı başka uygulamaya ancak yorum olarak bağlanır
+    let simge = baglar.iter().find(|b| b["kaynak"] == "diger" && b["kapi"] == "mice: GET /favicon.ico").unwrap_or_else(|| panic!("diger -> favicon yok: {j}"));
+    assert_eq!(simge["damga"], "yorum", "{simge}");
+    let bag = |kapi: &str| baglar.iter().find(|b| b["kaynak"] == "panel" && b["kapi"] == kapi).unwrap_or_else(|| panic!("panel -> {kapi} yok: {j}"));
+    // Sabit taban, birebir yol ve yöntem: kesin; ortamdan gelen taban (varsayılanı): yorum
+    assert_eq!(bag("mice: GET /mice/api/titles")["damga"], "kesin");
+    assert_eq!(bag("mice: POST /mice/api/auth/logout")["damga"], "yorum");
+    assert!(!baglar.iter().any(|b| b["kaynak"] == "panel" && b["kapi"].as_str().unwrap().starts_with("diger:")), "{j}");
+}
