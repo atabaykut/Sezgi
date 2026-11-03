@@ -72,7 +72,8 @@ jobs:
   # terminal testleri `script` (util-linux) ister, Ayna tarayıcı testleri başsız Chrome ister (runner'da kurulu; kum havuzu
   # runner'ın kullanıcı ad alanı kısıtı yüzünden yalnızca bu test tarayıcısı için kapatılır).
   testler:
-    runs-on: ubuntu-latest
+    # Sabit 24.04: ubuntu-latest 26.04 olunca başsız Chrome sayfayı çizmeden boş döndü (Ayna tarayıcı testleri)
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
