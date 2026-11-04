@@ -6,6 +6,8 @@
 
 **Who it is for:** developers · AI assistants and agents · enterprises · SaaS companies · agencies and integrators · security and audit teams. Overview page: **[atabaykut.github.io/Sezgi](https://atabaykut.github.io/Sezgi/)**
 
+**Give any AI a token and it gets your application as ready MCP tools: only the operations you allow, nothing else.** No API to write, no MCP server to build. [How it works](#connect-any-ai-to-your-application-with-a-token)
+
 When an assistant such as Claude, Cursor or Copilot needs to do something in your application, it scans the code from scratch every time and guesses: "Which endpoint creates a user, which fields are required, who is allowed to do it?" Sezgi reads the code **once** and builds a map of the application. The assistant stops scanning code and asks Sezgi instead; the answer is short and comes with its source.
 
 > **Status: 0.1, experimental.** Sezgi only reads by default and never writes to your application's code. Letting the assistant actually use the application (live mode) is opt-in and starts on a test copy. Writing to real data is experimental: it needs a key that an administrator sets up once and a password only the human knows, so an agent with shell access under the same account cannot open real data or approve a request without the password. It does not stop a program that learns the password or runs as administrator ([SECURITY.md](SECURITY.md)).
@@ -52,6 +54,29 @@ Once connected, you can ask your assistant things like:
 - "What would break for API clients if this branch is merged?"
 - "Which screen and button starts this operation?"
 - "What does Sezgi not know about this app yet?"
+
+## Connect any AI to your application with a token
+
+This is the core idea: **no API to write, no MCP server to build.** Sezgi turns the application itself into MCP tools, and a token decides what an AI may see and do.
+
+```sh
+sezgi init                                                        # map the code
+sezgi token create --name "support bot" --izin "orders.*:yaz"     # a token for exactly these operations; shown once
+sezgi connect                                                     # add Sezgi to your AI tools, asking tool by tool
+```
+
+- **Every operation becomes a tool.** An AI connected with a token sees each operation the token allows as its own MCP tool (in the example shop, "refund an order" is a tool of its own): the name from the operation, the description from the code, the input schema from the fields, types and rules on the map. Deletes carry MCP's destructive hint, reads the read-only hint.
+- **The token decides what is visible.** Operations outside the token do not exist for that AI: search, describe and call hide them. An unknown, revoked or expired token shows nothing.
+- **Permission per operation and level:** read, write or destructive, with patterns such as `orders.*:yaz`. A token that would open writes on everything needs explicit confirmation; a pattern that matches nothing is reported.
+- **Tokens are safe to hand out:** closed by default, shown once, only their hash is stored, they expire (`--sure <days>`) and can be listed and revoked (`sezgi token list`, `sezgi token revoke <name>`).
+- **No command line needed:** in `sezgi mirror`, the permissions tab lists every operation with what it does, who may do it and the tables it touches. Tick the ones you want and you get the token, the connection line and a preview of the exact tools the AI will see.
+- **One AI per token:** give the support bot one token, the design team another, an outside agency a read-only one. Each sees only its own operations.
+- **Works with the tools you already use:** `sezgi connect` sets up Claude Code, Cursor, VS Code, Gemini CLI, Codex, Claude Desktop and Windsurf, and `sezgi remove` restores their files byte for byte. For Claude Code the token goes in as `claude mcp add sezgi -e SEZGI_TOKEN=szg_… -- …`.
+- **AI tools without MCP:** `sezgi serve` gives a local HTTP bridge with an OpenAPI document of Sezgi's tools, usable by any model with function calling and by your own agents.
+- **Several applications, one connection:** `sezgi switchboard` puts many apps behind one MCP server, and finds which app calls which.
+- **Every call is checked:** each tool call passes the same gates as live mode (mode, token, test copy, fresh map, rules, approval for risky steps) and is written to the encrypted log. Without live mode the tools only preview.
+
+Measured on an Immich test copy (6 write tasks, 2 runs each, one model): an agent given the token's operations as its own tools completed **12/12 at 3.8 turns and $0.20 per task**; with only the generic search-describe-call tools, 11/12 at 6.3 turns ([details](docs/REFERENCE.md#live-mode)).
 
 ## Why it exists and who it is for
 

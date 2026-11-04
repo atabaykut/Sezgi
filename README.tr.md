@@ -6,6 +6,8 @@
 
 **Kimin için:** yazılımcılar · yapay zekâ asistanları ve ajanlar · kurumsal şirketler · SaaS şirketleri · ajanslar ve entegratörler · güvenlik ve denetim ekipleri. Tanıtım sayfası: **[atabaykut.github.io/Sezgi](https://atabaykut.github.io/Sezgi/tr.html)**
 
+**Herhangi bir yapay zekâya bir token verin; uygulamanızı hazır MCP araçları olarak alsın: yalnızca izin verdiğiniz işlemler, fazlası değil.** API yazmak yok, MCP sunucusu kurmak yok. [Nasıl çalışır](#token-ile-her-yapay-zekâyı-uygulamanıza-bağlayın)
+
 Claude, Cursor ya da Copilot gibi bir asistan uygulamanızda bir iş yapmak istediğinde kodu her seferinde baştan tarar ve tahmin eder: "Kullanıcı ekleme adresi hangisiydi, hangi alanlar zorunlu, bunu kim yapabilir?" Sezgi kodu **bir kez** okur ve uygulamanın haritasını çıkarır. Asistan artık kodu taramaz, Sezgi'ye sorar; cevap kısa ve kaynağıyla birlikte gelir.
 
 > **Durum: 0.1, deneysel.** Sezgi varsayılan olarak yalnızca okur; uygulamanızın koduna hiçbir zaman yazmaz. Asistanın uygulamayı gerçekten kullanması (canlı mod) isteğe bağlıdır ve önce bir test kopyasında çalışır. Gerçek veride yazma deneyseldir: yöneticinin bir kez kurduğu bir anahtar ve yalnızca insanın bildiği bir parola ister; aynı hesapta kabuk erişimi olan bir ajan parolayı bilmeden gerçek veriyi açamaz, isteği onaylayamaz. Parolayı öğrenen ya da yönetici yetkisiyle çalışan bir programı durdurmaz ([SECURITY.md](SECURITY.md)).
@@ -52,6 +54,29 @@ Bağladıktan sonra asistanınıza şunları sorabilirsiniz:
 - "Bu dal birleşirse API'yi kullananlar için ne bozulur?"
 - "Bu işlemi hangi ekran, hangi düğme başlatıyor?"
 - "Sezgi bu uygulama hakkında henüz neyi bilmiyor?"
+
+## Token ile her yapay zekâyı uygulamanıza bağlayın
+
+Ana fikir bu: **API yazmak yok, MCP sunucusu kurmak yok.** Sezgi uygulamanın kendisini MCP araçlarına çevirir; bir yapay zekânın neyi görüp neyi yapabileceğine bir token karar verir.
+
+```sh
+sezgi init                                                        # kodu haritala
+sezgi token olustur --ad "destek botu" --izin "orders.*:yaz"      # yalnızca bu işlemleri açan token; bir kez gösterilir
+sezgi bagla                                                       # Sezgi'yi yapay zekâ araçlarınıza ekle, araç araç sorarak
+```
+
+- **Her işlem bir araç olur.** Token ile bağlanan yapay zekâ, tokenın izin verdiği her işlemi kendi MCP aracı olarak görür (örnek mağazada "siparişi iade et" başlı başına bir araçtır): adı işlemden, açıklaması koddan, girdi şeması haritadaki alanlardan, tiplerden ve kurallardan gelir. Silmeler MCP'nin "yıkıcı", okumalar "salt okunur" işaretini taşır.
+- **Görünürlüğe token karar verir.** Token dışındaki işlemler o yapay zekâ için yoktur: arama, tanıma ve çağırma onları gizler. Bilinmeyen, iptal edilmiş ya da süresi dolmuş token hiçbir şey göstermez.
+- **İşlem ve seviye başına izin:** okuma, yazma ya da yıkıcı; `orders.*:yaz` gibi desenlerle. Her şeye yazma açan token açık onay ister; hiçbir işlemle eşleşmeyen desen bildirilir.
+- **Token güvenle dağıtılır:** varsayılan kapalıdır, bir kez gösterilir, yalnızca özeti saklanır, süresi dolar (`--sure <gün>`), listelenir ve iptal edilir (`sezgi token listele`, `sezgi token iptal <ad>`).
+- **Komut satırı gerekmez:** `sezgi ayna`'daki izinler sekmesi her işlemi ne yaptığı, kimin yapabildiği ve dokunduğu tablolarla listeler. İstediklerinizi işaretlersiniz; token, bağlantı satırı ve yapay zekânın göreceği araçların önizlemesi gelir.
+- **Her yapay zekâya ayrı token:** destek botuna bir token, tasarım ekibine başka bir token, dış ajansa salt okunur bir token. Her biri yalnızca kendi işlemlerini görür.
+- **Zaten kullandığınız araçlarla çalışır:** `sezgi bagla` Claude Code, Cursor, VS Code, Gemini CLI, Codex, Claude Desktop ve Windsurf'ü kurar; `sezgi kaldir` dosyalarını bayt bayt geri yükler. Claude Code'da token şöyle girer: `claude mcp add sezgi -e SEZGI_TOKEN=szg_… -- …`.
+- **MCP konuşmayan araçlar:** `sezgi sun` yerel bir HTTP köprüsü ve Sezgi araçlarının OpenAPI belgesini verir; fonksiyon çağırabilen her model ve kendi ajanlarınız kullanabilir.
+- **Birden çok uygulama, tek bağlantı:** `sezgi santral` birçok uygulamayı tek MCP sunucusunun arkasına koyar ve hangi uygulamanın hangisini çağırdığını bulur.
+- **Her çağrı denetlenir:** her araç çağrısı canlı modun kapılarından geçer (mod, token, test kopyası, taze harita, kurallar, riskli adımda onay) ve şifreli kayda yazılır. Canlı mod kapalıyken araçlar yalnızca önizler.
+
+Immich test kopyasında ölçüldü (6 yazma görevi, ikişer koşu, tek model): tokenın işlemleri kendi araçları olarak verilen ajan **12/12, görev başına 3,8 tur ve 0,20 $**; yalnızca genel ara-tanı-çağır araçlarıyla 11/12, 6,3 tur ([ayrıntılar](docs/BASVURU.md)).
 
 ## Neden var, kimin için
 
