@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 (2026-11-04)
+
+### GitHub Action
+- **Listed on GitHub Marketplace** as "Sezgi AI Contract Check": a pull request that breaks the operations an application exposes to AI agents (removed operation, new required input, narrowed values, new login or role requirement) fails, with the reasons in the job summary and a PR comment.
+- **No npm needed:** the action downloads the Sezgi binary for the runner (Linux and macOS, x64 and arm64) from the GitHub release of the chosen version and uses it only if its SHA-256 matches the published checksum; otherwise it falls back to npm. Inputs and outputs are unchanged.
+
 ## 0.1.2 (2026-11-04)
 
 Fixes found by measuring Sezgi on applications it had never seen, and the first published npm release (`npm install -g sezgi`).

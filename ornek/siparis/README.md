@@ -53,7 +53,7 @@ When asked for your session, paste `demo-customer-token`. Operation ids are `ord
 
 ## Expected result
 
-From `sezgi init` (0.1.2) on this folder:
+From `sezgi init` (0.1.3) on this folder:
 
 - 7 operations · 6 need login · 1 public · 1 role-restricted (`admin`).
 - Inputs: 2 operations, 4 fields, 8 rules, all from zod.

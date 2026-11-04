@@ -9,7 +9,8 @@
 #   SEZGI_TABAN     karşılaştırılacak eski commit (PR'da taban commit)
 #   SEZGI_SERT      true: bozan değişiklikte iş başarısız olur (varsayılan true)
 #   SEZGI_YORUM     true: PR'a yorum yazılır; SEZGI_PR, GH_TOKEN ve GITHUB_REPOSITORY gerekir
-#   SEZGI_IKILI     kurulu sezgi ikilisinin yolu; boşsa npm'den SEZGI_SURUM sürümü çalıştırılır
+#   SEZGI_IKILI     kurulu sezgi ikilisinin yolu; boşsa SEZGI_SURUM sürümünün hazır dosyası GitHub sürümünden indirilir
+#                   ve yanındaki .sha256 özetiyle doğrulanır (Linux ve macOS, x64 ve arm64); olmazsa npm'den çalıştırılır
 # Çıkış: 0 geçti, 1 bozan değişiklik (sert), 2 karşılaştırılamadı. Adım çıktısı: kirilma=true|false
 set -euo pipefail
 
@@ -21,12 +22,6 @@ if [ -z "$taban" ]; then
   echo "::error::Karşılaştırılacak taban commit yok: eylemi pull_request olayında çalıştırın ya da 'taban' girdisini verin"
   exit 2
 fi
-if [ -n "${SEZGI_IKILI:-}" ]; then
-  sezgi=("$SEZGI_IKILI")
-else
-  sezgi=(npx --yes "sezgi@${SEZGI_SURUM:-0.1.0}")
-fi
-
 gecici="$(mktemp -d)"
 temizle() {
   git worktree remove --force "$gecici/taban" >/dev/null 2>&1 || true
@@ -34,6 +29,36 @@ temizle() {
   rm -rf "$gecici"
 }
 trap temizle EXIT
+
+# Hazır dosya: GitHub sürümünden indirilir, özeti tutmazsa kullanılmaz
+surum="${SEZGI_SURUM:-0.1.3}"
+indir() {
+  local hedef
+  case "$(uname -s)-$(uname -m)" in
+    Linux-x86_64) hedef=x86_64-unknown-linux-gnu ;;
+    Linux-aarch64 | Linux-arm64) hedef=aarch64-unknown-linux-gnu ;;
+    Darwin-x86_64) hedef=x86_64-apple-darwin ;;
+    Darwin-arm64) hedef=aarch64-apple-darwin ;;
+    *) return 1 ;;
+  esac
+  [[ "$surum" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || return 1
+  local ad="sezgi-v$surum-$hedef" adres="https://github.com/atabaykut/Sezgi/releases/download/v$surum"
+  curl -fsSL --retry 3 -o "$gecici/$ad.tar.gz" "$adres/$ad.tar.gz" || return 1
+  curl -fsSL --retry 3 -o "$gecici/$ad.tar.gz.sha256" "$adres/$ad.tar.gz.sha256" || return 1
+  local beklenen gercek
+  beklenen="$(cut -d' ' -f1 < "$gecici/$ad.tar.gz.sha256")"
+  if command -v sha256sum >/dev/null; then gercek="$(sha256sum "$gecici/$ad.tar.gz" | cut -d' ' -f1)"; else gercek="$(shasum -a 256 "$gecici/$ad.tar.gz" | cut -d' ' -f1)"; fi
+  [ -n "$beklenen" ] && [ "$beklenen" = "$gercek" ] || { echo "::warning::Sezgi $surum dosyasının SHA-256 özeti tutmadı; kullanılmadı" >&2; return 1; }
+  tar -xzf "$gecici/$ad.tar.gz" -C "$gecici" "$ad/sezgi" || return 1
+  echo "$gecici/$ad/sezgi"
+}
+if [ -n "${SEZGI_IKILI:-}" ]; then
+  sezgi=("$SEZGI_IKILI")
+elif ikili="$(indir)"; then
+  sezgi=("$ikili")
+else
+  sezgi=(npx --yes "sezgi@$surum")
+fi
 
 cikti_yaz() { if [ -n "${GITHUB_OUTPUT:-}" ]; then echo "$1" >> "$GITHUB_OUTPUT"; fi; }
 ozet_yaz() { if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "$1" >> "$GITHUB_STEP_SUMMARY"; fi; }
