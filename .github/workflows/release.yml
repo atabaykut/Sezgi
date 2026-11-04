@@ -127,7 +127,7 @@ jobs:
             dist/*.zip
             dist/*.tar.gz
 
-  # npm paketleri: her platformun derlenmiş ikilisinden sezgi-cli-<os>-<cpu> (Windows: @sezgi/cli-win32-x64; eski adı npm spam filtresine takıldı) ve ana "sezgi" paketinin tarball'ları.
+  # npm paketleri: her platformun derlenmiş ikilisinden sezgi-cli-<os>-<cpu> (Windows: @atabaykut/sezgi-win32-x64; eski adı npm spam filtresine takıldı) ve ana "sezgi" paketinin tarball'ları.
   # Burada yayınlanmaz; tarball'lar taslak sürüme eklenir. Yayın, onaylı ve elle yapılır (önce platform paketleri).
   npm:
     needs: build

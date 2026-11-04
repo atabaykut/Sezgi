@@ -661,7 +661,7 @@ dependencies = [
 
 [[package]]
 name = "sezgi"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "base64",
  "getrandom 0.4.3",

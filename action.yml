@@ -23,7 +23,7 @@ inputs:
     default: "true"
   sezgi-surumu:
     description: "Sezgi version; the binary is downloaded from the GitHub release and checked with SHA-256, npm is the fallback (Sezgi sürümü)"
-    default: "0.1.4"
+    default: "0.1.5"
   sezgi:
     description: "Path to an installed sezgi binary; when set nothing is downloaded (Kurulu sezgi ikilisinin yolu)"
     default: ""

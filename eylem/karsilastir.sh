@@ -31,7 +31,7 @@ temizle() {
 trap temizle EXIT
 
 # Hazır dosya: GitHub sürümünden indirilir, özeti tutmazsa kullanılmaz
-surum="${SEZGI_SURUM:-0.1.4}"
+surum="${SEZGI_SURUM:-0.1.5}"
 indir() {
   local hedef
   case "$(uname -s)-$(uname -m)" in

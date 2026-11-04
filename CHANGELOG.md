@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5 (2026-11-04)
+
+- npm: the Windows binary package is now `@atabaykut/sezgi-win32-x64`. The old name `sezgi-cli-win32-x64` was blocked by npm's spam filter, so `npm install sezgi` 0.1.4 could not run on Windows. Platform and main packages now carry repository and homepage links. Nothing else changed.
+
 ## 0.1.4 (2026-11-04)
 
 - GitHub Action: the description is shorter than 125 characters, as GitHub Marketplace requires. Nothing else changed.
