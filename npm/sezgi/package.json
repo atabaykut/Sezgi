@@ -5,7 +5,7 @@
   "bin": { "sezgi": "bin/sezgi.js" },
   "files": ["bin", "platformlar.json", "README.md", "LICENSE"],
   "optionalDependencies": {
-    "sezgi-cli-win32-x64": "0.1.4",
+    "@sezgi/cli-win32-x64": "0.1.4",
     "sezgi-cli-darwin-arm64": "0.1.4",
     "sezgi-cli-darwin-x64": "0.1.4",
     "sezgi-cli-linux-x64": "0.1.4",
@@ -13,6 +13,9 @@
   },
   "keywords": ["sezgi", "benlik", "ai-agents", "mcp", "nestjs", "fastapi", "express", "api-discovery"],
   "author": "Sezgi contributors",
+  "homepage": "https://atabaykut.github.io/Sezgi/",
+  "repository": { "type": "git", "url": "git+https://github.com/atabaykut/Sezgi.git" },
+  "bugs": "https://github.com/atabaykut/Sezgi/issues",
   "license": "Apache-2.0",
   "engines": { "node": ">=20" }
 }

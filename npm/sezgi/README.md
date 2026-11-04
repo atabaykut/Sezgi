@@ -27,7 +27,7 @@ Sezgi only reads by default and never writes to your code. An opt-in live mode l
 
 ## Platforms
 
-This package is a small launcher and needs Node.js 20 or later. npm installs only the prebuilt program for your computer (`sezgi-cli-<os>-<cpu>`): Windows x64, macOS arm64 / x64 (macOS 11+), Linux x64 / arm64 (glibc 2.34+: Ubuntu 22.04+, Debian 12+, RHEL 9+). Alpine / musl is not supported; on other platforms build from source (`cargo build --release`) and point `SEZGI_IKILI` at the binary.
+This package is a small launcher and needs Node.js 20 or later. npm installs only the prebuilt program for your computer (`sezgi-cli-<os>-<cpu>`, on Windows `@sezgi/cli-win32-x64`): Windows x64, macOS arm64 / x64 (macOS 11+), Linux x64 / arm64 (glibc 2.34+: Ubuntu 22.04+, Debian 12+, RHEL 9+). Alpine / musl is not supported; on other platforms build from source (`cargo build --release`) and point `SEZGI_IKILI` at the binary.
 
 If you installed with `--omit=optional` (or from a lock file made on another platform), the program is missing and Sezgi says so; reinstall with `npm install sezgi` (`npm install -g sezgi` for a global install).
 
