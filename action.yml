@@ -3,7 +3,7 @@
 # yeni giriş zorunluluğu, kısıtlanan roller) iş başarısız olur; özet adım özetine ve PR'a yorum olarak yazılır.
 # Örnek iş akışı: eylem/ornek-is-akisi.yml. Eylem başka bir eylem çağırmaz; yalnızca kabuk, git ve gh kullanır.
 name: Sezgi AI Contract Check
-description: Fails a PR that breaks the operations your app exposes to AI agents (removed operation, new required input, new login or role rule), with evidence from the code.
+description: "Fails a PR that breaks what your app exposes to AI agents: removed operations, new required inputs, new login rules."
 author: Sezgi
 branding:
   icon: shield
@@ -23,7 +23,7 @@ inputs:
     default: "true"
   sezgi-surumu:
     description: "Sezgi version; the binary is downloaded from the GitHub release and checked with SHA-256, npm is the fallback (Sezgi sürümü)"
-    default: "0.1.3"
+    default: "0.1.4"
   sezgi:
     description: "Path to an installed sezgi binary; when set nothing is downloaded (Kurulu sezgi ikilisinin yolu)"
     default: ""

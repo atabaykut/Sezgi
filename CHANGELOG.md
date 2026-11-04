@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4 (2026-11-04)
+
+- GitHub Action: the description is shorter than 125 characters, as GitHub Marketplace requires. Nothing else changed.
+
 ## 0.1.3 (2026-11-04)
 
 ### GitHub Action
