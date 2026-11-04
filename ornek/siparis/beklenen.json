@@ -1,5 +1,5 @@
 {
-  "generated_by": "sezgi 0.1.1 (sezgi init .)",
+  "generated_by": "sezgi 0.1.2 (sezgi init .)",
   "note": "Summary of .sezgi/kapilar.json and benlik.json. always_needs_approval = the operation has etki_onayi; approval_reason is an English rendering of it.",
   "operations": [
     {

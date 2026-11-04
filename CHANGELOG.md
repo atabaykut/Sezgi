@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.1 (2026-11-03)
+## 0.1.2 (2026-11-04)
 
 Fixes found by measuring Sezgi on applications it had never seen, and the first published npm release (`npm install -g sezgi`).
 
