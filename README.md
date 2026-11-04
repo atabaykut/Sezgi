@@ -23,9 +23,18 @@ Once connected, you can ask your assistant things like:
 - "If I delete a user, which tables are affected, and can it be undone?"
 - "Is there any operation in the billing module that does not require login?"
 
-## Where it is going
+## Why it exists and who it is for
 
-Sezgi's goal is a universal software intelligence: an AI that reads any software once, truly understands it, and works in it safely. Measured against **17 founding questions** (what the app is, why it exists, who may do what, which tables and other systems an operation touches, whether it can be undone, which screen starts it…), today's Sezgi answers 2 reliably and 14 partly on never-seen apps. The goal, the questions and an honest status for each: [docs/VISION.md](docs/VISION.md).
+To connect an application to AI today, an API is written, documented and wrapped in an MCP server, separately for every application. Most companies never did it. Sezgi is **a layer** that does this without writing code: it is applied on top of the application, turns it into one API, and leaves no trace when removed. The goal is to give software a sense of self: an AI that reads any software once, truly understands it, and works in it safely.
+
+- **Developers:** instead of walking undocumented code for weeks, the map, OpenAPI and Benlik Card come out of the code by themselves.
+- **AI assistants and agents:** ask instead of re-scanning the code; a wrong write is stopped at the door, and token waste goes down.
+- **Enterprises:** undocumented legacy systems open to AI without a months-long integration project; writes go with the real user's identity, and are logged.
+- **SaaS companies:** a ready MCP server and OpenAPI for customers; changes that would break them are caught before release.
+- **Agencies and integrators:** a new client's system is mapped on day one.
+- **Security and audit:** writes that need no login and endpoints with no access check found become visible without granting anyone access.
+
+This goal is measured against **17 founding questions** (what the app is, why it exists, who may do what, which tables and other systems an operation touches, whether it can be undone, which screen starts it…). Today's Sezgi answers 2 reliably and 14 partly on never-seen apps. The 20 parts of the self, the principles, going beyond the application, the roadmap and an honest status for each: [docs/VISION.md](docs/VISION.md).
 
 ## Get started in 3 steps
 

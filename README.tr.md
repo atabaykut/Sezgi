@@ -23,9 +23,18 @@ Bağladıktan sonra asistanınıza şunları sorabilirsiniz:
 - "Kullanıcıyı silersem hangi tablolar etkilenir, geri alınabilir mi?"
 - "Fatura modülünde giriş gerektirmeyen işlem var mı?"
 
-## Nereye gidiyor
+## Neden var, kimin için
 
-Sezgi'nin hedefi evrensel bir yazılım zekâsı: yapay zekânın her yazılımı bir kez okuyup gerçekten tanıması ve içinde güvenle iş yapması. Bu hedef **17 temel soruyla** ölçülür (uygulama nedir, neden var, kim neyi yapabilir, bir işlem hangi tablolara ve sistemlere dokunur, geri alınabilir mi, hangi ekrandan başlar…). Bugünkü Sezgi, hiç görmediği uygulamalarda bunların 2'sini güvenilir, 14'ünü kısmen cevaplıyor. Hedef, sorular ve her birinin dürüst durumu: [docs/VIZYON.md](docs/VIZYON.md).
+Bugün bir uygulamayı yapay zekâya bağlamak için API yazılır, dokümanlanır ve MCP sunucusu kurulur; her uygulama için ayrı ayrı. Çoğu şirkette bu hiç yapılmamıştır. Sezgi bunu kod yazmadan yapan **bir katmandır**: uygulamanın üstüne sürülür, onu tek bir API'ye çevirir, kaldırılınca iz bırakmaz. Hedefi yazılımlara bir benlik vermek: yapay zekâ her yazılımı bir kez okuyup gerçekten tanısın ve içinde güvenle iş yapsın.
+
+- **Yazılımcılar:** dokümansız kodu haftalarca gezmek yerine harita, OpenAPI ve Benlik Kartı koddan kendiliğinden çıkar.
+- **Yapay zekâ asistanları ve ajanlar:** kodu her seferinde taramaz, sorar; yanlış yazma kapıda kesilir, token israfı düşer.
+- **Kurumsal şirketler:** dokümansız eski sistemler aylarca entegrasyon projesi olmadan yapay zekâya açılır; yazma gerçek kullanıcının kimliğiyle, kayıtlı olarak yapılır.
+- **SaaS şirketleri:** müşteriye hazır MCP ve OpenAPI; müşteriyi bozacak değişiklik yayından önce yakalanır.
+- **Ajanslar ve entegratörler:** yeni müşterinin sistemi ilk gün haritalanır.
+- **Güvenlik ve denetim:** girişsiz yazmalar ve yetki kontrolü bulunamayan uçlar, kimseye yetki vermeden görünür.
+
+Bu hedef **17 temel soruyla** ölçülür (uygulama nedir, neden var, kim neyi yapabilir, bir işlem hangi tablolara ve sistemlere dokunur, geri alınabilir mi, hangi ekrandan başlar…). Bugünkü Sezgi, hiç görmediği uygulamalarda bunların 2'sini güvenilir, 14'ünü kısmen cevaplıyor. Benliğin 20 parçası, değişmez ilkeler, uygulamanın ötesi, yol haritası ve her birinin dürüst durumu: [docs/VIZYON.md](docs/VIZYON.md).
 
 ## 3 adımda başlayın
 
