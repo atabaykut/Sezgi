@@ -12,18 +12,46 @@ When an assistant such as Claude, Cursor or Copilot needs to do something in you
 
 ## What it does
 
-| Without Sezgi | With Sezgi |
-|---|---|
-| The assistant scans code for every question and burns tokens | The assistant asks Sezgi and gets a small answer with its source |
-| "Is this field required?" is answered by guessing | The rule is read from the code and shown with file and line |
-| It does not know what an operation deletes | It knows the tables each operation touches, its outside effects (e-mail, payment…) and whether it can be undone |
-| Where it does not know, it may make things up | Sezgi says "unknown" where it does not know |
+| | Without Sezgi | With Sezgi |
+|---|---|---|
+| **Finding an operation** | The assistant opens routes, controllers and services one by one for every question, and starts over in the next session | It asks Sezgi once and gets the operation, its address and its source file in a short answer |
+| **Inputs and rules** | "Is `quantity` required? What is the limit?" is answered by guessing, and the call fails with a 400 | The rule is read from the code (for example a zod schema: `quantity` integer, 1 to 10) and shown with file and line |
+| **Who may do it** | It does not see that one endpoint needs login, another needs `admin`, a third lets users touch only their own records | Login, roles (`requireRole('admin')`) and ownership checks (`order.user_id !== req.user.id`) are on the map |
+| **What it touches** | "Delete user" looks like one row; it does not know the user's orders go with it | The tables each operation reads and writes, including cascades found in the schema (`users` → `orders`, `ON DELETE CASCADE`) |
+| **Outside effects** | It calls "refund" without knowing it charges a real payment provider or sends an e-mail | Outgoing HTTP calls, e-mail, payment, queues and cloud services are listed per operation |
+| **Can it be undone?** | Nobody says | Yes, partly, no or unknown, with the reason; irreversible operations always wait for a human |
+| **When it does not know** | It fills the gap and sounds sure | Every fact is stamped **certain**, **observed**, **inferred** or **unknown**; gaps are reported, never filled |
+| **Acting in the app** | Either it cannot, or it gets a key that opens everything | Opt-in live mode: a test copy first, a token with only the operations you allow, approval for risky steps, an encrypted log |
+| **When the code changes** | Hand-written docs and integrations go stale; a removed field breaks clients in production | `sezgi watch` re-reads only what changed; `sezgi diff` and the [GitHub Action](https://github.com/marketplace/actions/sezgi-ai-contract-check) fail a pull request that removes an operation, adds a required input or a new login rule |
+| **Many applications** | A separate API, docs and MCP server for each one | `sezgi switchboard` serves them all over one connection |
+| **What the owner sees** | No idea what the AI can reach | `sezgi mirror` shows in the browser what is known, what is not, and what is open |
+| **Cost** | Tens of thousands of tokens per task spent reading code | On Immich, the same 16 tasks: code reading 14/16 at 39.5k tokens per task, **Sezgi 16/16 at 20.5k** ([benchmark](#benchmark)) |
+
+### An example
+
+Take the small [example shop](ornek/siparis/README.md) in this repository and ask: *"If I delete a user, what happens, and can it be undone?"*
+
+**Without Sezgi**, the assistant reads `server.js`, the route files, `auth.js`, `db.js` and `schema.sql`, and may still miss the cascade or the admin check.
+
+**With Sezgi**, it asks once and gets an answer like this (shortened):
+
+> `DELETE /api/users/:id` · role `admin` (`requireRole('admin')`) · deletes from `users`; the user's `orders` are deleted too (`ON DELETE CASCADE` in `schema.sql`) · hard delete, cannot be undone · in live mode it always waits for a human's approval.
+
+Each part points to the file it was read from. In the same app Sezgi also finds, from code alone, that the refund calls `api.payments.example.com` and cannot be undone, and that the receipt goes out by e-mail through nodemailer.
+
+### What you can ask
 
 Once connected, you can ask your assistant things like:
 
 - "How do I start a refund in this app, what does it need, and who can do it?"
 - "If I delete a user, which tables are affected, and can it be undone?"
 - "Is there any operation in the billing module that does not require login?"
+- "Which operations reach outside this app: payment, e-mail, other services?"
+- "Which operations need a human's approval, and why?"
+- "Which endpoints let a user change someone else's record?"
+- "What would break for API clients if this branch is merged?"
+- "Which screen and button starts this operation?"
+- "What does Sezgi not know about this app yet?"
 
 ## Why it exists and who it is for
 

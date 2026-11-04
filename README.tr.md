@@ -12,18 +12,46 @@ Claude, Cursor ya da Copilot gibi bir asistan uygulamanızda bir iş yapmak iste
 
 ## Ne işe yarar
 
-| Sezgi olmadan | Sezgi ile |
-|---|---|
-| Asistan her soruda kodu tarar, çok token harcar | Asistan Sezgi'ye sorar, küçük ve kaynaklı bir cevap alır |
-| "Bu alan zorunlu mu?" sorusunu tahminle cevaplar | Kural koddan okunmuştur, dosya ve satırıyla gösterilir |
-| Hangi işlemin neyi sildiğini bilmez | Her işlemin dokunduğu tabloları, dış etkilerini (e-posta, ödeme…) ve geri alınıp alınamayacağını bilir |
-| Bilmediği yerde uydurabilir | Sezgi bilmediğini "bilinmiyor" diye söyler |
+| | Sezgi olmadan | Sezgi ile |
+|---|---|---|
+| **İşlemi bulmak** | Asistan her soruda rotaları, controller'ları, servisleri tek tek açar; bir sonraki oturumda baştan başlar | Sezgi'ye bir kez sorar; işlemi, adresini ve kaynak dosyasını kısa bir cevapta alır |
+| **Girdiler ve kurallar** | "`quantity` zorunlu mu, sınırı ne?" sorusunu tahminle cevaplar, istek 400 ile düşer | Kural koddan okunur (örneğin bir zod şeması: `quantity` tam sayı, 1 ile 10 arası), dosya ve satırıyla gösterilir |
+| **Kim yapabilir** | Bir ucun giriş, ötekinin `admin` istediğini, üçüncüsünün yalnızca kendi kaydına izin verdiğini görmez | Giriş, roller (`requireRole('admin')`) ve sahiplik kontrolleri (`order.user_id !== req.user.id`) haritadadır |
+| **Neye dokunur** | "Kullanıcı sil" tek satır gibi görünür; kullanıcının siparişlerinin de gittiğini bilmez | Her işlemin okuduğu ve yazdığı tablolar, şemadaki zincirleme silmeler dahil (`users` → `orders`, `ON DELETE CASCADE`) |
+| **Dış etkiler** | "İade"yi çağırır; gerçek bir ödeme sağlayıcısına gittiğini ya da e-posta attığını bilmez | Dışarı giden HTTP çağrıları, e-posta, ödeme, kuyruk ve bulut servisleri işlem işlem listelenir |
+| **Geri alınır mı?** | Kimse söylemez | Evet, kısmen, hayır ya da bilinmiyor, gerekçesiyle; geri alınamayan işlem her zaman insan onayı bekler |
+| **Bilmediğinde** | Boşluğu doldurur, emin gibi konuşur | Her bilgi **kesin**, **gözlem**, **yorum** ya da **bilinmiyor** damgası taşır; boşluk raporlanır, asla doldurulmaz |
+| **Uygulamada iş yapmak** | Ya hiç yapamaz ya da her şeyi açan bir anahtar alır | İsteğe bağlı canlı mod: önce test kopyası, yalnızca izin verdiğiniz işlemleri açan bir jeton, riskli adımda onay, şifreli kayıt |
+| **Kod değişince** | Elle yazılmış doküman ve entegrasyon eskir; kaldırılan bir alan müşteriyi canlıda bozar | `sezgi izle` yalnızca değişeni yeniden okur; `sezgi karsilastir` ve [GitHub eylemi](https://github.com/marketplace/actions/sezgi-ai-contract-check) bir işlemi kaldıran, zorunlu girdi ya da yeni giriş kuralı ekleyen PR'ı düşürür |
+| **Birden çok uygulama** | Her biri için ayrı API, doküman ve MCP sunucusu | `sezgi santral` hepsini tek bağlantıdan sunar |
+| **Sahibin gördüğü** | Yapay zekânın neye erişebildiğini bilmez | `sezgi ayna` tarayıcıda neyin bilindiğini, neyin bilinmediğini ve neyin açık olduğunu gösterir |
+| **Maliyet** | Her görevde kod okumaya on binlerce token | Immich'te aynı 16 görev: kod okuyan ajan 14/16, görev başına 39,5 bin token; **Sezgi 16/16, 20,5 bin** ([ölçüm](#ölçüm)) |
+
+### Bir örnek
+
+Bu depodaki küçük [örnek mağazayı](ornek/siparis/README.md) alın ve sorun: *"Bir kullanıcıyı silersem ne olur, geri alınabilir mi?"*
+
+**Sezgi olmadan** asistan `server.js`'i, rota dosyalarını, `auth.js`'i, `db.js`'i ve `schema.sql`'i okur; yine de zincirleme silmeyi ya da admin kontrolünü kaçırabilir.
+
+**Sezgi ile** bir kez sorar ve şuna benzer bir cevap alır (kısaltılmış):
+
+> `DELETE /api/users/:id` · rol `admin` (`requireRole('admin')`) · `users`'tan siler; kullanıcının `orders` kayıtları da silinir (`schema.sql`'de `ON DELETE CASCADE`) · kalıcı silme, geri alınamaz · canlı modda her zaman insan onayı bekler.
+
+Her parça okunduğu dosyayı gösterir. Sezgi aynı uygulamada, yalnızca koddan, iadenin `api.payments.example.com`'a gittiğini ve geri alınamadığını, makbuzun nodemailer ile e-postayla gittiğini de bulur.
+
+### Neler sorabilirsiniz
 
 Bağladıktan sonra asistanınıza şunları sorabilirsiniz:
 
 - "Bu uygulamada iade nasıl başlatılır, hangi alanları ister, kim yapabilir?"
 - "Kullanıcıyı silersem hangi tablolar etkilenir, geri alınabilir mi?"
 - "Fatura modülünde giriş gerektirmeyen işlem var mı?"
+- "Hangi işlemler uygulamanın dışına çıkıyor: ödeme, e-posta, başka servisler?"
+- "Hangi işlemler insan onayı ister, neden?"
+- "Hangi uçlar bir kullanıcının başkasının kaydını değiştirmesine izin veriyor?"
+- "Bu dal birleşirse API'yi kullananlar için ne bozulur?"
+- "Bu işlemi hangi ekran, hangi düğme başlatıyor?"
+- "Sezgi bu uygulama hakkında henüz neyi bilmiyor?"
 
 ## Neden var, kimin için
 
