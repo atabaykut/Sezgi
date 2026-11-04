@@ -2,7 +2,9 @@
 
 *Sezgi is Turkish for intuition: knowing without thinking.*
 
-**Let your AI assistant understand your application, and work in it safely.**
+**A sense of self for software.** Sezgi reads your application's code once, turns it into one API and explains it to AI with evidence, so your assistant understands your application and works in it safely.
+
+**Who it is for:** developers · AI assistants and agents · enterprises · SaaS companies · agencies and integrators · security and audit teams. Overview page: **[atabaykut.github.io/Sezgi](https://atabaykut.github.io/Sezgi/)**
 
 When an assistant such as Claude, Cursor or Copilot needs to do something in your application, it scans the code from scratch every time and guesses: "Which endpoint creates a user, which fields are required, who is allowed to do it?" Sezgi reads the code **once** and builds a map of the application. The assistant stops scanning code and asks Sezgi instead; the answer is short and comes with its source.
 

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sezgi: a sense of self for software</title>
+<meta name="description" content="Sezgi reads your application's code once, turns it into one API and explains it to AI with evidence. An open-source layer for developers, agents, companies and auditors.">
+<link rel="alternate" hreflang="tr" href="./tr.html">
+<link rel="stylesheet" href="sayfa.css">
+</head>
+<body>
+<header class="ust">
+  <a class="logo" href="./">Sezgi</a>
+  <nav><a href="#who">Who it is for</a><a href="#self">The self</a><a href="#roadmap">Roadmap</a><a href="https://github.com/atabaykut/Sezgi">GitHub</a><a href="./tr.html" lang="tr">Türkçe</a></nav>
+</header>
+
+<main>
+<section class="kahraman">
+  <p class="etiket"><em>Sezgi is Turkish for intuition: knowing without thinking.</em></p>
+  <h1>A sense of self for software.</h1>
+  <p class="giris">Sezgi reads the application it is installed on, whatever language it is written in, once, and turns it into <strong>one API</strong>. The AI stops scanning code and asks Sezgi; every answer comes with its source and a stamp saying whether it is certain or a guess. Writes happen only as far as you allow, and always through the application's own rules.</p>
+  <div class="dugmeler">
+    <a class="dugme ana" href="https://github.com/atabaykut/Sezgi/releases/latest">Download (0.1.2)</a>
+    <a class="dugme" href="https://github.com/atabaykut/Sezgi/blob/main/docs/VISION.md">The full vision</a>
+  </div>
+  <p class="not">Open source (Apache-2.0) · fully local, offline · no language model inside · 0.1, experimental</p>
+</section>
+
+<section class="bant">
+  <p class="slogan">Sezgi is not an application, it is a layer. One can of paint covers a whole building, and a building holds thousands of cans.</p>
+</section>
+
+<section>
+  <h2>The problem</h2>
+  <p class="aciklama">To connect an application to AI today, an API is written, documented and wrapped in an MCP server, separately for every application. Most companies never did it.</p>
+  <div class="iki">
+    <article class="kart"><h3>A developer</h3><p>In a million-line application with no docs, finds the routes one by one, reads what each takes and returns, and writes it down. It takes weeks, and goes stale as the code changes.</p></article>
+    <article class="kart"><h3>An AI</h3><p>Is a stranger to the application. Opens files, guesses, and starts over for every question. Hours and millions of tokens go by; the result is often incomplete or wrong.</p></article>
+  </div>
+  <p class="aciklama">People do not work like this. Asked their name, they say it; they do not wonder who they are. They learned it once and it became part of them. <strong>Sezgi gives software that sense of self.</strong></p>
+</section>
+
+<section id="who">
+  <h2>Who it is for</h2>
+  <div class="izgara">
+    <article class="kart"><h3>Developers</h3><p class="dert">Walking undocumented code for weeks.</p><p>The map, OpenAPI document and Benlik Card come out of the code by themselves; when code changes, only the difference is re-read.</p></article>
+    <article class="kart"><h3>AI assistants and agents</h3><p class="dert">Re-scanning code every session, making wrong calls.</p><p>They ask and get short answers with sources. A wrong write is stopped at the door, in the preview.</p></article>
+    <article class="kart"><h3>Enterprises</h3><p class="dert">Undocumented legacy systems, months-long integrations, an auditor asking "what did the agent touch?"</p><p>The map is there on day one. Writes go with the real user's identity, through the application's checks, and every action is logged.</p></article>
+    <article class="kart"><h3>SaaS companies</h3><p class="dert">Customers asking "can I connect my AI?"; integrations breaking every release.</p><p>A ready MCP server and up-to-date OpenAPI. Changes that would break customers are caught before release.</p></article>
+    <article class="kart"><h3>AI companies</h3><p class="dert">Paying for their agents' wrong actions.</p><p>The agent reads the card, not the code: accuracy goes up, LLM tokens and GPU waste go down.</p></article>
+    <article class="kart"><h3>Agencies and integrators</h3><p class="dert">Learning each new client's system from scratch.</p><p>The map is there on day one; the coverage report goes into the proposal, the gaps found go to the client.</p></article>
+    <article class="kart"><h3>Application owners</h3><p class="dert">Not seeing what they open to AI.</p><p>The Ayna screen shows what is known and what is not; they choose the permissions and keep the last word.</p></article>
+    <article class="kart"><h3>Security and audit</h3><p class="dert">Undocumented doors and unchecked endpoints going unnoticed.</p><p>In ten minutes, without granting anyone access, they see writes that need no login and endpoints with no access check found.</p></article>
+  </div>
+</section>
+
+<section>
+  <h2>How it works</h2>
+  <ol class="adimlar">
+    <li><strong><code>sezgi init</code></strong> reads the code and maps operations, inputs, rules, access, tables, outside effects and reversibility. It never writes into the application's code.</li>
+    <li><strong><code>sezgi connect</code></strong> adds Sezgi to your AI tool (MCP), asking tool by tool; <code>sezgi remove</code> undoes it.</li>
+    <li><strong>Ask:</strong> "If I delete a user, which tables are affected, and can it be undone?" The answer comes with its source and a trust stamp.</li>
+  </ol>
+  <p class="aciklama">Optionally, <strong>live mode</strong>: the assistant uses the application, on a test copy first. Every request passes permission, preview and effect checks; a delete, an outside effect or anything uncertain needs human approval.</p>
+</section>
+
+<section id="self">
+  <h2>The parts of the self, and today</h2>
+  <p class="aciklama">These twenty points are the project's contract. Next to each is its honest state in this release.</p>
+  <ul class="parcalar">
+    <li><span>Knows itself</span><b class="k">Partly</b></li>
+    <li><span>Reaches directly, never scans</span><b class="v">Yes</b></li>
+    <li><span>Covers everything</span><b class="k">Partly</b></li>
+    <li><span>Learns repetition once</span><b class="k">Partly</b></li>
+    <li><span>Does not think, knows; never makes things up</span><b class="v">Yes</b></li>
+    <li><span>Knows and enforces the rules</span><b class="k">Partly</b></li>
+    <li><span>Is one API (MCP, HTTP, OpenAPI)</span><b class="v">Yes</b></li>
+    <li><span>Use the app like a database</span><b class="k">Partly</b></li>
+    <li><span>Masters the interface</span><b class="z">Weak</b></li>
+    <li><span>Issues tokens, you set the permissions</span><b class="v">Yes</b></li>
+    <li><span>Single counterpart, a bridge</span><b class="v">Yes</b></li>
+    <li><span>Does not discriminate</span><b class="v">Yes</b></li>
+    <li><span>Works in every language</span><b class="k">Partly</b></li>
+    <li><span>Almost no memory</span><b class="k">Partly</b></li>
+    <li><span>Tries to be unbreakable</span><b class="k">Partly</b></li>
+    <li><span>Removes waste</span><b class="k">Partly</b></li>
+    <li><span>Is a layer, leaves no trace</span><b class="v">Yes</b></li>
+    <li><span>Goes beyond the app, if asked</span><b class="z">Started</b></li>
+    <li><span>Does no harm</span><b class="v">Yes</b></li>
+    <li><span>Publishes a Benlik Card</span><b class="v">Yes</b></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Promises that do not change</h2>
+  <div class="izgara uc">
+    <article class="kart"><h3>Never makes things up</h3><p>Every fact comes with file and line, stamped <em>certain · observed · inferred · unknown</em>.</p></article>
+    <article class="kart"><h3>Grants nothing, only narrows</h3><p>Effective permission = the user's permission in the app ∩ the token's permission. No human, no write.</p></article>
+    <article class="kart"><h3>Asks when unsure</h3><p>Where unsure, the answer is approval. On real data every write needs the human's password.</p></article>
+    <article class="kart"><h3>Local</h3><p>Code and data never go to an outside service; no telemetry.</p></article>
+    <article class="kart"><h3>Keeps no customer data</h3><p>Not written by default; everything kept is declared in the data ledger.</p></article>
+    <article class="kart"><h3>Evidence first</h3><p>Every accuracy and speed claim is backed by an open measurement.</p></article>
+  </div>
+</section>
+
+<section>
+  <h2>Benlik Card</h2>
+  <p class="aciklama">Every application introduces itself with a signed, open card: what it can do, which rules it follows, on whose behalf writes happen, and <strong>what is not certain</strong>. The first API description that can say "I am not sure". The specification is open: <a href="https://github.com/atabaykut/Sezgi/blob/main/benlik/SPEC.md">benlik/SPEC.md</a>.</p>
+</section>
+
+<section>
+  <h2>The goal</h2>
+  <p class="aciklama">A connected assistant should answer <strong>17 founding questions</strong> about an application it has never seen, within its first minute, correctly, with sources and honestly: what it is, why it exists, who uses it, who may do what, which tables and systems are affected, whether it can be undone, whether a human must approve… Today Sezgi answers 2 reliably and 14 partly on never-seen apps. The target is <strong>above 90% accuracy and zero wrong claims stamped "certain"</strong>.</p>
+</section>
+
+<section id="roadmap">
+  <h2>Roadmap</h2>
+  <table class="yol">
+    <tr><td>Code reading, map, Benlik Card, MCP, Ayna</td><td><b class="v">Released</b></td></tr>
+    <tr><td>Writes on a test copy, approval queue, identity delegation, data ledger</td><td><b class="v">Mostly there</b></td></tr>
+    <tr><td>Switchboard joining many apps in one connection</td><td><b class="v">Yes</b></td></tr>
+    <tr><td>Interface: screens and the operation each button starts</td><td><b class="z">Started</b></td></tr>
+    <tr><td>Internal code: calling functions without an API, isolated</td><td><b class="y">Not yet</b></td></tr>
+    <tr><td>1.0: independent security audit, writes on real data</td><td><b class="k">In progress</b></td></tr>
+    <tr><td>Beyond the application: command line, operating system, programs without source</td><td><b class="y">After 1.0</b></td></tr>
+  </table>
+</section>
+
+<section class="son">
+  <h2>Try it</h2>
+  <pre><code>cd path/to/your/app
+sezgi init
+sezgi connect</code></pre>
+  <p class="aciklama">Ready binaries for Windows, macOS (Apple Silicon and Intel) and Linux (x64, ARM). <a href="https://github.com/atabaykut/Sezgi/releases/latest">Latest release</a> · <a href="https://github.com/atabaykut/Sezgi#readme">Install and commands</a></p>
+</section>
+</main>
+
+<footer>Sezgi · Apache-2.0 · <a href="https://github.com/atabaykut/Sezgi">github.com/atabaykut/Sezgi</a></footer>
+</body>
+</html>

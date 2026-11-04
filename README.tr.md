@@ -2,7 +2,9 @@
 
 *Sezgi: düşünmeden bilmek.*
 
-**Yapay zekâ asistanınız uygulamanızı tanısın ve onda güvenle iş yapsın.**
+**Yazılımlara bir benlik.** Sezgi uygulamanızın kodunu bir kez okur, onu tek bir API'ye çevirir ve yapay zekâya kanıtla anlatır: asistanınız uygulamanızı tanısın ve onda güvenle iş yapsın.
+
+**Kimin için:** yazılımcılar · yapay zekâ asistanları ve ajanlar · kurumsal şirketler · SaaS şirketleri · ajanslar ve entegratörler · güvenlik ve denetim ekipleri. Tanıtım sayfası: **[atabaykut.github.io/Sezgi](https://atabaykut.github.io/Sezgi/tr.html)**
 
 Claude, Cursor ya da Copilot gibi bir asistan uygulamanızda bir iş yapmak istediğinde kodu her seferinde baştan tarar ve tahmin eder: "Kullanıcı ekleme adresi hangisiydi, hangi alanlar zorunlu, bunu kim yapabilir?" Sezgi kodu **bir kez** okur ve uygulamanın haritasını çıkarır. Asistan artık kodu taramaz, Sezgi'ye sorar; cevap kısa ve kaynağıyla birlikte gelir.
 

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sezgi: yazılımlara bir benlik</title>
+<meta name="description" content="Sezgi uygulamanızın kodunu bir kez okur, onu tek bir API'ye çevirir ve yapay zekâya kanıtla anlatır. Yazılımcılar, ajanlar, şirketler ve denetçiler için açık kaynak bir katman.">
+<link rel="alternate" hreflang="en" href="./">
+<link rel="stylesheet" href="sayfa.css">
+</head>
+<body>
+<header class="ust">
+  <a class="logo" href="./tr.html">Sezgi</a>
+  <nav><a href="#kimin-icin">Kimin için</a><a href="#benlik">Benlik</a><a href="#yol">Yol haritası</a><a href="https://github.com/atabaykut/Sezgi">GitHub</a><a href="./" lang="en">English</a></nav>
+</header>
+
+<main>
+<section class="kahraman">
+  <p class="etiket"><em>Sezgi: düşünmeden bilmek.</em></p>
+  <h1>Yazılımlara bir benlik.</h1>
+  <p class="giris">Sezgi kurulduğu uygulamayı, hangi dilde yazılmış olursa olsun, bir kez okur ve onu <strong>tek bir API</strong>'ye çevirir. Yapay zekâ kodu her seferinde taramaz; Sezgi'ye sorar. Her cevap kaynağıyla ve "kesin mi, tahmin mi" damgasıyla gelir. Yazma yalnızca senin verdiğin izin kadar ve uygulamanın kendi kurallarından geçerek yapılır.</p>
+  <div class="dugmeler">
+    <a class="dugme ana" href="https://github.com/atabaykut/Sezgi/releases/latest">İndir (0.1.2)</a>
+    <a class="dugme" href="https://github.com/atabaykut/Sezgi/blob/main/docs/VIZYON.md">Vizyonun tamamı</a>
+  </div>
+  <p class="not">Açık kaynak (Apache-2.0) · tamamen yerel, internetsiz · içinde dil modeli yok · 0.1, deneysel</p>
+</section>
+
+<section class="bant">
+  <p class="slogan">Sezgi bir uygulama değil, bir katman. Bir kap boya bütün binayı boyar; bir binaya binlerce kap sığar.</p>
+</section>
+
+<section>
+  <h2>Sorun</h2>
+  <p class="aciklama">Bugün bir uygulamayı yapay zekâya bağlamak için API yazılır, dokümanlanır ve MCP sunucusu kurulur; her uygulama için ayrı ayrı. Çoğu şirkette bu hiç yapılmamıştır.</p>
+  <div class="iki">
+    <article class="kart"><h3>Yazılımcı</h3><p>1 milyon satırlık, dokümansız bir uygulamada rotaları tek tek bulur, ne istediğini ve ne döndürdüğünü okur, yazar. Haftalar sürer; kod değişince bayatlar.</p></article>
+    <article class="kart"><h3>Yapay zekâ</h3><p>Uygulamaya yabancıdır. Dosyaları açar, tahmin eder, her soruda baştan başlar. Saatler ve milyonlarca token gider; sonuç çoğu zaman eksik ya da yanlış olur.</p></article>
+  </div>
+  <p class="aciklama">İnsan böyle çalışmaz. Adı sorulunca adını söyler, "ben kimim?" diye düşünmez. Bir kez öğrenmiştir ve artık benliğindedir. <strong>Sezgi yazılımlara bu benliği verir.</strong></p>
+</section>
+
+<section id="kimin-icin">
+  <h2>Kimin derdini çözer</h2>
+  <div class="izgara">
+    <article class="kart"><h3>Yazılımcılar</h3><p class="dert">Dokümansız kodu haftalarca gezmek.</p><p>Harita, OpenAPI dokümanı ve Benlik Kartı koddan kendiliğinden çıkar; kod değişince yalnızca fark okunur.</p></article>
+    <article class="kart"><h3>Yapay zekâ asistanları ve ajanlar</h3><p class="dert">Her oturumda kodu baştan taramak, yanlış çağrı yapmak.</p><p>Sorar, kısa ve kaynaklı cevap alır. Yanlış yazma daha kapıda, önizlemede kesilir.</p></article>
+    <article class="kart"><h3>Kurumsal şirketler</h3><p class="dert">Dokümansız eski sistemler; aylar süren entegrasyon; "ajan neye dokundu?" diyen denetçi.</p><p>Kurulduğu gün harita çıkar. Yazma gerçek kullanıcının kimliğiyle ve uygulamanın kontrolünden geçer; her işlem kayıtlıdır.</p></article>
+    <article class="kart"><h3>SaaS şirketleri</h3><p class="dert">"Yapay zekâmı bağlayabilir miyim?" diyen müşteriler; her sürümde kırılan entegrasyonlar.</p><p>Hazır MCP sunucusu ve güncel OpenAPI. Müşteriyi bozacak değişiklik yayından önce yakalanır.</p></article>
+    <article class="kart"><h3>Yapay zekâ şirketleri</h3><p class="dert">Ajanların yanlış işleminin faturası.</p><p>Ajan kodu değil kartı okur: doğruluk artar, LLM token'ı ve GPU israfı düşer.</p></article>
+    <article class="kart"><h3>Ajanslar ve entegratörler</h3><p class="dert">Her yeni müşteride sistemi sıfırdan tanımak.</p><p>İlk gün harita çıkar; kapsam raporu teklifte, bulunan boşluklar müşteride.</p></article>
+    <article class="kart"><h3>Uygulama sahipleri</h3><p class="dert">Yapay zekâya neyi açtığını görememek.</p><p>Ayna ekranında neyin bilinip neyin bilinmediğini görür; izinleri kendisi seçer, son karar onda kalır.</p></article>
+    <article class="kart"><h3>Güvenlik ve denetim</h3><p class="dert">Gözden kaçan dokümansız kapılar ve yetkisiz uçlar.</p><p>On dakikada, kimseye yetki vermeden girişsiz yazmaları ve yetki kontrolü bulunamayan uçları görür.</p></article>
+  </div>
+</section>
+
+<section>
+  <h2>Nasıl çalışır</h2>
+  <ol class="adimlar">
+    <li><strong><code>sezgi init</code></strong> kodu okur; işlemleri, girdileri, kuralları, yetkiyi, tabloları, dış etkileri ve geri alınabilirliği haritalar. Uygulamanın koduna hiçbir şey yazmaz.</li>
+    <li><strong><code>sezgi bagla</code></strong> Sezgi'yi yapay zekâ aracına (MCP) ekler; her aracı tek tek sorar, <code>sezgi kaldir</code> geri alır.</li>
+    <li><strong>Sor:</strong> "Kullanıcıyı silersem hangi tablolar etkilenir, geri alınabilir mi?" Cevap kaynağıyla ve güven damgasıyla gelir.</li>
+  </ol>
+  <p class="aciklama">İstenirse <strong>canlı mod</strong>: asistan uygulamayı önce bir test kopyasında kullanır. Her istek izin, önizleme ve etki denetiminden geçer; silme, dış etki ya da emin olunmayan her şey insan onayı ister.</p>
+</section>
+
+<section id="benlik">
+  <h2>Benliğin parçaları ve bugün</h2>
+  <p class="aciklama">Projenin sözleşmesi bu yirmi madde. Her birinin yanında bu sürümdeki dürüst durumu var.</p>
+  <ul class="parcalar">
+    <li><span>Kendini bilir</span><b class="k">Kısmen</b></li>
+    <li><span>Doğrudan ulaşır, taramaz</span><b class="v">Var</b></li>
+    <li><span>Her yeri sarar</span><b class="k">Kısmen</b></li>
+    <li><span>Tekrarı bir kez öğrenir</span><b class="k">Kısmen</b></li>
+    <li><span>Düşünmez, bilir; uydurmaz</span><b class="v">Var</b></li>
+    <li><span>Kuralları bilir ve uygular</span><b class="k">Kısmen</b></li>
+    <li><span>Tek API'dir (MCP, HTTP, OpenAPI)</span><b class="v">Var</b></li>
+    <li><span>Uygulamayı veritabanı gibi kullandırır</span><b class="k">Kısmen</b></li>
+    <li><span>Arayüze hâkimdir</span><b class="z">Zayıf</b></li>
+    <li><span>Token verir, izni sen belirlersin</span><b class="v">Var</b></li>
+    <li><span>Tek muhataptır, köprüdür</span><b class="v">Var</b></li>
+    <li><span>Ayrım yapmaz</span><b class="v">Var</b></li>
+    <li><span>Her dilde çalışır</span><b class="k">Kısmen</b></li>
+    <li><span>Hafızası yok denecek kadar az</span><b class="k">Kısmen</b></li>
+    <li><span>Kırılmaz olmaya çalışır</span><b class="k">Kısmen</b></li>
+    <li><span>İsrafı sıfırlar</span><b class="k">Kısmen</b></li>
+    <li><span>Bir katmandır, iz bırakmaz</span><b class="v">Var</b></li>
+    <li><span>İstenirse uygulamanın ötesine geçer</span><b class="z">Başlangıç</b></li>
+    <li><span>Zarar vermez</span><b class="v">Var</b></li>
+    <li><span>Benlik Kartı yayınlar</span><b class="v">Var</b></li>
+  </ul>
+</section>
+
+<section>
+  <h2>Değişmeyen sözler</h2>
+  <div class="izgara uc">
+    <article class="kart"><h3>Uydurmaz</h3><p>Her bilgi dosya ve satırıyla, <em>kesin · gözlem · yorum · bilinmiyor</em> damgasıyla gelir.</p></article>
+    <article class="kart"><h3>Yetki vermez, daraltır</h3><p>Etkin yetki = kullanıcının uygulamadaki yetkisi ∩ token izni. İnsan yoksa yazma da yok.</p></article>
+    <article class="kart"><h3>Emin değilse sorar</h3><p>Belirsiz yerde karar onaydır. Gerçek veride her yazma insanın parolasını ister.</p></article>
+    <article class="kart"><h3>Yerel</h3><p>Kod ve veri hiçbir dış servise gitmez; kullanım verisi toplanmaz.</p></article>
+    <article class="kart"><h3>Müşteri verisini tutmaz</h3><p>Varsayılan olarak yazılmaz; tutulan her şey veri defterinde ilan edilir.</p></article>
+    <article class="kart"><h3>Önce kanıt</h3><p>Her doğruluk ve hız iddiası açık ölçümle desteklenir.</p></article>
+  </div>
+</section>
+
+<section>
+  <h2>Benlik Kartı</h2>
+  <p class="aciklama">Her uygulama kendini imzalı, açık bir kartla tanıtır: ne yapabildiği, hangi kurala uyduğu, kimin adına yazıldığı ve <strong>neyden emin olunmadığı</strong>. "Emin değilim" diyebilen ilk API tarifi. Belirtim açık: <a href="https://github.com/atabaykut/Sezgi/blob/main/benlik/SPEC.md">benlik/SPEC.md</a>.</p>
+</section>
+
+<section>
+  <h2>Hedef</h2>
+  <p class="aciklama">Bağlanan bir asistan, hiç görmediği bir uygulama hakkında ilk dakikada <strong>17 temel soruyu</strong> doğru, kaynaklı ve dürüst cevaplamalı: uygulama nedir, neden var, kim kullanır, kim neye yetkili, hangi tablolar ve sistemler etkilenir, geri alınabilir mi, insan onayı gerekir mi… Bugün hiç görmediği uygulamalarda 2'sini güvenilir, 14'ünü kısmen cevaplıyor. Hedef <strong>%90'ın üstünde doğruluk ve sıfır "kesin" damgalı yanlış</strong>.</p>
+</section>
+
+<section id="yol">
+  <h2>Yol haritası</h2>
+  <table class="yol">
+    <tr><td>Kodu okuma, harita, Benlik Kartı, MCP, Ayna</td><td><b class="v">Yayında</b></td></tr>
+    <tr><td>Test kopyasında yazma, onay kuyruğu, kimlik aktarımı, veri defteri</td><td><b class="v">Büyük ölçüde var</b></td></tr>
+    <tr><td>Birden çok uygulamayı tek bağlantıda toplayan santral</td><td><b class="v">Var</b></td></tr>
+    <tr><td>Arayüz: ekranlar ve her düğmenin başlattığı işlem</td><td><b class="z">Başlangıç</b></td></tr>
+    <tr><td>İç kod: API'si olmayan fonksiyonları yalıtılmış çağırma</td><td><b class="y">Yok</b></td></tr>
+    <tr><td>1.0: bağımsız güvenlik denetimi, gerçek veride yazma</td><td><b class="k">Yolda</b></td></tr>
+    <tr><td>Benliğin ötesi: komut satırı, işletim sistemi, kaynaksız programlar</td><td><b class="y">1.0'dan sonra</b></td></tr>
+  </table>
+</section>
+
+<section class="son">
+  <h2>Dene</h2>
+  <pre><code>cd uygulamanin/klasoru
+sezgi init
+sezgi bagla</code></pre>
+  <p class="aciklama">Hazır dosyalar: Windows, macOS (Apple Silicon ve Intel), Linux (x64, ARM). <a href="https://github.com/atabaykut/Sezgi/releases/latest">Son sürüm</a> · <a href="https://github.com/atabaykut/Sezgi/blob/main/README.tr.md">Kurulum ve komutlar</a></p>
+</section>
+</main>
+
+<footer>Sezgi · Apache-2.0 · <a href="https://github.com/atabaykut/Sezgi">github.com/atabaykut/Sezgi</a></footer>
+</body>
+</html>

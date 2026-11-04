@@ -1,0 +1,75 @@
+:root {
+  --zemin: #fbfaf7; --yuzey: #ffffff; --metin: #1c1b19; --soluk: #5d5a53; --cizgi: #e4e0d6;
+  --vurgu: #3b4cca; --vurgu-metin: #ffffff;
+  --var: #1d7a46; --var-zemin: #e3f3ea; --kismen: #8a5a00; --kismen-zemin: #fbf0d9;
+  --zayif: #a33b2b; --zayif-zemin: #f8e4e0; --yok: #5d5a53; --yok-zemin: #ecebe7;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --zemin: #141413; --yuzey: #1d1c1a; --metin: #ecebe7; --soluk: #a7a39a; --cizgi: #34322e;
+    --vurgu: #8b98ff; --vurgu-metin: #141413;
+    --var: #6fd39b; --var-zemin: #17301f; --kismen: #f0c36b; --kismen-zemin: #33280f;
+    --zayif: #f19a8b; --zayif-zemin: #3a1d18; --yok: #b8b4ab; --yok-zemin: #2a2926;
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--zemin); color: var(--metin);
+  font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+a { color: var(--vurgu); }
+code, pre { font-family: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace; font-size: .92em; }
+.ust {
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between;
+  max-width: 1080px; margin: 0 auto; padding: 18px 16px;
+}
+.logo { font-weight: 700; font-size: 1.2rem; color: var(--metin); text-decoration: none; letter-spacing: .02em; }
+.ust nav { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .95rem; }
+.ust nav a { color: var(--soluk); text-decoration: none; }
+.ust nav a:hover { color: var(--metin); }
+main { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+section { padding: 40px 0; border-top: 1px solid var(--cizgi); }
+section:first-child { border-top: 0; }
+h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); line-height: 1.1; margin: .2em 0 .4em; letter-spacing: -.02em; }
+h2 { font-size: 1.6rem; margin: 0 0 .6em; letter-spacing: -.01em; }
+h3 { font-size: 1.05rem; margin: 0 0 .35em; }
+.kahraman { padding-top: 32px; }
+.etiket { color: var(--soluk); margin: 0; }
+.giris { font-size: 1.2rem; max-width: 46em; margin: 0 0 1.4em; }
+.not { color: var(--soluk); font-size: .92rem; }
+.dugmeler { display: flex; flex-wrap: wrap; gap: 12px; }
+.dugme {
+  display: inline-block; padding: 11px 20px; border-radius: 8px; border: 1px solid var(--cizgi);
+  color: var(--metin); text-decoration: none; font-weight: 600; background: var(--yuzey);
+}
+.dugme.ana { background: var(--vurgu); color: var(--vurgu-metin); border-color: var(--vurgu); }
+.bant { padding: 28px 0; }
+.slogan { font-size: 1.3rem; font-style: italic; margin: 0; max-width: 40em; }
+.aciklama { max-width: 46em; }
+.iki, .izgara { display: grid; gap: 16px; margin: 1.2em 0; }
+.iki { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.izgara { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.kart { background: var(--yuzey); border: 1px solid var(--cizgi); border-radius: 12px; padding: 18px 20px; }
+.kart p { margin: .3em 0 0; }
+.dert { color: var(--soluk); font-size: .95rem; }
+.adimlar { padding-left: 1.3em; max-width: 46em; }
+.adimlar li { margin: .6em 0; }
+.parcalar {
+  list-style: none; padding: 0; margin: 1.2em 0; display: grid; gap: 8px 24px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+.parcalar li {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 8px 0; border-bottom: 1px dashed var(--cizgi);
+}
+b.v, b.k, b.z, b.y { font-size: .8rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; white-space: nowrap; }
+b.v { color: var(--var); background: var(--var-zemin); }
+b.k { color: var(--kismen); background: var(--kismen-zemin); }
+b.z { color: var(--zayif); background: var(--zayif-zemin); }
+b.y { color: var(--yok); background: var(--yok-zemin); }
+table.yol { border-collapse: collapse; width: 100%; max-width: 760px; }
+table.yol td { padding: 10px 8px; border-bottom: 1px solid var(--cizgi); vertical-align: top; }
+table.yol td:last-child { text-align: right; }
+pre { background: var(--yuzey); border: 1px solid var(--cizgi); border-radius: 10px; padding: 14px 16px; overflow-x: auto; max-width: 46em; }
+footer { max-width: 1080px; margin: 0 auto; padding: 28px 16px 40px; color: var(--soluk); font-size: .9rem; border-top: 1px solid var(--cizgi); }
